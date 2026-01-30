@@ -16,9 +16,9 @@
 
 If you discover a security vulnerability within this project, please report
 it by issuing a
-[pull request with a fix](https://github.com/kurone-kito/setup.debian/pulls)
+[pull request with a fix](https://github.com/kurone-kito/setup.ubuntu/pulls)
 or
-[opening an issue](https://github.com/kurone-kito/setup.debian/issues) with
+[opening an issue](https://github.com/kurone-kito/setup.ubuntu/issues) with
 the “security” label.
 
 Your contributions to improving the security of this project are greatly
