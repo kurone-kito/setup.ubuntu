@@ -2,6 +2,16 @@
 
 Dev environment preference for the Ubuntu Linux distribution.
 
+## Setup
+
+```sh
+./setup
+```
+
+## Installation apps
+
+the script is no operation yet.
+
 ## See also
 
 - [dotfiles](https://github.com/kurone-kito/dotfiles)
