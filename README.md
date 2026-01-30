@@ -1,25 +1,37 @@
-# ⚙️ Ubuntu for Raspberry Pi auto setup
+# 📄 Generic repository template
 
-Desktop environment preference for the Ubuntu for Raspberry Pi
+[![Linting](https://github.com/kurone-kito/setup.debian/actions/workflows/lint.yml/badge.svg)](https://github.com/kurone-kito/setup.debian/actions/workflows/lint.yml)
 
-## Usage
+## Features
 
-## Details
+- CI/CD
+  - [CodeRabbit](https://www.coderabbit.ai/)
+  - [ImgBot](https://imgbot.net/)
+  - Linting on GitHub Actions
+  - Stale issues and pull requests management on GitHub Actions
+- Documents for GitHub
+- Git attributes
+- Linters
+  - [CSpell](https://cspell.org/)
+  - [EditorConfig](https://editorconfig.org/)
+  - [MarkdownLint](https://github.com/DavidAnson/markdownlint)
+- Visual Studio Code integration
 
-- run the `apt update` and `apt dist-upgrade` commands
-  - on playground, includes reinstall the Parallels Guest Tools when post upgraded
-- install the Ubuntu upgrade tool
-  - Skip it on playground because the Parallels Guest Tools installation will fail.
-- install the Ubuntu Desktop and some tools
+## Using this template
 
-## Playground
-
-The project has a virtual environment using the Vagrant with the Parallels.
-
-```sh
-vagrant up
-```
+1. Click "Use this template" on GitHub to create your repository.
+2. Replace the LICENSE file if you prefer a different license.
+3. Review workflows under `.github/workflows` and adjust them to your needs.
+4. Customize the configuration files:
+   - `.editorconfig` sets editor rules.
+   - `.gitattributes` manages export rules.
+   - `.imgbotconfig` controls image optimization.
+   - `.markdownlint.yml` and `.markdownlint-cli2.yaml` define Markdown lint rules.
+   - `cspell.config.yml` configures spell checking.
+   - `.coderabbit.yaml` contains CodeRabbit settings.
+   - `.vscode/` provides recommended settings for VS Code.
+5. Update documents in `.github/` such as CONTRIBUTING.md to match your policies.
 
 ## License
 
-MIT
+[MIT](./LICENSE)
