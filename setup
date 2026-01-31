@@ -9,16 +9,34 @@ OS="$(uname -s)"
 
 if ! (command -v apt-get >/dev/null 2>&1)
 then
-	echo "Unsupported OS: ${OS}" >&2
-	exit 1
+  USE_VIRTUAL=1
+else
+  USE_VIRTUAL=0
 fi
 
-. /etc/os-release
-
-if [ "${ID}" != "ubuntu" ]
+if [ -e "/etc/os-release" ]
 then
-  echo "Unsupported Debian based OS: ${OS}" >&2
-  exit 1
+  . /etc/os-release
+  if [ "${ID}" != "ubuntu" ]
+  then
+    USE_VIRTUAL=1
+  fi
 fi
+
+while getopts 'v' opt
+do
+  case "$opt" in
+    v) USE_VIRTUAL=1 ;;
+    *) echo "Usage: $0 [-v]" >&2; exit 1 ;;
+  esac
+done
+
+if [ "$USE_VIRTUAL" -eq 1 ]
+then
+  echo "Mode: virtual environment (Multipass via Terraform) -- not yet implemented"
+  exit 0
+fi
+
+echo "Mode: real environment -- not yet implemented"
 
 echo done.
