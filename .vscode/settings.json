@@ -4,15 +4,30 @@
   "explorer.fileNesting.patterns": {
     "*.md": "${capture}.*.md",
     ".gitattributes": ".gitignore",
-    ".markdownlint.*": ".markdownlint-cli2.*"
+    ".markdownlint.*": ".markdownlint-cli2.*",
+    "main.tf": ".terraform.lock.hcl,.terraform.tfstate.lock.info,terraform.tfstate,terraform.tfstate.backup"
   },
   "files.associations": {
+    "*.tfstate": "json",
+    "*.tfstate.lock.info": "json",
     ".imgbotconfig": "json",
     "LICENSE": "plaintext"
+  },
+  "files.readonlyInclude": {
+    "**/.terraform/**": true
+  },
+  "files.watcherExclude": {
+    "**/*.tfstate*": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.terraform/**": true
   },
   "git.branchProtection": ["main"],
   "material-icon-theme.files.associations": {
     ".imgbotconfig": "robots"
+  },
+  "search.exclude": {
+    "**/.terraform/**": true
   },
   "yaml.schemas": {
     "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json": "cspell.config.yml",

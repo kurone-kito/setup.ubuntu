@@ -14,6 +14,10 @@ the script is no operation yet.
 
 ## Test (Run on VM)
 
+Required a tool:
+
+- [Terraform](https://www.terraform.io/)
+
 ```sh
 ./setup -v
 

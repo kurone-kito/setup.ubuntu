@@ -6,6 +6,7 @@ dictionaries:
   - markdown
   - misc
   - softwareTerms
+  - terraform
 enableGlobDot: true
 features:
   weighted-suggestions: true
@@ -14,6 +15,7 @@ ignorePaths:
   - .*ignore
   - .git
   - .github/CODE_OF_CONDUCT.*
+  - .terraform.lock.hcl
   - .vscode/extensions.json
   - cspell.config.yml
 language: en,ja

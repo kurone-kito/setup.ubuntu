@@ -5,4 +5,11 @@
 set -eu
 cd "$(cd "$(dirname "$0")"; pwd)/.."
 
-echo "Mode: virtual environment (Multipass via Terraform) -- not yet implemented"
+if ! command -v terraform >/dev/null 2>&1
+then
+  echo "Error: terraform command not found" >&2
+  exit 1
+fi
+
+terraform init
+terraform apply -auto-approve
