@@ -33,7 +33,7 @@ done
 
 if [ "$USE_VIRTUAL" -eq 1 ]
 then
-  echo "Mode: virtual environment (Multipass via Terraform) -- not yet implemented"
+  lib/virtual.sh
   exit 0
 fi
 
