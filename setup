@@ -5,4 +5,20 @@
 set -eu
 cd "$(cd "$(dirname "$0")"; pwd)"
 
+OS="$(uname -s)"
+
+if ! (command -v apt-get >/dev/null 2>&1)
+then
+	echo "Unsupported OS: ${OS}" >&2
+	exit 1
+fi
+
+. /etc/os-release
+
+if [ "${ID}" != "ubuntu" ]
+then
+  echo "Unsupported Debian based OS: ${OS}" >&2
+  exit 1
+fi
+
 echo done.
