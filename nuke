@@ -1,0 +1,10 @@
+#!/bin/sh
+# -*- mode: sh -*-
+# vim: set ft=sh :
+
+set -eu
+
+if command -v terraform >/dev/null 2>&1
+then
+  terraform destroy -auto-approve || true
+fi

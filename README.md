@@ -29,6 +29,12 @@ Alternatively, if you run the setup outside an Ubuntu environment, it'll
 automatically treat the `-v` option as specified and run the setup within a
 VM environment.
 
+### Destroy the VM
+
+```sh
+./nuke
+```
+
 ## See also
 
 - [dotfiles](https://github.com/kurone-kito/dotfiles)
