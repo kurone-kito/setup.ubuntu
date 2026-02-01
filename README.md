@@ -14,8 +14,9 @@ the script is no operation yet.
 
 ## Test (Run on VM)
 
-Required a tool:
+Required some tools:
 
+- [Multipass](https://multipass.run/)
 - [Terraform](https://www.terraform.io/)
 
 ```sh
