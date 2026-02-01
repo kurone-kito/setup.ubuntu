@@ -7,4 +7,5 @@ set -eu
 if command -v terraform >/dev/null 2>&1
 then
   terraform destroy -auto-approve || true
+  multipass delete -p setup-ubuntu || true
 fi
