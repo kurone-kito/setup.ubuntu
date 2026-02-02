@@ -1,8 +1,10 @@
 provider "multipass" {}
 
 resource "multipass_instance" "build" {
-  cpus = 4
-  name = "setup-ubuntu"
+  cloudinit_file = "${path.module}/cloud-init.yml"
+  cpus           = 4
+  disk           = "10G"
+  name           = "setup-ubuntu"
 }
 
 terraform {

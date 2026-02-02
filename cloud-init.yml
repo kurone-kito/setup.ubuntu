@@ -1,0 +1,34 @@
+#cloud-config
+package_reboot_if_required: true
+package_update: true
+package_upgrade: true
+write_files:
+  - path: /etc/apt/preferences.d/999-hold-kernel.pref
+    content: |
+      Package: linux-generic*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-headers*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-image*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-modules*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-modules-extra*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-tools*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-virtual*
+      Pin: release a=*
+      Pin-Priority: -1
