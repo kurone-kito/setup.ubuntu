@@ -4,6 +4,7 @@
 
 set -eu
 
+rm -f setup-ubuntu.tar
 if command -v terraform >/dev/null 2>&1
 then
   terraform destroy -auto-approve || true

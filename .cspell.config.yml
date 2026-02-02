@@ -1,5 +1,6 @@
 allowCompoundWords: true
 dictionaries:
+  - cpp-compound-words
   - en_US
   - en-gb
   - git

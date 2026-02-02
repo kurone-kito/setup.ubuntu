@@ -32,5 +32,7 @@ write_files:
       Package: linux-virtual*
       Pin: release a=*
       Pin-Priority: -1
+  - path: /etc/skel/.local/src/.gitkeep
+    content: ''
   - path: /etc/skel/.sudo_as_admin_successful
     content: ''
