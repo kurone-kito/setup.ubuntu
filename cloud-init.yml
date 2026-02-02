@@ -32,7 +32,30 @@ write_files:
       Package: linux-virtual*
       Pin: release a=*
       Pin-Priority: -1
-  - path: /etc/skel/.local/src/.gitkeep
+  - path: /etc/skel/.local/src/setup-ubuntu/.gitkeep
     content: ''
   - path: /etc/skel/.sudo_as_admin_successful
     content: ''
+  - path: /usr/local/bin/setup-ubuntu
+    permissions: '0755'
+    content: |
+      #!/bin/sh
+      set -eu
+
+      TAR='setup-ubuntu.tar'
+      TARPATH="${HOME}/.local/src/${TAR}"
+      DEPLOYED="${HOME}/.local/src/setup-ubuntu"
+
+      if [ -f "${TARPATH}" ]
+      then
+        tar -xvf "${TARPATH}" -C "${DEPLOYED}"
+        rm "${TARPATH}"
+      fi
+
+      if [ ! -e "${DEPLOYED}/setup" ]
+      then
+        echo "Error: ${DEPLOYED}/setup does not exist." >&2
+        exit 1
+      fi
+
+      "${DEPLOYED}/setup"

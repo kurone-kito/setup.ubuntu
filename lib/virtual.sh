@@ -22,3 +22,4 @@ multipass start "${VM}"
 
 tar --format ustar -cvf "${VM}.tar" lib/* setup
 multipass transfer "${VM}.tar" "${VM}:.local/src/setup-ubuntu.tar"
+multipass exec "${VM}" -- /usr/local/bin/setup-ubuntu
