@@ -13,3 +13,9 @@ fi
 
 terraform init
 terraform apply -auto-approve
+
+VM='setup-ubuntu'
+multipass stop "${VM}"
+multipass snapshot -n vanilla "${VM}" || true
+multipass restore -d "${VM}.vanilla"
+multipass start "${VM}"
