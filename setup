@@ -37,6 +37,6 @@ then
   exit 0
 fi
 
-echo "Mode: real environment -- not yet implemented"
+lib/teardown.sh
 
 echo done.
