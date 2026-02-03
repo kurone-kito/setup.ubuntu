@@ -5,4 +5,5 @@
 set -eu
 cd "$(cd "$(dirname "$0")"; pwd)/.."
 
-echo "Mode: real environment -- not yet implemented"
+sudo apt-get update
+sudo apt-get upgrade -y

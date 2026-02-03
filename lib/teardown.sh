@@ -4,3 +4,6 @@
 
 set -eu
 cd "$(cd "$(dirname "$0")"; pwd)/.."
+
+sudo apt-get autoremove -y
+sudo apt-get clean

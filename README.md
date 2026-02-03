@@ -10,7 +10,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ## Installation apps
 
-the script is no operation yet.
+- upgrade to apt packages
 
 ## Test (Run on VM)
 
