@@ -20,6 +20,6 @@ multipass snapshot -n vanilla "${VM}" || true
 multipass restore -d "${VM}.vanilla"
 multipass start "${VM}"
 
-tar --format ustar -cvf "${VM}.tar" cloud-init.yml lib/* setup
+tar --format ustar -cvf "${VM}.tar" cloud-init.yml etc/**/* lib/* setup
 multipass transfer "${VM}.tar" "${VM}:.local/src/setup-ubuntu.tar"
 multipass exec "${VM}" -- /usr/local/bin/setup-ubuntu

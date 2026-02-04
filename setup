@@ -39,5 +39,6 @@ fi
 
 lib/base-install.sh
 lib/teardown.sh
+lib/locale.sh
 
 echo done.

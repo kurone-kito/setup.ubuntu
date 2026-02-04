@@ -1,4 +1,8 @@
 #cloud-config
+keyboard:
+  layout: jp
+  model: jp106
+locale: ja_JP.UTF-8
 package_reboot_if_required: true
 package_update: true
 package_upgrade: true
@@ -11,6 +15,7 @@ packages:
 
   # Text converters
   - yq
+timezone: Asia/Tokyo
 write_files:
   - path: /etc/apt/preferences.d/999-hold-kernel.pref
     content: |
