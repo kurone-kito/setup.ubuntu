@@ -10,6 +10,13 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ## Installation apps
 
+### Download tools
+
+- ca-certificates
+- [curl](https://curl.se)
+- httpie
+- [GNU wget](https://www.gnu.org/software/wget/)
+
 ### Hardware
 
 - keyboard-configuration
