@@ -10,6 +10,12 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ## Installation apps
 
+### Text converters
+
+- [yq](https://mikefarah.gitbook.io/yq)
+
+### Others
+
 - upgrade to apt packages
 
 ## Test (Run on VM)
