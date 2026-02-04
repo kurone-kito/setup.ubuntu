@@ -18,6 +18,13 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 - language-pack-ja
 
+### Package manager
+
+- apt-file
+- apt-transport-https
+- apt-utils
+- software-properties-common
+
 ### Text converters
 
 - [yq](https://mikefarah.gitbook.io/yq)
