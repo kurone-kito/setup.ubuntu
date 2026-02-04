@@ -3,6 +3,12 @@ package_reboot_if_required: true
 package_update: true
 package_upgrade: true
 packages:
+  # Hardware
+  - keyboard-configuration
+
+  # Locales
+  - language-pack-ja
+
   # Text converters
   - yq
 write_files:

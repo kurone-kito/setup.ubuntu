@@ -10,6 +10,14 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ## Installation apps
 
+### Hardware
+
+- keyboard-configuration
+
+### Locales
+
+- language-pack-ja
+
 ### Text converters
 
 - [yq](https://mikefarah.gitbook.io/yq)
