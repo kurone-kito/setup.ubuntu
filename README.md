@@ -37,6 +37,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 - apt-utils
 - software-properties-common
 
+### SCM tools
+
+- [Git](https://git-scm.com/)
+
 ### Text converters
 
 - [yq](https://mikefarah.gitbook.io/yq)

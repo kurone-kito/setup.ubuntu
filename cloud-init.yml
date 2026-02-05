@@ -29,6 +29,9 @@ packages:
   - apt-utils
   - software-properties-common
 
+  # SCM tools
+  - git
+
   # Text converters
   - yq
 timezone: Asia/Tokyo
