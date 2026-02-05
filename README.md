@@ -40,6 +40,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - apt-file
 - apt-transport-https
 - apt-utils
+- [Homebrew](https://brew.sh/)
 - software-properties-common
 
 ### SCM tools

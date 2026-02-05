@@ -20,14 +20,16 @@
     "**/*.tfstate*": true,
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
-    "**/.terraform/**": true
+    "**/.terraform/**": true,
+    "**/Brewfile.lock.json": true
   },
   "git.branchProtection": ["main"],
   "material-icon-theme.files.associations": {
     ".imgbotconfig": "robots"
   },
   "search.exclude": {
-    "**/.terraform/**": true
+    "**/.terraform/**": true,
+    "**/Brewfile.lock.json": true
   },
   "yaml.schemas": {
     "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json": "cspell.config.yml",

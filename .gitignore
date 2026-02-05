@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/archives,linux,macos,terraform,vim,visualstudiocode,windows
-# Edit at https://www.toptal.com/developers/gitignore?templates=archives,linux,macos,terraform,vim,visualstudiocode,windows
+# Created by https://www.toptal.com/developers/gitignore/api/archives,homebrew,linux,macos,terraform,vim,visualstudiocode,windows
+# Edit at https://www.toptal.com/developers/gitignore?templates=archives,homebrew,linux,macos,terraform,vim,visualstudiocode,windows
 
 ### Archives ###
 # It's better to unpack these files and commit the raw source because
@@ -34,6 +34,9 @@
 *.msm
 *.msp
 *.txz
+
+### Homebrew ###
+Brewfile.lock.json
 
 ### Linux ###
 *~
@@ -180,4 +183,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/archives,linux,macos,terraform,vim,visualstudiocode,windows
+# End of https://www.toptal.com/developers/gitignore/api/archives,homebrew,linux,macos,terraform,vim,visualstudiocode,windows

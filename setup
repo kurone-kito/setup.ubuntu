@@ -38,6 +38,7 @@ then
 fi
 
 lib/base-install.sh
+lib/homebrew.sh
 lib/teardown.sh
 lib/locale.sh
 
