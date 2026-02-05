@@ -11,6 +11,10 @@ packages:
   - gnupg
   - pinentry-curses
 
+  # Development tools
+  - build-essential
+  - gcc
+
   # Download tools
   - ca-certificates
   - curl

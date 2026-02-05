@@ -15,6 +15,11 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
 - pinentry-curses
 
+### Development tools
+
+- build-essential
+- [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
+
 ### Download tools
 
 - ca-certificates
