@@ -7,6 +7,10 @@ package_reboot_if_required: true
 package_update: true
 package_upgrade: true
 packages:
+  # Cryptography
+  - gnupg
+  - pinentry-curses
+
   # Download tools
   - ca-certificates
   - curl

@@ -10,6 +10,11 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ## Installation apps
 
+### Cryptography
+
+- [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
+- pinentry-curses
+
 ### Download tools
 
 - ca-certificates
