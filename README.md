@@ -30,6 +30,15 @@ Dev environment preference for the Ubuntu Linux distribution.
 - httpie
 - [GNU wget](https://www.gnu.org/software/wget/)
 
+### Files management
+
+- [bat](https://github.com/sharkdp/bat)
+- eza
+- fd
+- [fzf](https://github.com/junegunn/fzf)
+- [rename](http://plasmasturm.org/code/rename/)
+- zoxide
+
 ### Hardware
 
 - keyboard-configuration

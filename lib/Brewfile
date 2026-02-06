@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
 
+# Files management
+brew 'fd'
+
 # SCM tools
 brew 'ghq'
 brew 'gti'

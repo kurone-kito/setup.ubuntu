@@ -24,6 +24,13 @@ packages:
   - httpie
   - wget
 
+  # Files management
+  - bat
+  - eza
+  - fzf
+  - rename
+  - zoxide
+
   # Hardware
   - keyboard-configuration
 
