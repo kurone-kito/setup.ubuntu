@@ -1,2 +1,9 @@
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
+
+# SCM tools
+brew 'ghq'
+brew 'gti'
+brew 'jj'
+brew 'lazygit'
+brew 'lazyjj'

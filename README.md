@@ -48,7 +48,16 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### SCM tools
 
+- [ghq](https://github.com/x-motemen/ghq)
+- [GitHub CLI](https://cli.github.com/)
+- [Gist](http://defunkt.io/gist/)
 - [Git](https://git-scm.com/)
+- [git-delta: A viewer for git and diff output](https://github.com/dandavison/delta)
+- [Git Large File Storage](https://git-lfs.github.com/)
+- [gti](https://r-wos.org/hacks/gti)
+- [Jujutsu](https://jj-vcs.dev/)
+- [lazygit](https://github.com/jesseduffield/lazygit)
+- [Apache Subversion](https://subversion.apache.org/)
 
 ### Text converters
 

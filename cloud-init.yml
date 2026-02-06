@@ -37,7 +37,12 @@ packages:
   - software-properties-common
 
   # SCM tools
+  - gh
+  - gist
   - git
+  - git-delta
+  - git-lfs
+  - subversion
 
   # Text converters
   - yq
