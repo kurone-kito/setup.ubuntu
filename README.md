@@ -10,6 +10,14 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ## Installation apps
 
+### Archive tools
+
+- bzip2
+- [p7zip](https://sourceforge.net/projects/p7zip/)
+- unzip
+- xz-utils
+- zip
+
 ### Cryptography
 
 - [GnuPG: The GNU Privacy Guard](https://gnupg.org/)

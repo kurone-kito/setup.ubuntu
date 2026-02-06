@@ -7,6 +7,13 @@ package_reboot_if_required: true
 package_update: true
 package_upgrade: true
 packages:
+  # Archive tools
+  - bzip2
+  - p7zip
+  - unzip
+  - xz-utils
+  - zip
+
   # Cryptography
   - gnupg
   - pinentry-curses
