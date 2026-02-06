@@ -13,7 +13,10 @@ packages:
 
   # Development tools
   - build-essential
+  - cargo
+  - cmake
   - gcc
+  - make
 
   # Download tools
   - ca-certificates

@@ -18,7 +18,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 ### Development tools
 
 - build-essential
+- cargo
+- [CMake](https://cmake.org)
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
+- make
 
 ### Download tools
 
