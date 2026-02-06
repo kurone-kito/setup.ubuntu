@@ -14,4 +14,5 @@ then
 fi
 
 brew update
+brew bundle --file=lib/Brewfile
 brew upgrade
