@@ -18,6 +18,12 @@ Dev environment preference for the Ubuntu Linux distribution.
 - xz-utils
 - zip
 
+### Benchmark tools
+
+- [htop](https://htop.dev)
+- hyfetch
+- hyperfine
+
 ### Cryptography
 
 - [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
