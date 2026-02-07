@@ -64,6 +64,11 @@ packages:
   - subversion
 
   # Text converters
+  - cloc
+  - groff
+  - jc
+  - jq
+  - ripgrep
   - yq
 timezone: Asia/Tokyo
 write_files:

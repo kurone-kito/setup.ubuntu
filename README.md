@@ -84,6 +84,11 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Text converters
 
+- [cloc](https://github.com/AlDanial/cloc)
+- [groff](https://www.gnu.org/software/groff/)
+- [jc](https://kellyjonbrazil.github.io/jc/)
+- [jq](https://stedolan.github.io/jq/)
+- ripgrep
 - [yq](https://mikefarah.gitbook.io/yq)
 
 ### Others
