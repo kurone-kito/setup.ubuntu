@@ -63,6 +63,12 @@ packages:
   - git-lfs
   - subversion
 
+  # Text browsing tools
+  - links2
+  - mdp
+  - tealdeer
+  - w3m
+
   # Text converters
   - cloc
   - groff

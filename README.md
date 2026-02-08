@@ -82,6 +82,13 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [lazygit](https://github.com/jesseduffield/lazygit)
 - [Apache Subversion](https://subversion.apache.org/)
 
+### Text browsing tools
+
+- links2
+- [mdp](https://github.com/visit1985/mdp)
+- tealdeer
+- w3m
+
 ### Text converters
 
 - [cloc](https://github.com/AlDanial/cloc)
