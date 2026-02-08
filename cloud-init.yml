@@ -76,6 +76,11 @@ packages:
   - jq
   - ripgrep
   - yq
+
+  # Texts editors
+  - nano
+  - neovim
+  - vim
 timezone: Asia/Tokyo
 write_files:
   - path: /etc/apt/preferences.d/999-hold-kernel.pref

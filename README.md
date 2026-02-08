@@ -95,8 +95,14 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [groff](https://www.gnu.org/software/groff/)
 - [jc](https://kellyjonbrazil.github.io/jc/)
 - [jq](https://stedolan.github.io/jq/)
-- ripgrep
+- [ripgrep](https://github.com/BurntSushi/ripgrep)
 - [yq](https://mikefarah.gitbook.io/yq)
+
+### Texts editors
+
+- [GNU Nano](https://www.nano-editor.org)
+- [Neovim](https://neovim.io/)
+- [Vim](https://www.vim.org/)
 
 ### Others
 
