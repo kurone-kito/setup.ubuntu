@@ -29,6 +29,11 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
 - pinentry-curses
 
+### Database
+
+- [SQLite](https://www.sqlite.org/)
+- [Taskwarrior](https://taskwarrior.org/)
+
 ### Development tools
 
 - build-essential

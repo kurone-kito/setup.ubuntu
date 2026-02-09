@@ -23,6 +23,9 @@ packages:
   - gnupg
   - pinentry-curses
 
+  # Database
+  - sqlite3
+
   # Development tools
   - build-essential
   - cargo

@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
 
+# Database tools
+brew 'task'
+
 # Files management
 brew 'fd'
 
