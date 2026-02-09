@@ -23,6 +23,7 @@ language: en,ja
 useGitignore: true
 version: '0.2'
 words:
+  - byobu
   - hyfetch
   - imgbotconfig
   - kito
@@ -31,6 +32,7 @@ words:
   - kuroné
   - larstobi
   - lazyjj
+  - nyancat
   - xkblayout
   - xkbmodel
   - xkboptions

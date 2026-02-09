@@ -49,6 +49,10 @@ packages:
   # Hardware
   - keyboard-configuration
 
+  # Jokes
+  - nyancat
+  - sl
+
   # Locales
   - language-pack-ja
 
@@ -94,6 +98,10 @@ packages:
   - nano
   - neovim
   - vim
+
+  # TUI
+  - byobu
+  - tmux
 timezone: Asia/Tokyo
 write_files:
   - path: /etc/apt/preferences.d/999-hold-kernel.pref

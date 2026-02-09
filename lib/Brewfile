@@ -13,3 +13,6 @@ brew 'gti'
 brew 'jj'
 brew 'lazygit'
 brew 'lazyjj'
+
+# TUI
+brew 'zellij'

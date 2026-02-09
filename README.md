@@ -62,6 +62,11 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 - keyboard-configuration
 
+### Jokes
+
+- [Nyancat CLI](http://nyancat.dakko.us/)
+- [sl](https://github.com/mtoyoda/sl)
+
 ### Locales
 
 - language-pack-ja
@@ -119,6 +124,12 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [GNU Nano](https://www.nano-editor.org)
 - [Neovim](https://neovim.io/)
 - [Vim](https://www.vim.org/)
+
+### TUI
+
+- [byobu](https://www.byobu.org/)
+- [tmux](https://github.com/tmux/tmux)
+- [zellij](https://zellij.dev)
 
 ### Others
 
