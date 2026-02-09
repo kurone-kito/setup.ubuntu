@@ -63,6 +63,16 @@ packages:
   - git-lfs
   - subversion
 
+  # Shell utilities
+  - bash-completion
+  - rebound
+  - shellcheck
+  - sudo-rs
+  - thefuck
+  - yank
+  - zsh
+  - zsh-theme-powerlevel9k
+
   # Text browsing tools
   - links2
   - mdp

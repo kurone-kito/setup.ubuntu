@@ -82,6 +82,17 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [lazygit](https://github.com/jesseduffield/lazygit)
 - [Apache Subversion](https://subversion.apache.org/)
 
+### Shell utilities
+
+- bash-completion
+- rebound
+- [shellcheck](https://www.shellcheck.net)
+- sudo-rs
+- [The Fuck](https://github.com/nvbn/thefuck)
+- yank
+- zsh
+- zsh-theme-powerlevel9k
+
 ### Text browsing tools
 
 - links2
