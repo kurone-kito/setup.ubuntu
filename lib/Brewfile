@@ -1,6 +1,9 @@
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
 
+# Configuration
+brew 'chezmoi'
+
 # Database tools
 brew 'task'
 

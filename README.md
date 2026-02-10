@@ -31,6 +31,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [ImageMagick](https://imagemagick.org/index.php)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 
+#### Configuration tools
+
+- [chezmoi](https://www.chezmoi.io/)
+
 ### Cryptography
 
 - [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
