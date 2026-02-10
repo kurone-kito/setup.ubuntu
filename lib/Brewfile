@@ -7,6 +7,9 @@ brew 'task'
 # Files management
 brew 'fd'
 
+# Remote
+brew 'awscli'
+
 # SCM tools
 brew 'ghq'
 brew 'gti'

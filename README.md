@@ -79,6 +79,16 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [Homebrew](https://brew.sh/)
 - software-properties-common
 
+### Remote tools
+
+- [awscli](https://aws.amazon.com/cli/)
+- [mkcert](https://mkcert.dev/)
+- mosh
+- OpenSSH Server & Client
+- OpenSSL
+- [OpenVPN](https://openvpn.net/)
+- [rsync](https://rsync.samba.org/)
+
 ### SCM tools
 
 - [ghq](https://github.com/x-motemen/ghq)

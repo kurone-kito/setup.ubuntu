@@ -62,6 +62,15 @@ packages:
   - apt-utils
   - software-properties-common
 
+  # Remote tools
+  - mkcert
+  - mosh
+  - openssh-client
+  - openssh-server
+  - openssl
+  - openvpn
+  - rsync
+
   # SCM tools
   - gh
   - gist
