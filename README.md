@@ -24,6 +24,13 @@ Dev environment preference for the Ubuntu Linux distribution.
 - hyfetch
 - hyperfine
 
+### Binary converters
+
+- [AtomicParsley](http://atomicparsley.sourceforge.net/)
+- [FFmpeg](https://www.ffmpeg.org/)
+- [ImageMagick](https://imagemagick.org/index.php)
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+
 ### Cryptography
 
 - [GnuPG: The GNU Privacy Guard](https://gnupg.org/)

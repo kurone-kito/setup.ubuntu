@@ -19,6 +19,12 @@ packages:
   - hyfetch
   - hyperfine
 
+  # Binary converters
+  - atomicparsley
+  - ffmpeg
+  - imagemagick
+  - yt-dlp
+
   # Cryptography
   - gnupg
   - pinentry-curses
