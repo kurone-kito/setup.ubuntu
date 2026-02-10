@@ -7,8 +7,15 @@ brew 'chezmoi'
 # Database tools
 brew 'task'
 
+# Development
+brew 'mise'
+brew 'python'
+
 # Files management
 brew 'fd'
+
+# Package management
+brew 'vrc-get'
 
 # Remote
 brew 'awscli'
