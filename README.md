@@ -71,6 +71,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [rename](http://plasmasturm.org/code/rename/)
 - zoxide
 
+#### Generative AI
+
+- [Ollama](https://ollama.com/)
+
 ### Hardware
 
 - keyboard-configuration
