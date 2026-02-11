@@ -159,6 +159,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [tmux](https://github.com/tmux/tmux)
 - [zellij](https://zellij.dev)
 
+#### Virtualizations
+
+- Docker community edition
+
 ### Others
 
 - upgrade to apt packages
