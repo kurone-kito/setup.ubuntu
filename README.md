@@ -123,6 +123,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 ### Shell utilities
 
 - bash-completion
+- [Microsoft PowerShell](https://microsoft.com/PowerShell)
 - rebound
 - [shellcheck](https://www.shellcheck.net)
 - sudo-rs
