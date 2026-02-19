@@ -1,6 +1,5 @@
-
-# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,vagrant,vim,visualstudiocode,windows
-# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,vagrant,vim,visualstudiocode,windows
+# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,vim,visualstudiocode,windows
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,vim,visualstudiocode,windows
 
 ### Linux ###
 *~
@@ -46,15 +45,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-### Vagrant ###
-# General
-.vagrant/
-
-# Log files (if you are creating logs in debug mode, uncomment this)
-*.log
-
-### Vagrant Patch ###
-*.box
+### macOS Patch ###
+# iCloud generated files
+*.icloud
 
 ### Vim ###
 # Swap
@@ -82,10 +75,13 @@ tags
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-*.code-workspace
+!.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
 .history/
+
+# Built Visual Studio Code Extensions
+*.vsix
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
@@ -118,4 +114,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,macos,vagrant,vim,visualstudiocode,windows
+# End of https://www.toptal.com/developers/gitignore/api/linux,macos,vim,visualstudiocode,windows
