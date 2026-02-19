@@ -40,4 +40,46 @@ sudo groupadd docker || true
 sudo usermod -aG docker "$USER"
 newgrp docker
 
+find_brew() {
+  if command -v brew >/dev/null 2>&1
+  then
+    command -v brew
+    return 0
+  fi
+  for p in \
+    /opt/homebrew/bin/brew \
+    /usr/local/bin/brew \
+    "${HOME}/.linuxbrew/bin/brew" \
+    /home/linuxbrew/.linuxbrew/bin/brew
+  do
+    [ -x "$p" ] && {
+      echo "$p"
+      return 0
+    }
+  done
+  return 1
+}
+
+if ! find_brew >/dev/null 2>&1
+then
+  NONINTERACTIVE=1 /bin/bash -c \
+    "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if [ -f "${HOME}/.bashrc" ]
+  then
+    echo "eval \"\$($(find_brew) shellenv)\"" >> "${HOME}/.bashrc"
+  fi
+fi
+if [ -f "${HOME}/.bashrc" ]
+then
+  # shellcheck disable=SC1091
+  . "${HOME}/.bashrc" || true
+fi
+eval "$("$(find_brew)" shellenv)"
+brew update
+if [ -f "${HOME}/.bashrc" ]
+then
+  # shellcheck disable=SC1091
+  . "${HOME}/.bashrc" || true
+fi
+
 echo done.
