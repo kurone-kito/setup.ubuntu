@@ -75,6 +75,10 @@ then
   . "${HOME}/.bashrc" || true
 fi
 eval "$("$(find_brew)" shellenv)"
+if [ -f Brewfile ]
+then
+  brew bundle --file=Brewfile
+fi
 brew update
 if [ -f "${HOME}/.bashrc" ]
 then
