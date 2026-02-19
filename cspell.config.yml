@@ -1,5 +1,7 @@
 allowCompoundWords: true
 dictionaries:
+  - cpp-compound-words
+  - docker
   - en_US
   - en-gb
   - git
@@ -24,3 +26,7 @@ words:
   - kito
   - kuron
   - kuroné
+  - nyancat
+  - ollama
+  - sshfs
+  - sylpheed
