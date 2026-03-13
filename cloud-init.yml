@@ -1,0 +1,177 @@
+#cloud-config
+keyboard:
+  layout: jp
+  model: jp106
+locale: ja_JP.UTF-8
+package_reboot_if_required: true
+package_update: true
+package_upgrade: true
+packages:
+  # Archive tools
+  - bzip2
+  - p7zip
+  - unzip
+  - xz-utils
+  - zip
+
+  # Benchmark tools
+  - htop
+  - hyfetch
+  - hyperfine
+
+  # Binary converters
+  - atomicparsley
+  - ffmpeg
+  - imagemagick
+  - yt-dlp
+
+  # Cryptography
+  - gnupg
+  - pinentry-curses
+
+  # Database
+  - sqlite3
+
+  # Development tools
+  - build-essential
+  - cargo
+  - cmake
+  - gcc
+  - make
+
+  # Download tools
+  - ca-certificates
+  - curl
+  - httpie
+  - wget
+
+  # Files management
+  - bat
+  - eza
+  - fzf
+  - rename
+  - zoxide
+
+  # Hardware
+  - keyboard-configuration
+
+  # Jokes
+  - nyancat
+  - sl
+
+  # Locales
+  - language-pack-ja
+
+  # Package manager
+  - apt-file
+  - apt-transport-https
+  - apt-utils
+  - software-properties-common
+
+  # Remote tools
+  - mkcert
+  - mosh
+  - openssh-client
+  - openssh-server
+  - openssl
+  - openvpn
+  - rsync
+
+  # SCM tools
+  - gh
+  - gist
+  - git
+  - git-delta
+  - git-lfs
+  - subversion
+
+  # Shell utilities
+  - bash-completion
+  - rebound
+  - shellcheck
+  - sudo-rs
+  - thefuck
+  - yank
+  - zsh
+  - zsh-theme-powerlevel9k
+
+  # Text browsing tools
+  - links2
+  - mdp
+  - tealdeer
+  - w3m
+
+  # Text converters
+  - cloc
+  - groff
+  - jc
+  - jq
+  - ripgrep
+  - yq
+
+  # Texts editors
+  - nano
+  - neovim
+  - vim
+
+  # TUI
+  - byobu
+  - tmux
+timezone: Asia/Tokyo
+write_files:
+  - path: /etc/apt/preferences.d/999-hold-kernel.pref
+    content: |
+      Package: linux-generic*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-headers*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-image*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-modules*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-modules-extra*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-tools*
+      Pin: release a=*
+      Pin-Priority: -1
+
+      Package: linux-virtual*
+      Pin: release a=*
+      Pin-Priority: -1
+  - path: /etc/skel/.local/src/setup-ubuntu/.gitkeep
+    content: ''
+  - path: /etc/skel/.sudo_as_admin_successful
+    content: ''
+  - path: /usr/local/bin/setup-ubuntu
+    permissions: '0755'
+    content: |
+      #!/bin/sh
+      set -eu
+
+      TAR='setup-ubuntu.tar'
+      TARPATH="${HOME}/.local/src/${TAR}"
+      DEPLOYED="${HOME}/.local/src/setup-ubuntu"
+
+      if [ -f "${TARPATH}" ]
+      then
+        tar -xvf "${TARPATH}" -C "${DEPLOYED}"
+        rm "${TARPATH}"
+      fi
+
+      if [ ! -e "${DEPLOYED}/setup" ]
+      then
+        echo "Error: ${DEPLOYED}/setup does not exist." >&2
+        exit 1
+      fi
+
+      "${DEPLOYED}/setup"

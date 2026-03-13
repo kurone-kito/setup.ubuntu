@@ -1,0 +1,41 @@
+allowCompoundWords: true
+dictionaries:
+  - cpp-compound-words
+  - docker
+  - en_US
+  - en-gb
+  - git
+  - markdown
+  - misc
+  - softwareTerms
+  - terraform
+enableGlobDot: true
+features:
+  weighted-suggestions: true
+globRoot: ${cwd}
+ignorePaths:
+  - .*ignore
+  - .git
+  - .github/CODE_OF_CONDUCT.*
+  - .terraform.lock.hcl
+  - .vscode/extensions.json
+  - cspell.config.yml
+language: en,ja
+useGitignore: true
+version: '0.2'
+words:
+  - byobu
+  - hyfetch
+  - imgbotconfig
+  - kito
+  - kislyuk
+  - kuron
+  - kuroné
+  - larstobi
+  - lazyjj
+  - nyancat
+  - ollama
+  - xkblayout
+  - xkbmodel
+  - xkboptions
+  - xkbvariant

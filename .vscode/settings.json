@@ -1,0 +1,38 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "*.md": "${capture}.*.md",
+    ".gitattributes": ".gitignore",
+    ".markdownlint.*": ".markdownlint-cli2.*",
+    "main.tf": ".terraform.lock.hcl,.terraform.tfstate.lock.info,terraform.tfstate,terraform.tfstate.backup"
+  },
+  "files.associations": {
+    "*.tfstate": "json",
+    "*.tfstate.lock.info": "json",
+    ".imgbotconfig": "json",
+    "LICENSE": "plaintext"
+  },
+  "files.readonlyInclude": {
+    "**/.terraform/**": true
+  },
+  "files.watcherExclude": {
+    "**/*.tfstate*": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.terraform/**": true,
+    "**/Brewfile.lock.json": true
+  },
+  "git.branchProtection": ["main"],
+  "material-icon-theme.files.associations": {
+    ".imgbotconfig": "robots"
+  },
+  "search.exclude": {
+    "**/.terraform/**": true,
+    "**/Brewfile.lock.json": true
+  },
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json": "cspell.config.yml",
+    "https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json": ".coderabbit.yaml"
+  }
+}

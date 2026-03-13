@@ -1,0 +1,34 @@
+# -*- mode: ruby -*-
+# vim: set ft=ruby :
+
+# Configuration
+brew 'chezmoi'
+
+# Database tools
+brew 'task'
+
+# Development
+brew 'mise'
+brew 'python'
+
+# Files management
+brew 'fd'
+
+# Generative AI
+brew 'ollama'
+
+# Package management
+brew 'vrc-get'
+
+# Remote
+brew 'awscli'
+
+# SCM tools
+brew 'ghq'
+brew 'gti'
+brew 'jj'
+brew 'lazygit'
+brew 'lazyjj'
+
+# TUI
+brew 'zellij'

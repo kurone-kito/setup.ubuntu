@@ -1,0 +1,47 @@
+#!/bin/sh
+# -*- mode: sh -*-
+# vim: set ft=sh :
+
+set -eu
+cd "$(cd "$(dirname "$0")"; pwd)"
+
+OS="$(uname -s)"
+
+if ! (command -v apt-get >/dev/null 2>&1)
+then
+  USE_VIRTUAL=1
+else
+  USE_VIRTUAL=0
+fi
+
+if [ -e "/etc/os-release" ]
+then
+  . /etc/os-release
+  if [ "${ID}" != "ubuntu" ]
+  then
+    USE_VIRTUAL=1
+  fi
+fi
+
+while getopts 'v' opt
+do
+  case "$opt" in
+    v) USE_VIRTUAL=1 ;;
+    *) echo "Usage: $0 [-v]" >&2; exit 1 ;;
+  esac
+done
+
+if [ "$USE_VIRTUAL" -eq 1 ]
+then
+  lib/virtual.sh
+  exit 0
+fi
+
+lib/base-install.sh
+lib/homebrew.sh
+lib/docker.sh
+lib/pwsh.sh
+lib/teardown.sh
+lib/locale.sh
+
+echo done.
