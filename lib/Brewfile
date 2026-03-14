@@ -54,3 +54,9 @@ brew 'neovim'
 
 # TUI
 brew 'zellij'
+
+# Virtualization
+brew 'act'
+brew 'dive'
+brew 'k3sup'
+brew 'lazydocker'

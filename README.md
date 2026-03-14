@@ -173,7 +173,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 #### Virtualizations
 
+- [act](https://github.com/nektos/act)
+- [dive](https://github.com/wagoodman/dive)
 - [Docker community edition](https://www.docker.com/)
+- [lazydocker](https://github.com/jesseduffield/lazydocker)
 
 ### Others
 
