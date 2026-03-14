@@ -112,7 +112,6 @@ packages:
   - yq
 
   # Texts editors
-  - nano
   - vim
 
   # TUI

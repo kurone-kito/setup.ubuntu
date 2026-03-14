@@ -174,7 +174,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Texts editors
 
-- [GNU Nano](https://www.nano-editor.org)
+- (B) [Microsoft Edit](https://github.com/microsoft/edit)
 - **`.`** (B) [Neovim](https://neovim.io/)
 - **`.`** [Vim](https://www.vim.org/)
 
