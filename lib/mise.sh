@@ -18,3 +18,6 @@ mise install node@24
 mise install node@25
 mise install node@latest
 mise use -g node@latest
+
+mise install bitwarden@latest
+mise use -g bitwarden@latest
