@@ -111,7 +111,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [apt-transport-https](https://manpages.ubuntu.com/manpages/man1/apt-transport-https.1.html)
 - apt-utils
 - **`!`** [Homebrew](https://brew.sh/)
-- (B) [mise-en-place](https://mise.jdx.dev/)
+- **`!`** (B) [mise-en-place](https://mise.jdx.dev/)
 - **`!`** software-properties-common
 - **`.`** (B) [vrc-get](https://github.com/vrc-get/vrc-get)
 
