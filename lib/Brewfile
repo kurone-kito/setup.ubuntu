@@ -30,5 +30,8 @@ brew 'jj'
 brew 'lazygit'
 brew 'lazyjj'
 
+# Shell utilities
+brew 'powershell'
+
 # TUI
 brew 'zellij'
