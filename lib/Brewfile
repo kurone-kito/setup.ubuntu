@@ -46,6 +46,10 @@ brew 'starship'
 # Text browsing tools
 brew 'glow'
 
+# Text converters
+brew 'dprint'
+brew 'pkl'
+
 # Texts editors
 brew 'neovim'
 
