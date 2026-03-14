@@ -34,5 +34,8 @@ brew 'lazyjj'
 brew 'oh-my-posh'
 brew 'powershell'
 
+# Text converters
+brew 'pkl'
+
 # TUI
 brew 'zellij'
