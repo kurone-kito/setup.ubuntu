@@ -10,11 +10,12 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ## Installation apps
 
-|  note   | description                                                                                                                |
-| :-----: | :------------------------------------------------------------------------------------------------------------------------- |
-| **`!`** | **DEPENDENCIES**: Removing the apps may cause this setup to stop working correctly.                                        |
-| **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) dependencies**: They're required for the dotfiles to work correctly. |
-|   (B)   | The apps install via the [Homebrew](https://brew.sh/) package manager, so you can manage them with Homebrew.               |
+|  note   | description                                                                                                                 |
+| :-----: | :-------------------------------------------------------------------------------------------------------------------------- |
+| **`!`** | **DEPENDENCIES**: Removing the apps may cause this setup to stop working correctly.                                         |
+| **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) dependencies**: They're required for the dotfiles to work correctly.  |
+|   (B)   | The apps install via the [Homebrew](https://brew.sh/) package manager, so you can manage them with Homebrew.                |
+|   (M)   | The apps install via the [mise-en-place](https://mise.jdx.dev/) package manager, so you can manage them with Mise-en-place. |
 
 ### Archive tools
 
@@ -44,6 +45,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Configuration tools
 
+- **`.`** (M) [Bitwarden CLI](https://bitwarden.com/)
 - **`.`** (B) [chezmoi](https://www.chezmoi.io/)
 
 ### Cryptography
@@ -67,6 +69,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - (B) [direnv](https://direnv.net/)
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
 - [make](https://www.gnu.org/software/make/)
+- **`.`** (M) [Node.js](https://nodejs.org/)
 - (B) [python3](https://www.python.org/)
 - (B) [tree-sitter](https://tree-sitter.github.io/tree-sitter/)
 
