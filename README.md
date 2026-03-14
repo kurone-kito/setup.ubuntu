@@ -183,7 +183,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 #### Virtualizations
 
-- [Docker community edition](https://www.docker.com/)
+- (B) [act](https://github.com/nektos/act)
+- (B) [dive](https://github.com/wagoodman/dive)
+- (B) [Docker community edition](https://www.docker.com/)
+- (B) [lazydocker](https://github.com/jesseduffield/lazydocker)
 
 ### Others
 
