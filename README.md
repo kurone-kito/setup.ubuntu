@@ -162,9 +162,11 @@ Dev environment preference for the Ubuntu Linux distribution.
 ### Text converters
 
 - [cloc](https://github.com/AlDanial/cloc)
+- [dprint](https://dprint.dev/)
 - [groff](https://www.gnu.org/software/groff/)
 - [jc](https://kellyjonbrazil.github.io/jc/)
 - [jq](https://stedolan.github.io/jq/)
+- (B) [pkl](https://pkl-lang.org/)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
 - **`!`** [yq](https://mikefarah.gitbook.io/yq)
 
