@@ -51,6 +51,7 @@ brew 'dprint'
 brew 'pkl'
 
 # Texts editors
+brew 'msedit'
 brew 'neovim'
 
 # TUI
