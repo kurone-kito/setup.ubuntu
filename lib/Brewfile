@@ -37,5 +37,8 @@ brew 'powershell'
 # Text converters
 brew 'pkl'
 
+# Texts editors
+brew 'msedit'
+
 # TUI
 brew 'zellij'
