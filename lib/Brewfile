@@ -41,6 +41,7 @@ brew 'worktrunk'
 
 # Shell utilities
 brew 'powershell'
+brew 'starship'
 
 # Texts editors
 brew 'neovim'
