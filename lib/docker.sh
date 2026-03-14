@@ -23,9 +23,9 @@ Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
 sudo apt-get update
-sudo apt-get install -y --no-install-recommends containerd.io \
-  docker-buildx-plugin docker-ce docker-ce-cli docker-ce-rootless-extras \
-  docker-compose-plugin
+sudo DEBIAN_FRONTEND=noninteractive apt-get install \
+  --no-install-recommends -y -qq containerd.io docker-buildx-plugin \
+  docker-ce docker-ce-cli docker-ce-rootless-extras docker-compose-plugin
 
 sudo groupadd docker || true
 sudo usermod -aG docker "$USER"
