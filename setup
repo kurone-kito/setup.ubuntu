@@ -43,6 +43,7 @@ while true; do sleep 30; sudo -n true; kill -0 "$$" || exit; done 2>/dev/null &
 
 lib/base-install.sh
 lib/homebrew.sh
+lib/mise.sh
 lib/docker.sh
 lib/teardown.sh
 lib/locale.sh
