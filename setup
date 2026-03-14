@@ -40,7 +40,6 @@ fi
 lib/base-install.sh
 lib/homebrew.sh
 lib/docker.sh
-lib/pwsh.sh
 lib/teardown.sh
 lib/locale.sh
 
