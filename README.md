@@ -138,12 +138,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 - [bash-completion](https://github.com/scop/bash-completion)
 - [Microsoft PowerShell](https://microsoft.com/PowerShell)
-- [rebound](https://github.com/shobrook/rebound)
 - [shellcheck](https://www.shellcheck.net)
 - [sudo-rs](https://github.com/trifectatechfoundation/sudo-rs)
 - [The Fuck](https://github.com/nvbn/thefuck)
 - [zsh](https://www.zsh.org/)
-- [zsh-theme-powerlevel9k](https://github.com/powerlevel9k/powerlevel9k)
 
 ### Text browsing tools
 

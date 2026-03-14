@@ -93,12 +93,10 @@ packages:
 
   # Shell utilities
   - bash-completion
-  - rebound
   - shellcheck
   - sudo-rs
   - thefuck
   - zsh
-  - zsh-theme-powerlevel9k
 
   # Text browsing tools
   - links2
