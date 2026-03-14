@@ -42,3 +42,6 @@ brew 'msedit'
 
 # TUI
 brew 'zellij'
+
+# Virtualization
+brew 'k3sup'
