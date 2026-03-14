@@ -137,7 +137,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 ### Shell utilities
 
 - [bash-completion](https://github.com/scop/bash-completion)
-- **`.`** [Microsoft PowerShell](https://microsoft.com/PowerShell)
+- **`.`** (B) [Microsoft PowerShell](https://microsoft.com/PowerShell)
 - [rebound](https://github.com/shobrook/rebound)
 - [shellcheck](https://www.shellcheck.net)
 - [sudo-rs](https://github.com/trifectatechfoundation/sudo-rs)
