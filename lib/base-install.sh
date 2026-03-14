@@ -6,10 +6,10 @@ set -eu
 cd "$(cd "$(dirname "$0")"; pwd)/.."
 
 sudo apt-get update
-sudo apt-get upgrade -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 
-sudo apt-get install -y --no-install-recommends yq
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends yq
 
 # NOTE: The yq from apt is kislyuk/yq.
 mapfile -t packages < <(yq -r '.packages | sort | .[]' cloud-init.yml)
-sudo apt-get install -y --no-install-recommends "${packages[@]}"
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
