@@ -31,6 +31,7 @@ brew 'lazygit'
 brew 'lazyjj'
 
 # Shell utilities
+brew 'oh-my-posh'
 brew 'powershell'
 
 # TUI
