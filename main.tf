@@ -3,7 +3,7 @@ provider "multipass" {}
 resource "multipass_instance" "build" {
   cloudinit_file = "${path.module}/cloud-init.yml"
   cpus           = 4
-  disk           = "10G"
+  disk           = "12G"
   name           = "setup-ubuntu"
 }
 
