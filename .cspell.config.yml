@@ -20,6 +20,8 @@ ignorePaths:
   - .terraform.lock.hcl
   - .vscode/extensions.json
   - cspell.config.yml
+ignoreRegExpList:
+  - kuroné?
 language: en,ja
 useGitignore: true
 version: '0.2'
@@ -29,8 +31,6 @@ words:
   - imgbotconfig
   - kito
   - kislyuk
-  - kuron
-  - kuroné
   - larstobi
   - lazyjj
   - nyancat
