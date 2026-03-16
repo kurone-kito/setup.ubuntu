@@ -34,6 +34,7 @@ done
 if [ "$USE_VIRTUAL" -eq 1 ]
 then
   lib/virtual.sh
+  lib/deploy.sh
   exit 0
 fi
 
