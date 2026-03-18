@@ -17,6 +17,8 @@ brew 'tree-sitter'
 
 # Files management
 brew 'fd'
+brew 'watchexec'
+brew 'yazi'
 
 # Generative AI
 brew 'ollama'
