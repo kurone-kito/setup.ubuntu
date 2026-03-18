@@ -78,7 +78,11 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [eza](https://github.com/eza-community/eza)
 - [fd](https://github.com/sharkdp/fd)
 - [fzf](https://github.com/junegunn/fzf)
+- [lf](https://github.com/gokcehan/lf)
 - [rename](http://plasmasturm.org/code/rename/)
+- [trash-cli](https://github.com/andreafrancia/trash-cli)
+- [watchexec](https://github.com/watchexec/watchexec)
+- [yazi](https://yazi-rs.github.io/)
 - [zoxide](https://crates.io/crates/zoxide)
 
 #### Generative AI

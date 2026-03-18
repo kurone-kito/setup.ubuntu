@@ -52,8 +52,11 @@ packages:
   # Files management
   - bat
   - eza
+  - file
   - fzf
+  - lf
   - rename
+  - trash-cli
   - zoxide
 
   # Hardware
