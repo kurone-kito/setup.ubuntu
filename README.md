@@ -125,7 +125,6 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 - [ghq](https://github.com/x-motemen/ghq)
 - [GitHub CLI](https://cli.github.com/)
-- [Gist](http://defunkt.io/gist/)
 - [Git](https://git-scm.com/)
 - [git-delta: A viewer for git and diff output](https://github.com/dandavison/delta)
 - [Git Large File Storage](https://git-lfs.github.com/)
@@ -133,6 +132,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [Jujutsu](https://jj-vcs.dev/)
 - [lazygit](https://github.com/jesseduffield/lazygit)
 - [Apache Subversion](https://subversion.apache.org/)
+- [Worktrunk](https://worktrunk.dev/)
 
 ### Shell utilities
 

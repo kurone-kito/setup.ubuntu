@@ -36,6 +36,7 @@ brew 'gti'
 brew 'jj'
 brew 'lazygit'
 brew 'lazyjj'
+brew 'worktrunk'
 
 # Shell utilities
 brew 'powershell'
