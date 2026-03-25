@@ -85,7 +85,6 @@ packages:
 
   # SCM tools
   - gh
-  - gist
   - git
   - git-delta
   - git-lfs
