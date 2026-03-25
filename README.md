@@ -164,7 +164,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 ### Texts editors
 
 - [GNU Nano](https://www.nano-editor.org)
-- **`.`** [Neovim](https://neovim.io/)
+- **`.`** (B) [Neovim](https://neovim.io/)
 - **`.`** [Vim](https://www.vim.org/)
 
 ### TUI

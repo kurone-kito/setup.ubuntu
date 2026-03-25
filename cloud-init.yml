@@ -111,7 +111,6 @@ packages:
 
   # Texts editors
   - nano
-  - neovim
   - vim
 
   # TUI
