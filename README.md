@@ -145,6 +145,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Text browsing tools
 
+- [glow](https://github.com/charmbracelet/glow)
 - [links2](https://links.twibright.com/)
 - [mdp](https://github.com/visit1985/mdp)
 - [tealdeer](https://tealdeer-rs.github.io/tealdeer/)

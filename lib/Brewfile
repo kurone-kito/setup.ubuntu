@@ -42,6 +42,9 @@ brew 'worktrunk'
 brew 'powershell'
 brew 'starship'
 
+# Text browsing tools
+brew 'glow'
+
 # Texts editors
 brew 'neovim'
 
