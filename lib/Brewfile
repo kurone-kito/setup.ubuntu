@@ -8,7 +8,12 @@ brew 'chezmoi'
 brew 'task'
 
 # Development
+brew 'ast-grep'
+brew 'cargo-binstall'
+brew 'deno'
+brew 'direnv'
 brew 'python'
+brew 'tree-sitter'
 
 # Files management
 brew 'fd'
