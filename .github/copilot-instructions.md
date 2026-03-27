@@ -1,37 +1,102 @@
 # Guidelines for AI Agents
 
-This project is a setup the dev environment for Ubuntu.
+Automated CLI dev-environment setup for Ubuntu 22.04+ (including WSL).
+This project installs packages and tools only — configuration beyond
+install-time minimums belongs in the
+[dotfiles](https://github.com/kurone-kito/dotfiles) repository.
 
-When contributing to this repository using AI agents, adhere to the
-following guidelines to ensure high-quality contributions that align with
-the project's standards and practices:
+Related projects:
+[setup.macos](https://github.com/kurone-kito/setup.macos),
+[setup.windows](https://github.com/kurone-kito/setup.windows).
 
 ## Tooling priority and compatibility
 
 This repository is intentionally optimized for GitHub Copilot CLI and
 VS Code Copilot Chat because they are the primary tools used for
-day-to-day work and benchmarking.
+day-to-day work and benchmarking. Codex CLI is a supplementary target.
 
-`AGENTS.md` and `CLAUDE.md` exist as lightweight compatibility entry
-points for Codex and Claude Code. Keep this file as the canonical,
-fully detailed guide unless benchmark results justify a more neutral
-layout.
+`AGENTS.md` exists as a compatibility entry point for Codex CLI, while
+`CLAUDE.md` and `GEMINI.md` provide minimal support for other agents.
+Keep this file as the canonical, fully detailed guide.
+
+## Architecture
+
+### Directory structure
+
+```txt
+setup                    # Entry point (POSIX sh)
+nuke                     # Cleanup / VM destruction
+cloud-init.yml           # APT package manifest + VM init config
+main.tf                  # Terraform config (Multipass VM)
+lib/
+  base-install.sh        # APT package installation (from cloud-init.yml)
+  homebrew.sh            # Linuxbrew installation + Brewfile bundle
+  Brewfile               # Homebrew package manifest (Ruby DSL)
+  mise.sh                # mise-managed tool installation
+  docker.sh              # Docker CE installation (official repo)
+  teardown.sh            # Cleanup (brew cleanup, apt autoremove)
+  locale.sh              # Locale, timezone, keyboard configuration
+  virtual.sh             # Terraform init + Multipass VM creation
+  deploy.sh              # Deploy scripts to VM via tar + multipass
+etc/
+  default/keyboard       # Japanese keyboard layout (jp106)
+```
+
+### Execution flow
+
+**Native mode** (on Ubuntu):
+
+```txt
+setup → sudo keep-alive
+      → lib/base-install.sh    (APT packages from cloud-init.yml)
+      → lib/homebrew.sh        (Linuxbrew + Brewfile)
+      → lib/mise.sh            (Node.js, Bitwarden CLI)
+      → lib/docker.sh          (Docker CE)
+      → lib/teardown.sh        (cleanup)
+      → lib/locale.sh          (ja_JP.UTF-8, Asia/Tokyo, jp106)
+```
+
+**VM mode** (non-Ubuntu or `./setup -v`):
+
+```txt
+setup → lib/virtual.sh   (terraform init + apply → Multipass VM)
+      → lib/deploy.sh    (tar + multipass transfer → execute)
+```
+
+### Package management — where to add packages
+
+| Source          | Manifest            | When to use                                |
+|-----------------|---------------------|--------------------------------------------|
+| APT             | `cloud-init.yml`    | Available in Ubuntu default/universe repos |
+| Homebrew        | `lib/Brewfile`      | Not in APT, or Homebrew version preferred  |
+| mise            | `lib/mise.sh`       | Needs version management (e.g., Node.js)   |
+| Docker official | `lib/docker.sh`     | Docker CE and its plugins only             |
+| Custom install  | new `lib/<name>.sh` | Complex install requiring its own script   |
+
+When adding an APT package, insert it into the `packages:` list in
+`cloud-init.yml` under the appropriate category comment, maintaining
+alphabetical order within that category. Update `README.md` to list
+the new package under the matching section.
+
+When adding a Homebrew package, append a `brew '<formula>'` line to
+`lib/Brewfile` under the appropriate category comment. Update
+`README.md` accordingly.
 
 ## Conversation
 
 - The conversational language should match the user's language.
   For example, if the user speaks in Japanese, respond in Japanese.
-- However, comments and documentation should be written in English unless
-  there is a clear context otherwise.
-- If uncertainties, concerns, or other implementation issues arise while
-  running in Agent mode, promptly switch to Plan mode and ask the user
-  questions. In such cases, provide one or more recommended response
-  options.
+- However, comments and documentation should be written in English
+  unless there is a clear context otherwise.
+- If uncertainties, concerns, or other implementation issues arise
+  while running in Agent mode, promptly switch to Plan mode and ask
+  the user questions. In such cases, provide one or more recommended
+  response options.
 - Outside GitHub Copilot, interpret the `Agent mode` and `Plan mode`
-  wording by intent: continue autonomously for low-risk work, but pause
-  and ask a concise question when uncertainty or hidden risk makes the
-  next step unsafe. When that pause is needed, provide one or more
-  recommended response options.
+  wording by intent: continue autonomously for low-risk work, but
+  pause and ask a concise question when uncertainty or hidden risk
+  makes the next step unsafe. When that pause is needed, provide one
+  or more recommended response options.
 
 ## Commit rules
 
@@ -66,9 +131,22 @@ Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`,
 
 ### Scopes
 
-- Optional, in parentheses: `feat(ci):`, `fix(lint):`, `docs(readme):`
-- Keep scopes **lowercase**, short, and consistent
-- Use the directory or component name that best describes the area
+Use the following project-specific scopes:
+
+| Scope        | Area                                             |
+|--------------|--------------------------------------------------|
+| `apt`        | APT packages in `cloud-init.yml`                 |
+| `brew`       | Homebrew packages in `lib/Brewfile`              |
+| `mise`       | mise-managed tools in `lib/mise.sh`              |
+| `docker`     | Docker installation in `lib/docker.sh`           |
+| `vm`         | VM / Terraform in `main.tf`, `lib/virtual.sh`    |
+| `locale`     | Locale / keyboard in `lib/locale.sh`, `etc/`     |
+| `ci`         | GitHub Actions workflows                         |
+| `lint`       | Linter configs (cspell, markdownlint)            |
+| `readme`     | `README.md` changes                              |
+| `docs`       | Other documentation                              |
+
+Keep scopes **lowercase**, short, and consistent.
 
 ### Body (line 3+)
 
@@ -92,7 +170,7 @@ Wrap body lines at **72 characters**.
 
 ### Breaking changes
 
-- Append `!` after the type/scope: `feat!: remove deprecated endpoint`
+- Append `!` after the type/scope: `feat!: drop ubuntu 20.04 support`
 - Add a `BREAKING CHANGE:` trailer in the footer with a detailed
   explanation of what breaks and migration steps
 
@@ -116,118 +194,109 @@ Keep each commit as **small and focused** as possible:
 
 ### Examples
 
+#### Good — adding a package
+
+```txt
+feat(brew): add lazyjj for jujutsu tui
+
+lazyjj provides a terminal UI for jj that is similar to
+lazygit. Since jj is already installed via Homebrew, add
+lazyjj alongside it in the Brewfile SCM tools section.
+```
+
 #### Good — single-line (trivial change)
 
 ```txt
 fix: correct typo in feature request template
 ```
 
-#### Good — prose body
-
-```txt
-feat(ci): add concurrency settings to lint workflow
-
-Parallel lint runs on the same branch waste resources and
-cause race conditions in status checks. GitHub Actions
-supports concurrency groups that automatically cancel
-redundant runs, so add a concurrency group keyed on branch
-name with cancel-in-progress enabled.
-
-Refs #42
-```
-
 #### Good — breaking change
 
 ```txt
-feat!: require node 20 as minimum version
+feat!: drop ubuntu 20.04 support
 
-Node 18 reaches end-of-life and lacks native fetch support
-used by the new HTTP client. All production environments
-have already been upgraded to node 20+, so update the
-engines field and CI matrix to require node >= 20.
+Ubuntu 20.04 has reached end-of-life and several packages
+in cloud-init.yml are no longer available in its repos.
+All target environments have been upgraded to 22.04+, so
+remove 20.04-specific workarounds and update the minimum
+version requirement in the README.
 
-BREAKING CHANGE: drop support for node 16 and 18. Users
-must upgrade to node 20 or later.
-Closes #108
+BREAKING CHANGE: ubuntu 20.04 is no longer supported.
+Users must upgrade to 22.04 or later.
+Closes #12
 ```
 
-#### Bad — vague, developer-centric
+## Coding standards
 
-```txt
-fix: update code
-```
-
-#### Bad — too large / non-atomic
-
-```txt
-feat: add auth system and refactor database layer and update docs
-```
-
-## Coding Standards
+### General
 
 - **Indentation**: 2 spaces (enforced by `.editorconfig`)
 - **Line endings**: LF only (enforced by `.editorconfig` and
   `.gitattributes`)
 - **Trailing whitespace**: trimmed (except in Markdown)
 - **Final newline**: always present
-- **File naming**: lowercase with hyphens (e.g., `feature-request.yml`)
+- **File naming**: lowercase with hyphens (e.g., `base-install.sh`)
   unless constrained by a platform convention (e.g., `CONTRIBUTING.md`)
+
+### Shell scripting conventions
+
+- **Prefer POSIX `sh`** (`#!/bin/sh`) for new scripts. Use `bash`
+  (`#!/bin/bash` or `#!/usr/bin/env bash`) only when bash-specific
+  features are required (e.g., `mapfile`, arrays).
+- **Always start with `set -eu`** — exit on error, treat unset
+  variables as errors.
+- **Vim modeline**: include `# -*- mode: sh -*-` and
+  `# vim: set ft=sh :` after the shebang.
+- **Directory navigation**: every `lib/*.sh` script should `cd` to the
+  repository root at the top:
+
+  ```sh
+  cd "$(cd "$(dirname "$0")"; pwd)/.."
+  ```
+
+- **Non-interactive apt**: always use
+  `sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends`
+  to avoid interactive prompts and minimize installed size.
+- **Idempotency**: scripts should be safe to re-run. Use existence
+  checks (e.g., `[ -d "/path" ]`) and `|| true` for commands that
+  may fail on re-run (e.g., `groupadd`).
+- **No custom functions**: scripts use linear, top-to-bottom execution.
+  Keep each script focused on one installation phase.
+- **Error output**: write error messages to stderr (`>&2`).
+
+### YAML conventions (cloud-init.yml)
+
+- Packages are listed under categorized comments (e.g.,
+  `# Archive tools`, `# SCM tools`)
+- Maintain **alphabetical order** within each category
+- Use the **APT package name** (not the upstream project name)
+
+### Brewfile conventions
+
+- Use `brew '<formula>'` syntax (single quotes)
+- Group by category with comments matching `cloud-init.yml` style
+- Maintain **alphabetical order** within each category
+
+## Testing
+
+There are no automated unit tests. Validation is performed via:
+
+1. **CI linting** (`cspell` + `markdownlint`) on push and PR
+2. **VM integration testing** — run `./setup -v` (or `./setup` on a
+   non-Ubuntu host) to provision a Multipass VM and execute the full
+   setup. Requires [Multipass](https://multipass.run/) and
+   [Terraform](https://www.terraform.io/).
+3. **Cleanup** — run `./nuke` to destroy the VM and reset state.
+
+When making changes, ensure `cspell` and `markdownlint` pass. New
+technical terms may need to be added to `.cspell.config.yml` `words`.
 
 ## Guardrails
 
 - **Do not** modify community documents (CODE_OF_CONDUCT, CONTRIBUTING)
   without explicit approval
-
-## Onboarding
-
-This project template is generic and language-independent.
-If you plan to implement a language-specific project based on this one,
-**submit a proposal to customize this documentation first**.
-
-### Derived-repository detection
-
-When an AI agent starts a session, it should determine whether this
-repository is the **base template** or a **derived project**:
-
-1. **Check the repository name** — inspect the git remote URL
-   (e.g., `git remote get-url origin`), the working-directory name,
-   or any GitHub API context available to the agent. If the
-   repository name is exactly `template`, treat it as the base
-   template. Any other name indicates a derived project.
-2. **Check for generic content** — look for the sentinel phrase
-   `language-independent generic project template` in this file or
-   in the repository's AI instruction files. Its presence means the
-   guidelines have **not yet been customized**.
-
-If both conditions are met — the repository is derived **and** the
-guidelines are still generic — the agent should **proactively
-propose an onboarding workflow** before proceeding with the user's
-request. The proposal should be conversational, brief, and
-non-blocking (the user may decline and continue normally).
-
-### Onboarding proposal
-
-When proposing onboarding, suggest customizing the following areas
-in a single plan:
-
-1. **Project description** — update `README.md` and the opening
-   lines of AI instruction files to reflect the project's purpose
-2. **Language / framework** — identify the primary language and
-   framework; add relevant linter, formatter, and build tooling
-3. **Dependency management** — set up the appropriate package
-   manager (npm, pip, cargo, etc.) and lock-file conventions
-4. **Testing strategy** — define the test runner, coverage targets,
-   and test-file conventions
-5. **CI/CD workflows** — adjust `.github/workflows/` to match the
-   project's build, test, and deploy pipeline
-6. **AI guideline specialization** — rewrite this file,
-   `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` to include
-   project-specific rules, coding patterns, and architecture notes
-7. **README rewrite** — replace the template README with
-   project-specific content (badges, installation, usage, etc.)
-8. **License review** — confirm or replace the MIT license if the
-   project requires a different one
-
-Present these items as a checklist proposal (e.g., in Plan mode for
-Copilot, or as a numbered list for other agents). Let the user
-select which items to tackle and in what order.
+- **Scope boundary**: this project handles installation only.
+  Configuration beyond install-time defaults belongs in the
+  [dotfiles](https://github.com/kurone-kito/dotfiles) repository.
+- **Do not** install GUI applications — this project targets CLI
+  environments only

@@ -1,21 +1,49 @@
 # Guidelines for AI Agents
 
-This project is a setup the dev environment for Ubuntu.
-It is currently optimized for GitHub Copilot tooling, but `AGENTS.md`
-exists so Codex can still receive the minimum project rules
-immediately, without depending on a redirect.
+Automated CLI dev-environment setup for Ubuntu 22.04+ (including WSL).
+Install-only scope — configuration belongs in the
+[dotfiles](https://github.com/kurone-kito/dotfiles) repository.
+
+## Quick architecture
+
+- **`setup`** — entry point; detects Ubuntu (native) vs other (VM mode)
+- **`cloud-init.yml`** — APT package manifest (add packages here)
+- **`lib/Brewfile`** — Homebrew package manifest
+- **`lib/mise.sh`** — mise-managed tools (Node.js, etc.)
+- **`lib/docker.sh`** — Docker CE installation
+- **`lib/locale.sh`** — Japanese locale, Asia/Tokyo, jp106 keyboard
+- **`main.tf`** — Terraform / Multipass VM for testing
+
+## Shell conventions
+
+- Prefer POSIX `sh`; use `bash` only when needed (e.g., `mapfile`)
+- Always `set -eu` at the top
+- Include vim modeline: `# -*- mode: sh -*-` / `# vim: set ft=sh :`
+- `cd "$(cd "$(dirname "$0")"; pwd)/.."` to reach repo root
+- Non-interactive apt:
+  `sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends`
+- Scripts must be idempotent (safe to re-run)
+
+## Commit rules
+
+This project follows
+[Conventional Commits](https://www.conventionalcommits.org/).
+A `.gitmessage` template is available at the repository root.
+Write user-facing, lowercase subjects, keep them under 72 characters,
+and split unrelated changes into separate atomic commits.
+
+Key scopes: `apt`, `brew`, `mise`, `docker`, `vm`, `locale`, `ci`,
+`lint`, `readme`, `docs`.
 
 ## Immediate rules
 
 - Match the conversational language to the user's language.
-- Write comments and documentation in English unless there is a clear
-  project-specific reason otherwise.
-- If uncertainty, hidden risk, or missing context blocks a safe change,
-  stop and ask a concise question before proceeding.
-- Keep changes small and reviewable. If you create commits, follow the
-  project's Conventional Commits rules and keep each commit atomic.
+- Write comments and documentation in English.
+- If uncertainty blocks a safe change, stop and ask before proceeding.
+- Keep changes small and atomic.
 - Do not modify community documents (`CODE_OF_CONDUCT*`,
   `CONTRIBUTING*`) without explicit approval.
+- Do not install GUI applications — CLI only.
 
 ## Project standards
 
@@ -26,34 +54,9 @@ immediately, without depending on a redirect.
 - **File naming**: lowercase with hyphens unless a platform convention
   requires otherwise
 
-## Commit rules
-
-This project follows
-[Conventional Commits](https://www.conventionalcommits.org/).
-A `.gitmessage` template is available at the repository root.
-Write user-facing, lowercase subjects, keep them under 72 characters,
-and split unrelated changes into separate atomic commits.
-
-## Onboarding detection
-
-When starting a session, check whether this repository is the base
-template or a derived project:
-
-- If the repository name is exactly `template`, it is the base
-  template — no action needed.
-- If the name differs **and** this file still contains the phrase
-  `language-independent generic project template`, the guidelines
-  have not been customized yet.
-
-In that case, **proactively propose an onboarding workflow** to
-customize the project's documentation, tooling, and AI guidelines.
-See the full onboarding checklist in
-[.github/copilot-instructions.md](.github/copilot-instructions.md).
-
 ## Canonical reference
 
-The full, Copilot-first project guidance lives in
+The full project guidance lives in
 [.github/copilot-instructions.md](.github/copilot-instructions.md).
-When that file uses Copilot-specific workflow names, apply the intent
-in Codex using Codex's own interaction model rather than following the
-product terms literally.
+When that file uses Copilot-specific workflow names (Agent mode, Plan
+mode), apply the intent using Codex's own interaction model.
