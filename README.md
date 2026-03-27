@@ -55,6 +55,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [ast-grep](https://ast-grep.github.io/)
 - build-essential
 - [cargo](https://doc.rust-lang.org/stable/cargo/)
+- [Cargo Binary Install](https://github.com/cargo-bins/cargo-binstall)
 - [CMake](https://cmake.org)
 - [Deno](https://deno.com/)
 - [direnv](https://direnv.net/)
