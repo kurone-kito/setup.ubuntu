@@ -58,15 +58,17 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Development tools
 
-- [ast-grep](https://ast-grep.github.io/)
+- (B) [ast-grep](https://ast-grep.github.io/)
 - **`!`** build-essential
 - **`!`** [cargo](https://doc.rust-lang.org/stable/cargo/)
+- (B) **`!`** [Cargo Binary Install](https://github.com/cargo-bins/cargo-binstall)
 - [CMake](https://cmake.org)
-- [Deno](https://deno.com/)
-- [direnv](https://direnv.net/)
+- (B) [Deno](https://deno.com/)
+- (B) [direnv](https://direnv.net/)
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
 - [make](https://www.gnu.org/software/make/)
 - (B) [python3](https://www.python.org/)
+- (B) [tree-sitter](https://tree-sitter.github.io/tree-sitter/)
 
 ### Download tools
 
