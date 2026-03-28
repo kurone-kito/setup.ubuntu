@@ -178,7 +178,6 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### TUI
 
-- [byobu](https://www.byobu.org/)
 - **`.`** [tmux](https://github.com/tmux/tmux)
 - **`.`** (B) [zellij](https://zellij.dev)
 
