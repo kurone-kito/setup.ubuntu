@@ -12,17 +12,17 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Archive tools
 
-- bzip2
+- [bzip2](https://github.com/libarchive/bzip2)
 - [p7zip](https://sourceforge.net/projects/p7zip/)
-- unzip
-- xz-utils
-- zip
+- [unzip](https://manpages.ubuntu.com/manpages/man1/unzip.1.html)
+- [xz-utils](https://tukaani.org/xz/)
+- [zip](https://manpages.ubuntu.com/manpages/man1/zip.1.html)
 
 ### Benchmark tools
 
 - [htop](https://htop.dev)
-- hyfetch
-- hyperfine
+- [hyfetch](https://github.com/hykilpikonna/hyfetch)
+- [hyperfine](https://github.com/sharkdp/hyperfine)
 
 ### Binary converters
 
@@ -31,14 +31,18 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [ImageMagick](https://imagemagick.org/index.php)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 
-#### Configuration tools
+### Clipboard tools
+
+- [yank](https://github.com/mptre/yank)
+
+### Configuration tools
 
 - [chezmoi](https://www.chezmoi.io/)
 
 ### Cryptography
 
 - [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
-- pinentry-curses
+- [pinentry-curses](https://manpages.ubuntu.com/manpages/man1/pinentry-curses.1.html)
 
 ### Database
 
@@ -47,29 +51,33 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Development tools
 
+- [ast-grep](https://ast-grep.github.io/)
 - build-essential
-- cargo
+- [cargo](https://doc.rust-lang.org/stable/cargo/)
 - [CMake](https://cmake.org)
+- [Deno](https://deno.com/)
+- [direnv](https://direnv.net/)
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
-- make
-- mise
-- python3
+- [make](https://www.gnu.org/software/make/)
+- [mise-en-place](https://mise.jdx.dev/)
+- [python3](https://www.python.org/)
+- [tree-sitter](https://tree-sitter.github.io/tree-sitter/)
 
 ### Download tools
 
-- ca-certificates
+- [ca-certificates](https://curl.se/docs/caextract.html)
 - [curl](https://curl.se)
-- httpie
+- [httpie](https://httpie.io/)
 - [GNU wget](https://www.gnu.org/software/wget/)
 
 ### Files management
 
 - [bat](https://github.com/sharkdp/bat)
-- eza
-- fd
+- [eza](https://github.com/eza-community/eza)
+- [fd](https://github.com/sharkdp/fd)
 - [fzf](https://github.com/junegunn/fzf)
 - [rename](http://plasmasturm.org/code/rename/)
-- zoxide
+- [zoxide](https://crates.io/crates/zoxide)
 
 #### Generative AI
 
@@ -90,20 +98,20 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Package manager
 
-- apt-file
-- apt-transport-https
+- [apt-file](https://manpages.ubuntu.com/manpages/man1/apt-file.1.html)
+- [apt-transport-https](https://manpages.ubuntu.com/manpages/man1/apt-transport-https.1.html)
 - apt-utils
 - [Homebrew](https://brew.sh/)
 - software-properties-common
-- vrc-get
+- [vrc-get](https://github.com/vrc-get/vrc-get)
 
 ### Remote tools
 
 - [awscli](https://aws.amazon.com/cli/)
 - [mkcert](https://mkcert.dev/)
-- mosh
-- OpenSSH Server & Client
-- OpenSSL
+- [mosh](https://mosh.org/)
+- [OpenSSH Server & Client](https://www.openssh.org/)
+- [OpenSSL](https://www.openssl.org/)
 - [OpenVPN](https://openvpn.net/)
 - [rsync](https://rsync.samba.org/)
 
@@ -122,22 +130,21 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Shell utilities
 
-- bash-completion
+- [bash-completion](https://github.com/scop/bash-completion)
 - [Microsoft PowerShell](https://microsoft.com/PowerShell)
-- rebound
+- [rebound](https://github.com/shobrook/rebound)
 - [shellcheck](https://www.shellcheck.net)
-- sudo-rs
+- [sudo-rs](https://github.com/trifectatechfoundation/sudo-rs)
 - [The Fuck](https://github.com/nvbn/thefuck)
-- yank
-- zsh
-- zsh-theme-powerlevel9k
+- [zsh](https://www.zsh.org/)
+- [zsh-theme-powerlevel9k](https://github.com/powerlevel9k/powerlevel9k)
 
 ### Text browsing tools
 
-- links2
+- [links2](https://links.twibright.com/)
 - [mdp](https://github.com/visit1985/mdp)
-- tealdeer
-- w3m
+- [tealdeer](https://tealdeer-rs.github.io/tealdeer/)
+- [w3m](https://w3m.sourceforge.net/)
 
 ### Text converters
 
@@ -162,7 +169,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 #### Virtualizations
 
-- Docker community edition
+- [Docker community edition](https://www.docker.com/)
 
 ### Others
 
