@@ -119,7 +119,6 @@ packages:
   - vim
 
   # TUI
-  - byobu
   - tmux
 timezone: Asia/Tokyo
 write_files:
