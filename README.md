@@ -39,6 +39,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Clipboard tools
 
+- [xsel](http://www.kfish.org/software/xsel/)
 - [yank](https://github.com/mptre/yank)
 
 ### Configuration tools
