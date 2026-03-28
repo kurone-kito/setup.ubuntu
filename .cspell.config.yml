@@ -23,7 +23,7 @@ ignorePaths:
   - cspell.config.yml
 language: en,ja
 useGitignore: true
-version: '0.2'
+version: "0.2"
 words:
   - byobu
   - desync
@@ -57,4 +57,5 @@ words:
   - xkbvariant
   - xorgxrdp
   - xrdp
+  - xsel
   - xsession

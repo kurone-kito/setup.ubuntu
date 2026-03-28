@@ -25,6 +25,10 @@ packages:
   - imagemagick
   - yt-dlp
 
+  # Clipboard
+  - xsel
+  - yank
+
   # Cryptography
   - gnupg
   - pinentry-curses
@@ -91,7 +95,6 @@ packages:
   - shellcheck
   - sudo-rs
   - thefuck
-  - yank
   - zsh
   - zsh-theme-powerlevel9k
 
