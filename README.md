@@ -76,7 +76,6 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 - **`!`** [ca-certificates](https://curl.se/docs/caextract.html)
 - **`!`** [curl](https://curl.se)
-- [httpie](https://httpie.io/)
 - [GNU wget](https://www.gnu.org/software/wget/)
 
 ### Files management
@@ -121,6 +120,8 @@ Dev environment preference for the Ubuntu Linux distribution.
 ### Remote tools
 
 - **`.`** (B) [awscli](https://aws.amazon.com/cli/)
+- [httpie](https://httpie.io/)
+- [LazySSH](https://github.com/Adembc/lazyssh)
 - [mkcert](https://mkcert.dev/)
 - [mosh](https://mosh.org/)
 - **`.`** [OpenSSH Server & Client](https://www.openssh.org/)
