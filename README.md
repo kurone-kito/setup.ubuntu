@@ -52,7 +52,6 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [CMake](https://cmake.org)
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
 - make
-- mise
 - python3
 
 ### Download tools
@@ -94,6 +93,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - apt-transport-https
 - apt-utils
 - [Homebrew](https://brew.sh/)
+- [mise-en-place](https://mise.jdx.dev/)
 - software-properties-common
 - vrc-get
 
