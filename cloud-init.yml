@@ -46,7 +46,6 @@ packages:
   # Download tools
   - ca-certificates
   - curl
-  - httpie
   - wget
 
   # Files management
@@ -75,6 +74,7 @@ packages:
   - software-properties-common
 
   # Remote tools
+  - httpie
   - mkcert
   - mosh
   - openssh-client

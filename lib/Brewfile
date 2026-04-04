@@ -29,6 +29,7 @@ brew 'vrc-get'
 
 # Remote
 brew 'awscli'
+brew 'lazyssh'
 
 # SCM tools
 brew 'ghq'
