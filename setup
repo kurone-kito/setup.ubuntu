@@ -45,6 +45,7 @@ lib/base-install.sh
 lib/homebrew.sh
 lib/mise.sh
 lib/docker.sh
+lib/ngrok.sh
 lib/teardown.sh
 lib/locale.sh
 
