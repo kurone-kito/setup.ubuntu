@@ -6,3 +6,9 @@ updates:
     package-ecosystem: github-actions
     schedule:
       interval: monthly
+  - directory: /
+    labels:
+      - dependencies
+    package-ecosystem: terraform
+    schedule:
+      interval: monthly
