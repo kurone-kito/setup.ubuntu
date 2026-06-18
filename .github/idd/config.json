@@ -1,0 +1,30 @@
+{
+  "$schema": "https://kurone-kito.github.io/idd-skill/schemas/policy.schema.json",
+  "iddVersion": "0.3.0",
+  "markerPrefix": "setup-ubuntu",
+  "mergePolicy": "fully_autonomous_merge",
+  "reviewPolicy": "copilot-advisory",
+  "threadResolutionPolicy": "fast-agent-resolve",
+  "claimTiming": {
+    "staleAge": "PT24H",
+    "heartbeatInterval": "PT12H"
+  },
+  "trustedMarkerActors": ["kurone-kito"],
+  "workshop": {
+    "exampleRepository": ""
+  },
+  "commands": {
+    "install-deps": "true",
+    "fix-validate": "npx -y markdownlint-cli2 --fix \"**/*.md\" && npx -y markdownlint-cli2 \"**/*.md\"",
+    "pre-push-validate": "npx -y markdownlint-cli2 \"**/*.md\" && npx -y cspell lint \"**\" --no-progress",
+    "post-fix-validate": "npx -y markdownlint-cli2 --fix \"**/*.md\" && npx -y markdownlint-cli2 \"**/*.md\" && npx -y cspell lint \"**\" --no-progress"
+  },
+  "helperRuntime": {
+    "profile": "instructions-only"
+  },
+  "issueScope": "roadmap-first",
+  "orphanFirstPolicy": "none",
+  "autopilotSuitability": {
+    "floor": 3
+  }
+}

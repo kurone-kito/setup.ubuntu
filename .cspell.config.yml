@@ -25,6 +25,10 @@ useGitignore: true
 version: '0.2'
 words:
   - byobu
+  - desync
+  - desynced
+  - esac
+  - esync
   - hyfetch
   - imgbotconfig
   - kito
@@ -35,6 +39,11 @@ words:
   - lazyjj
   - nyancat
   - ollama
+  - pylint
+  - unpushed
+  - unreplied
+  - unscored
+  - waivable
   - xkblayout
   - xkbmodel
   - xkboptions
