@@ -14,6 +14,7 @@ fi
 
 if [ -e "/etc/os-release" ]
 then
+  # /etc/os-release is an external system file ShellCheck cannot follow.
   # shellcheck source=/dev/null
   . /etc/os-release
   if [ "${ID}" != "ubuntu" ]

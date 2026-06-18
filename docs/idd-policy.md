@@ -27,11 +27,13 @@ npx -y markdownlint-cli2 "**/*.md" && npx -y cspell lint "**" --no-progress
 npx -y markdownlint-cli2 --fix "**/*.md" && npx -y markdownlint-cli2 "**/*.md" && npx -y cspell lint "**" --no-progress
 ```
 
-These commands mirror the repository CI defined in
-[`.github/workflows/lint.yml`](../.github/workflows/lint.yml) (cspell and
-markdownlint). `shellcheck` is intentionally omitted because it is not part
-of the current CI gate; add it to these commands if shell linting becomes a
-required check.
+These commands run `markdownlint` and `cspell`, matching the checks that
+most IDD issues exercise. The `lint` workflow
+([`.github/workflows/lint.yml`](../.github/workflows/lint.yml)) additionally
+runs `shellcheck` on the shell scripts; it is kept out of the local validate
+commands above (which target the markdown and text edits IDD issues usually
+make). Run `shellcheck setup nuke lib/*.sh` directly when changing shell
+scripts.
 
 ## Policy decisions
 
