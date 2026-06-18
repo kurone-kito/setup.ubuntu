@@ -5,6 +5,8 @@
 set -eu
 cd "$(cd "$(dirname "$0")"; pwd)/.."
 
+# /etc/os-release is an external system file ShellCheck cannot follow.
+# shellcheck source=/dev/null
 . /etc/os-release
 
 curl -fsSL "https://packages.microsoft.com/config/${ID}/${VERSION_ID}/packages-microsoft-prod.deb" \

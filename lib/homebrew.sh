@@ -9,6 +9,9 @@ if [ ! -d "/home/linuxbrew/.linuxbrew" ]
 then
   curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash -
   echo >> "${HOME}/.bashrc"
+  # Single quotes are intentional: the literal line is appended to ~/.bashrc
+  # to be evaluated at each shell startup, not expanded here.
+  # shellcheck disable=SC2016
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "${HOME}/.bashrc"
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
