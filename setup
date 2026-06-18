@@ -5,8 +5,6 @@
 set -eu
 cd "$(cd "$(dirname "$0")"; pwd)"
 
-OS="$(uname -s)"
-
 if ! (command -v apt-get >/dev/null 2>&1)
 then
   USE_VIRTUAL=1
