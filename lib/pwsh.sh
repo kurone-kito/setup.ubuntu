@@ -5,6 +5,7 @@
 set -eu
 cd "$(cd "$(dirname "$0")"; pwd)/.."
 
+# shellcheck source=/dev/null
 . /etc/os-release
 
 curl -fsSL "https://packages.microsoft.com/config/${ID}/${VERSION_ID}/packages-microsoft-prod.deb" \

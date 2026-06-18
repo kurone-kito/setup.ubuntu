@@ -9,6 +9,7 @@ if [ ! -d "/home/linuxbrew/.linuxbrew" ]
 then
   curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash -
   echo >> "${HOME}/.bashrc"
+  # shellcheck disable=SC2016
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "${HOME}/.bashrc"
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi

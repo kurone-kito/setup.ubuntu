@@ -5,6 +5,7 @@
 set -eu
 cd "$(cd "$(dirname "$0")"; pwd)/.."
 
+# shellcheck source=/dev/null
 . /etc/os-release
 
 OLDS="$(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)"

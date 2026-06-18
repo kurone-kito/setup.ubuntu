@@ -14,5 +14,6 @@ sudo ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 echo 'Asia/Tokyo' | sudo tee /etc/timezone
 
 # Set keyboard layout
+# shellcheck disable=SC2024
 sudo tee /etc/default/keyboard < etc/default/keyboard
 sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive keyboard-configuration
