@@ -1,18 +1,18 @@
-# ⚙️ Auto setup for Ubuntu
+# ⚙️ Ubuntu 用自動セットアップ
 
-[日本語](./README.ja.md)
+[English](./README.md)
 
-Dev environment preference for the Ubuntu Linux distribution.
+Ubuntu Linux ディストリビューション向けの開発環境設定です。
 
-## Setup
+## セットアップ
 
 ```sh
 ./setup
 ```
 
-## Installation apps
+## インストールされるアプリ
 
-### Archive tools
+### アーカイブツール
 
 - bzip2
 - [p7zip](https://sourceforge.net/projects/p7zip/)
@@ -20,34 +20,34 @@ Dev environment preference for the Ubuntu Linux distribution.
 - xz-utils
 - zip
 
-### Benchmark tools
+### ベンチマークツール
 
 - [htop](https://htop.dev)
 - hyfetch
 - hyperfine
 
-### Binary converters
+### バイナリ変換ツール
 
 - [AtomicParsley](http://atomicparsley.sourceforge.net/)
 - [FFmpeg](https://www.ffmpeg.org/)
 - [ImageMagick](https://imagemagick.org/index.php)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 
-#### Configuration tools
+#### 設定管理ツール
 
 - [chezmoi](https://www.chezmoi.io/)
 
-### Cryptography
+### 暗号化
 
 - [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
 - pinentry-curses
 
-### Database
+### データベース
 
 - [SQLite](https://www.sqlite.org/)
 - [Taskwarrior](https://taskwarrior.org/)
 
-### Development tools
+### 開発ツール
 
 - build-essential
 - cargo
@@ -57,14 +57,14 @@ Dev environment preference for the Ubuntu Linux distribution.
 - mise
 - python3
 
-### Download tools
+### ダウンロードツール
 
 - ca-certificates
 - [curl](https://curl.se)
 - httpie
 - [GNU wget](https://www.gnu.org/software/wget/)
 
-### Files management
+### ファイル管理
 
 - [bat](https://github.com/sharkdp/bat)
 - eza
@@ -73,24 +73,24 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [rename](http://plasmasturm.org/code/rename/)
 - zoxide
 
-#### Generative AI
+#### 生成 AI
 
 - [Ollama](https://ollama.com/)
 
-### Hardware
+### ハードウェア
 
 - keyboard-configuration
 
-### Jokes
+### ジョーク
 
 - [Nyancat CLI](http://nyancat.dakko.us/)
 - [sl](https://github.com/mtoyoda/sl)
 
-### Locales
+### ロケール
 
 - language-pack-ja
 
-### Package manager
+### パッケージマネージャー
 
 - apt-file
 - apt-transport-https
@@ -99,7 +99,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - software-properties-common
 - vrc-get
 
-### Remote tools
+### リモートツール
 
 - [awscli](https://aws.amazon.com/cli/)
 - [mkcert](https://mkcert.dev/)
@@ -109,7 +109,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [OpenVPN](https://openvpn.net/)
 - [rsync](https://rsync.samba.org/)
 
-### SCM tools
+### SCM ツール
 
 - [ghq](https://github.com/x-motemen/ghq)
 - [GitHub CLI](https://cli.github.com/)
@@ -123,7 +123,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [lazyjj](https://github.com/Cretezy/lazyjj)
 - [Apache Subversion](https://subversion.apache.org/)
 
-### Shell utilities
+### シェルユーティリティ
 
 - bash-completion
 - [Microsoft PowerShell](https://microsoft.com/PowerShell)
@@ -135,14 +135,14 @@ Dev environment preference for the Ubuntu Linux distribution.
 - zsh
 - zsh-theme-powerlevel9k
 
-### Text browsing tools
+### テキストブラウジングツール
 
 - links2
 - [mdp](https://github.com/visit1985/mdp)
 - tealdeer
 - w3m
 
-### Text converters
+### テキスト変換ツール
 
 - [cloc](https://github.com/AlDanial/cloc)
 - [groff](https://www.gnu.org/software/groff/)
@@ -151,7 +151,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
 - [yq](https://mikefarah.gitbook.io/yq)
 
-### Texts editors
+### テキストエディター
 
 - [GNU Nano](https://www.nano-editor.org)
 - [Neovim](https://neovim.io/)
@@ -163,17 +163,17 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [tmux](https://github.com/tmux/tmux)
 - [zellij](https://zellij.dev)
 
-#### Virtualizations
+#### 仮想化
 
 - Docker community edition
 
-### Others
+### その他
 
-- upgrade to apt packages
+- apt パッケージのアップグレード
 
-## Test (Run on VM)
+## テスト（VM 上で実行）
 
-Required some tools:
+いくつかのツールが必要です:
 
 - [Multipass](https://multipass.run/)
 - [Terraform](https://www.terraform.io/)
@@ -181,26 +181,25 @@ Required some tools:
 ```sh
 ./setup -v
 
-# ...or just launch the setup in non-Ubuntu environment.
+# ...または Ubuntu 以外の環境でセットアップを起動するだけでもかまいません。
 ./setup
 ```
 
-Alternatively, if you run the setup outside an Ubuntu environment, it'll
-automatically treat the `-v` option as specified and run the setup within a
-VM environment.
+Ubuntu 以外の環境でセットアップを実行した場合は、`-v` オプションが
+指定されたものとして自動的に扱われ、VM 環境内でセットアップが実行されます。
 
-### Destroy the VM
+### VM の破棄
 
 ```sh
 ./nuke
 ```
 
-## See also
+## 関連リンク
 
 - [dotfiles](https://github.com/kurone-kito/dotfiles)
 - [setup.macos](https://github.com/kurone-kito/setup.macos)
 - [setup.windows](https://github.com/kurone-kito/setup.windows)
 
-## License
+## ライセンス
 
 [MIT](./LICENSE)
