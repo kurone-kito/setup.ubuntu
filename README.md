@@ -118,6 +118,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [gti](https://r-wos.org/hacks/gti)
 - [Jujutsu](https://jj-vcs.dev/)
 - [lazygit](https://github.com/jesseduffield/lazygit)
+- [lazyjj](https://github.com/Cretezy/lazyjj)
 - [Apache Subversion](https://subversion.apache.org/)
 
 ### Shell utilities
