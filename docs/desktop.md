@@ -19,13 +19,19 @@ launched VM; run it on a real Ubuntu host instead.
 
 What it installs, by detected environment and GPU:
 
-- **XFCE** (`xubuntu-core`) + **xrdp** for RDP access. No display manager is
-  enabled, and the system default target stays `multi-user.target`.
-- **Sunshine** for low-latency GPU streaming, with the encoder chosen from the
-  detected GPU vendor: NVIDIA → NVENC, AMD/Intel → VAAPI, otherwise software.
+- **XFCE** (`xubuntu-core`) + **xrdp** for RDP access. On systemd hosts no
+  display manager is enabled and the default target is forced to
+  `multi-user.target`; a WSL distro without systemd is left as-is (start xrdp
+  manually).
+- **Sunshine** for low-latency GPU streaming on bare-metal, with the encoder
+  chosen from the detected GPU vendor: NVIDIA → NVENC, AMD/Intel → VAAPI,
+  otherwise software. Under WSL it is **skipped by default** (WSLg is used)
+  unless the experimental `--desktop-sunshine-wsl` opt-in is set.
 - The **GPU driver and a headless virtual display** on bare-metal when a GPU is
-  present (for NVIDIA: the driver via `ubuntu-drivers` plus an
-  `AllowEmptyInitialConfiguration` Xorg drop-in).
+  present. For NVIDIA: the driver via `ubuntu-drivers` plus an
+  `AllowEmptyInitialConfiguration` Xorg drop-in. For AMD/Intel: the mesa
+  userspace (the kernel driver is built in); the dummy headless display is added
+  only when `DESKTOP_DUMMY_DISPLAY=1` (it can override a connected monitor).
 
 ## Remote-access clients
 

@@ -174,8 +174,8 @@ Dev environment preference for the Ubuntu Linux distribution.
 ## Desktop (optional)
 
 The default `./setup` installs a CLI-only environment. An **opt-in** graphical
-layer (XFCE over RDP, plus Sunshine for GPU streaming) can be added for GUI
-workloads such as the Unity Editor over a remote desktop:
+layer (XFCE over RDP, plus Sunshine for GPU streaming on bare-metal) can be
+added for GUI workloads such as the Unity Editor over a remote desktop:
 
 ```sh
 ./setup --desktop            # install the desktop layer (real Ubuntu host)
