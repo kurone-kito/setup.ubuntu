@@ -48,7 +48,7 @@ do
     -v) USE_VIRTUAL=1 ;;
     --desktop) USE_DESKTOP=1 ;;
     --dry-run) DESKTOP_DRY_RUN=1 ;;
-    --desktop-sunshine-wsl) DESKTOP_SUNSHINE_WSL=1 ;;
+    --desktop-sunshine-wsl) USE_DESKTOP=1; DESKTOP_SUNSHINE_WSL=1 ;;
     -h|--help) usage; exit 0 ;;
     --) shift; break ;;
     *) usage; exit 1 ;;

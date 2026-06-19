@@ -168,43 +168,45 @@ stage_sunshine() { # Sunshine host + vendor-aware encoder
     encoder=software
     log "Sunshine on WSL is experimental: using software encoding (NVENC not guaranteed under WSL)"
   fi
-  # Idempotent: skip the download when Sunshine is already installed.
+  # Install the Sunshine .deb unless it is already present (idempotent). The
+  # encoder runtime below is ensured either way, so a pre-installed host still
+  # gets hardware-encoding support.
   if command -v sunshine >/dev/null 2>&1; then
-    log "Sunshine already installed; skipping (encoder: ${encoder})"
-    return 0
-  fi
-  log "installing Sunshine host (encoder: ${encoder})"
-
-  # shellcheck source=/dev/null
-  ubuntu_ver="$(. /etc/os-release 2>/dev/null; printf '%s' "${VERSION_ID:-}")"
-  arch="$(dpkg --print-architecture 2>/dev/null || echo unknown)"
-  case "${arch}" in
-  amd64 | arm64) ;;
-  *)
-    log "warning: no Sunshine package for architecture '${arch}'; skipping"
-    return 0
-    ;;
-  esac
-  if [ -z "${ubuntu_ver}" ]; then
-    log "warning: cannot determine Ubuntu version; skipping Sunshine install"
-    return 0
-  fi
-
-  # Sunshine is published as a .deb by LizardByte (not in the Ubuntu archive),
-  # with prebuilt packages for LTS-class releases. Fetch the build matching this
-  # Ubuntu release/arch and let apt resolve deps. A failure here is non-fatal:
-  # the xrdp desktop from the baseline stage still works.
-  deb="$(mktemp --suffix=.deb)"
-  url="https://github.com/LizardByte/Sunshine/releases/latest/download/sunshine-ubuntu-${ubuntu_ver}-${arch}.deb"
-  if curl -fsSL "${url}" -o "${deb}" &&
-    sudo apt-get install -y "${deb}"; then
-    log "Sunshine installed"
+    log "Sunshine already installed; ensuring encoder runtime (encoder: ${encoder})"
   else
-    log "warning: no Sunshine package for Ubuntu ${ubuntu_ver}/${arch} (LizardByte ships LTS builds); install manually if needed. The xrdp desktop is unaffected."
+    log "installing Sunshine host (encoder: ${encoder})"
+
+    # shellcheck source=/dev/null
+    ubuntu_ver="$(. /etc/os-release 2>/dev/null; printf '%s' "${VERSION_ID:-}")"
+    arch="$(dpkg --print-architecture 2>/dev/null || echo unknown)"
+    case "${arch}" in
+    amd64 | arm64) ;;
+    *)
+      log "warning: no Sunshine package for architecture '${arch}'; skipping"
+      return 0
+      ;;
+    esac
+    if [ -z "${ubuntu_ver}" ]; then
+      log "warning: cannot determine Ubuntu version; skipping Sunshine install"
+      return 0
+    fi
+
+    # Sunshine is published as a .deb by LizardByte (not in the Ubuntu archive),
+    # with prebuilt packages for LTS-class releases. Fetch the build matching
+    # this Ubuntu release/arch and let apt resolve deps. A failure here is
+    # non-fatal: the xrdp desktop from the baseline stage still works.
+    deb="$(mktemp --suffix=.deb)"
+    url="https://github.com/LizardByte/Sunshine/releases/latest/download/sunshine-ubuntu-${ubuntu_ver}-${arch}.deb"
+    if curl -fsSL "${url}" -o "${deb}" &&
+      sudo apt-get install -y --no-install-recommends "${deb}"; then
+      log "Sunshine installed"
+    else
+      log "warning: could not download/install Sunshine for Ubuntu ${ubuntu_ver}/${arch} (no matching LizardByte build, or a network/apt error); the xrdp desktop is unaffected"
+      rm -f "${deb}"
+      return 0
+    fi
     rm -f "${deb}"
-    return 0
   fi
-  rm -f "${deb}"
 
   # Install the runtime the selected encoder needs so Sunshine's auto-detection
   # can use hardware encoding; the encoder is chosen in Sunshine's user config,
