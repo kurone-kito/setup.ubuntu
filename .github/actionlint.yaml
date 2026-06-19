@@ -1,0 +1,5 @@
+# Declare the project's GitHub-hosted runner label so actionlint does not
+# report it as an unknown runner label.
+self-hosted-runner:
+  labels:
+    - ubuntu-slim
