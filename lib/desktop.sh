@@ -10,7 +10,12 @@ cd "$(cd "$(dirname "$0")"; pwd)/.."
 # stages are filled in by sibling issues (#29 XFCE + xrdp, #30 Sunshine,
 # #31 GPU driver + virtual display). The default CLI setup never calls it.
 
-DESKTOP_DRY_RUN="${DESKTOP_DRY_RUN:-0}"
+# Normalize to 0|1 so a value such as "true" cannot abort a numeric test and so
+# direct invocation behaves the same as going through setup.
+case "${DESKTOP_DRY_RUN:-0}" in
+1 | true | yes | on) DESKTOP_DRY_RUN=1 ;;
+*) DESKTOP_DRY_RUN=0 ;;
+esac
 
 log() { printf '[desktop] %s\n' "$*"; }
 plan() { printf '[desktop:plan] %s\n' "$*"; }
@@ -44,11 +49,13 @@ detect_environment() {
 
 # Echo one of: nvidia | amd | intel | none. Never errors, even with no GPU and
 # no detection tools installed. PCI vendor IDs: 0x10de NVIDIA, 0x1002 AMD/ATI,
-# 0x8086 Intel. A discrete NVIDIA GPU is preferred over an integrated one
-# because it is the device usable for GPU streaming.
+# 0x8086 Intel. Only display devices are inspected (the DRM card nodes, and the
+# VGA/3D/Display lines from lspci) so unrelated PCI devices such as NICs or the
+# chipset cannot be mistaken for a GPU. A discrete NVIDIA GPU is preferred over
+# an integrated one because it is the device usable for GPU streaming.
 detect_gpu_vendor() {
   ids=""
-  for f in /sys/class/drm/card*/device/vendor /sys/bus/pci/devices/*/vendor; do
+  for f in /sys/class/drm/card*/device/vendor; do
     [ -r "$f" ] || continue
     ids="${ids} $(cat "$f" 2>/dev/null || true)"
   done
@@ -64,9 +71,10 @@ detect_gpu_vendor() {
   *0x8086*) echo intel; return ;;
   esac
   if command -v lspci >/dev/null 2>&1; then
-    if lspci 2>/dev/null | grep -qiE 'nvidia'; then echo nvidia; return; fi
-    if lspci 2>/dev/null | grep -qiE 'amd|ati|radeon'; then echo amd; return; fi
-    if lspci 2>/dev/null | grep -qiE 'intel'; then echo intel; return; fi
+    gpus="$(lspci 2>/dev/null | grep -iE 'vga|3d|display' || true)"
+    if printf '%s\n' "${gpus}" | grep -qiE 'nvidia'; then echo nvidia; return; fi
+    if printf '%s\n' "${gpus}" | grep -qiE 'amd|ati|radeon'; then echo amd; return; fi
+    if printf '%s\n' "${gpus}" | grep -qiE 'intel'; then echo intel; return; fi
   fi
   echo none
 }

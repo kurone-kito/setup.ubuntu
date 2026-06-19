@@ -24,7 +24,13 @@ then
 fi
 
 USE_DESKTOP=0
-DESKTOP_DRY_RUN="${DESKTOP_DRY_RUN:-0}"
+
+# Normalize the dry-run flag/env to 0|1 up front so a value such as "true"
+# from the environment cannot abort the script on a numeric test under set -e.
+case "${DESKTOP_DRY_RUN:-0}" in
+  1 | true | yes | on) DESKTOP_DRY_RUN=1 ;;
+  *) DESKTOP_DRY_RUN=0 ;;
+esac
 
 usage() {
   echo "Usage: $0 [-v] [--desktop] [--dry-run]" >&2
@@ -52,19 +58,13 @@ then
   exit 1
 fi
 
-# --dry-run is desktop-only; reject it alone so an intended dry run can never
-# fall through to a real install or a VM launch.
-if [ "$DESKTOP_DRY_RUN" -eq 1 ] && [ "$USE_DESKTOP" -eq 0 ]
-then
-  echo "Error: --dry-run requires --desktop" >&2
-  usage
-  exit 1
-fi
 export DESKTOP_DRY_RUN
 
-# The desktop dry run is non-mutating: handle it before any install step and
-# before the VM path so it prints a plan and exits without side effects.
-if [ "$USE_DESKTOP" -eq 1 ] && [ "$DESKTOP_DRY_RUN" -eq 1 ]
+# A dry run targets the desktop layer and implies it, so it works via the
+# --dry-run flag or the DESKTOP_DRY_RUN env var on its own. It is non-mutating:
+# handle it before any install step and before the VM path so it prints a plan
+# and exits without side effects.
+if [ "$DESKTOP_DRY_RUN" -eq 1 ]
 then
   lib/desktop.sh
   exit 0
