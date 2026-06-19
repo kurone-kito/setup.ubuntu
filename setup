@@ -23,13 +23,52 @@ then
   fi
 fi
 
-while getopts 'v' opt
+USE_DESKTOP=0
+DESKTOP_DRY_RUN="${DESKTOP_DRY_RUN:-0}"
+
+usage() {
+  echo "Usage: $0 [-v] [--desktop] [--dry-run]" >&2
+}
+
+# POSIX getopts cannot parse long options, so parse arguments manually while
+# keeping the existing -v behavior. Running with no flags is unchanged.
+while [ $# -gt 0 ]
 do
-  case "$opt" in
-    v) USE_VIRTUAL=1 ;;
-    *) echo "Usage: $0 [-v]" >&2; exit 1 ;;
+  case "$1" in
+    -v) USE_VIRTUAL=1 ;;
+    --desktop) USE_DESKTOP=1 ;;
+    --dry-run) DESKTOP_DRY_RUN=1 ;;
+    -h|--help) usage; exit 0 ;;
+    --) shift; break ;;
+    *) usage; exit 1 ;;
   esac
+  shift
 done
+
+# Reject stray positional arguments left after a "--" terminator.
+if [ "$#" -gt 0 ]
+then
+  usage
+  exit 1
+fi
+
+# --dry-run is desktop-only; reject it alone so an intended dry run can never
+# fall through to a real install or a VM launch.
+if [ "$DESKTOP_DRY_RUN" -eq 1 ] && [ "$USE_DESKTOP" -eq 0 ]
+then
+  echo "Error: --dry-run requires --desktop" >&2
+  usage
+  exit 1
+fi
+export DESKTOP_DRY_RUN
+
+# The desktop dry run is non-mutating: handle it before any install step and
+# before the VM path so it prints a plan and exits without side effects.
+if [ "$USE_DESKTOP" -eq 1 ] && [ "$DESKTOP_DRY_RUN" -eq 1 ]
+then
+  lib/desktop.sh
+  exit 0
+fi
 
 if [ "$USE_VIRTUAL" -eq 1 ]
 then
@@ -43,5 +82,10 @@ lib/docker.sh
 lib/pwsh.sh
 lib/teardown.sh
 lib/locale.sh
+
+if [ "$USE_DESKTOP" -eq 1 ]
+then
+  lib/desktop.sh
+fi
 
 echo done.
