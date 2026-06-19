@@ -171,6 +171,21 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 - upgrade to apt packages
 
+## Desktop (optional)
+
+The default `./setup` installs a CLI-only environment. An **opt-in** graphical
+layer (XFCE over RDP, plus Sunshine for GPU streaming on bare-metal) can be
+added for GUI workloads such as the Unity Editor over a remote desktop:
+
+```sh
+./setup --desktop            # install the desktop layer (real Ubuntu host)
+./setup --desktop --dry-run  # print the plan only; install nothing
+```
+
+The default boot stays headless (no display manager); a graphical session
+starts only on connect. See [docs/desktop.md](docs/desktop.md) for the client
+matrix, the WSL2 path, security notes, and the chezmoi handoff.
+
 ## Test (Run on VM)
 
 Required some tools:
