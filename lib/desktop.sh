@@ -93,9 +93,47 @@ detect_gpu_vendor() {
 
 # --- install stages (skeletons; bodies added by sibling issues) ---
 
-stage_baseline_desktop() { # XFCE (xubuntu-core) + xrdp -> #29
-  log "baseline desktop (XFCE + xrdp): not yet implemented (#29)"
-  return 0
+stage_baseline_desktop() { # XFCE (xubuntu-core) + xrdp
+  log "installing XFCE (xubuntu-core) + xrdp + xorgxrdp"
+  # Refresh the index defensively so a standalone or WSL invocation does not
+  # abort the install on a stale cache.
+  sudo apt-get update
+  # --no-install-recommends keeps the display manager (a recommend of
+  # xubuntu-core) out, so the host stays headless by default.
+  sudo apt-get install -y --no-install-recommends \
+    xubuntu-core xrdp xorgxrdp
+
+  # systemd actions only apply where systemd is the init system (bare-metal,
+  # and WSL only when systemd is enabled in wsl.conf). Detect it once.
+  if [ -d /run/systemd/system ]; then
+    # Keep the host headless-by-default: force the multi-user (CLI) target and
+    # disable any display manager that may already be present. The GUI is
+    # reached over xrdp on connect, not via a local login screen.
+    sudo systemctl set-default multi-user.target >/dev/null 2>&1 || true
+    for dm in lightdm gdm3 sddm lxdm nodm; do
+      if systemctl list-unit-files "${dm}.service" >/dev/null 2>&1 &&
+        systemctl is-enabled "${dm}.service" >/dev/null 2>&1; then
+        sudo systemctl disable "${dm}.service" >/dev/null 2>&1 || true
+      fi
+    done
+    # Enable and start xrdp; surface a real failure instead of hiding it.
+    sudo systemctl enable --now xrdp ||
+      log "warning: could not enable/start xrdp; start it manually"
+    log "default systemd target: $(systemctl get-default 2>/dev/null || echo unknown)"
+  else
+    log "systemd not detected (e.g. WSL without systemd): start xrdp manually"
+  fi
+
+  # xrdp honors a user-provided ~/.xsession (managed by dotfiles) when present;
+  # otherwise it falls back to the system x-session-manager set here, so a
+  # connection lands in XFCE out of the box. The alternative may be absent on a
+  # minimal image, so a failure here is non-fatal.
+  xfce_session="$(command -v xfce4-session || true)"
+  if [ -n "${xfce_session}" ] &&
+    command -v update-alternatives >/dev/null 2>&1; then
+    sudo update-alternatives --set x-session-manager "${xfce_session}" ||
+      log "warning: could not set XFCE as the default x-session-manager"
+  fi
 }
 
 stage_sunshine() { # Sunshine host + vendor-aware encoder -> #30
