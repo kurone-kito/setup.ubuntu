@@ -20,11 +20,14 @@ esac
 log() { printf '[desktop] %s\n' "$*"; }
 plan() { printf '[desktop:plan] %s\n' "$*"; }
 
-# Return success when running under WSL2. Several independent signals are
-# checked so a missing ${WSL_DISTRO_NAME} (custom init, root sessions) cannot
-# misclassify a WSL2 host as bare-metal and trigger a Linux GPU driver install,
-# which would break WSLg (the Windows-side driver exposed through /dev/dxg).
-is_wsl2() {
+# Return success when running under WSL (1 or 2). Several independent signals
+# are checked so a missing ${WSL_DISTRO_NAME} (custom init, root sessions)
+# cannot misclassify a WSL host as bare-metal. WSL1 and WSL2 are deliberately
+# grouped: neither can use a Linux GPU driver (WSL2 exposes the Windows driver
+# through /dev/dxg / WSLg, WSL1 has no GPU passthrough at all), so both must
+# skip the GPU-driver stage. Treating WSL1 as bare-metal would be the unsafe
+# choice, since the bare-metal path may install a GPU driver.
+is_wsl() {
   if [ -n "${WSL_DISTRO_NAME:-}" ]; then return 0; fi
   if [ -e /run/WSL ]; then return 0; fi
   if [ -e /proc/sys/fs/binfmt_misc/WSLInterop ]; then return 0; fi
@@ -35,9 +38,9 @@ is_wsl2() {
   return 1
 }
 
-# Echo one of: wsl2 | baremetal | unsupported.
+# Echo one of: wsl | baremetal | unsupported.
 detect_environment() {
-  if is_wsl2; then echo wsl2; return; fi
+  if is_wsl; then echo wsl; return; fi
   if command -v apt-get >/dev/null 2>&1 && [ -r /etc/os-release ]; then
     # /etc/os-release is an external system file ShellCheck cannot follow.
     # shellcheck source=/dev/null
@@ -92,9 +95,9 @@ stage_sunshine() { # Sunshine host + vendor-aware encoder -> #30
 }
 
 stage_gpu_display() { # GPU driver + headless virtual display -> #31
-  # Defense-in-depth: never install a Linux GPU driver under WSL2.
-  if is_wsl2; then
-    log "WSL2 detected: refusing GPU driver install (WSLg uses the Windows driver)"
+  # Defense-in-depth: never install a Linux GPU driver under WSL (1 or 2).
+  if is_wsl; then
+    log "WSL detected: refusing GPU driver install (no Linux GPU driver under WSL)"
     return 0
   fi
   log "GPU driver + headless virtual display: not yet implemented (#31)"
@@ -114,9 +117,9 @@ print_plan() {
       plan "install '${GPU_VENDOR}' GPU driver + headless virtual display"
     fi
     ;;
-  wsl2)
+  wsl)
     plan "install XFCE (xubuntu-core) + xrdp"
-    plan "WSL2: rely on WSLg; skip Linux GPU driver and bare-metal Sunshine"
+    plan "WSL: rely on WSLg (WSL2); skip Linux GPU driver and bare-metal Sunshine"
     ;;
   unsupported)
     plan "environment not supported for the desktop layer; nothing to do"
@@ -143,9 +146,9 @@ baremetal)
     stage_gpu_display
   fi
   ;;
-wsl2)
+wsl)
   stage_baseline_desktop
-  log "WSL2: relying on WSLg; skipping Linux GPU driver and bare-metal Sunshine"
+  log "WSL: relying on WSLg (WSL2); skipping Linux GPU driver and bare-metal Sunshine"
   ;;
 unsupported)
   log "environment not supported for the desktop layer; nothing to do"
