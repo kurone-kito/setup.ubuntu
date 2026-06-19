@@ -10,7 +10,14 @@ cd "$(cd "$(dirname "$0")"; pwd)/.."
 . /etc/os-release
 
 OLDS="$(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)"
-sudo apt remove -y "${OLDS}" || true
+if [ -n "${OLDS}" ]
+then
+  # Word-splitting is intentional so each old package is passed to apt as
+  # its own argument. The script is POSIX sh, so a bash array is not
+  # available.
+  # shellcheck disable=SC2086
+  sudo apt remove -y ${OLDS} || true
+fi
 sudo install -m 0755 -d /etc/apt/keyrings
 GPG_URL="https://download.docker.com/linux/${ID}/gpg"
 sudo curl -fsSL "${GPG_URL}" -o /etc/apt/keyrings/docker.asc
