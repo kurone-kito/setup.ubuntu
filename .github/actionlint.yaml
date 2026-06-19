@@ -1,0 +1,7 @@
+# actionlint validates `runs-on` labels against its set of known runner
+# labels. `ubuntu-slim` is not in that set, so register it here.
+# `self-hosted-runner.labels` is actionlint's documented mechanism for
+# declaring additional accepted labels, regardless of the key name.
+self-hosted-runner:
+  labels:
+    - ubuntu-slim
