@@ -52,32 +52,41 @@ detect_environment() {
 
 # Echo one of: nvidia | amd | intel | none. Never errors, even with no GPU and
 # no detection tools installed. PCI vendor IDs: 0x10de NVIDIA, 0x1002 AMD/ATI,
-# 0x8086 Intel. Only display devices are inspected (the DRM card nodes, and the
+# 0x8086 Intel. Only display devices are inspected (the DRM card nodes plus the
 # VGA/3D/Display lines from lspci) so unrelated PCI devices such as NICs or the
-# chipset cannot be mistaken for a GPU. A discrete NVIDIA GPU is preferred over
-# an integrated one because it is the device usable for GPU streaming.
+# chipset cannot be mistaken for a GPU. Vendors are tested in priority order
+# (NVIDIA, then AMD, then Intel) across both sources, so a discrete GPU is
+# preferred over an integrated one — the discrete device is the one usable for
+# GPU streaming. NVIDIA requires a real device (a 0x10de display node, a working
+# nvidia-smi, an /dev/nvidia0 node, or an lspci display line), not merely the
+# presence of the nvidia-smi binary.
 detect_gpu_vendor() {
   ids=""
   for f in /sys/class/drm/card*/device/vendor; do
     [ -r "$f" ] || continue
     ids="${ids} $(cat "$f" 2>/dev/null || true)"
   done
-  case " ${ids} " in
-  *0x10de*) echo nvidia; return ;;
-  esac
-  if command -v nvidia-smi >/dev/null 2>&1 || [ -e /dev/nvidia0 ]; then
+  gpus=""
+  if command -v lspci >/dev/null 2>&1; then
+    gpus="$(lspci 2>/dev/null | grep -iE 'vga|3d|display' || true)"
+  fi
+
+  if printf '%s' " ${ids} " | grep -q '0x10de' ||
+    { command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; } ||
+    [ -e /dev/nvidia0 ] ||
+    printf '%s\n' "${gpus}" | grep -qiE 'nvidia'; then
     echo nvidia
     return
   fi
-  case " ${ids} " in
-  *0x1002*) echo amd; return ;;
-  *0x8086*) echo intel; return ;;
-  esac
-  if command -v lspci >/dev/null 2>&1; then
-    gpus="$(lspci 2>/dev/null | grep -iE 'vga|3d|display' || true)"
-    if printf '%s\n' "${gpus}" | grep -qiE 'nvidia'; then echo nvidia; return; fi
-    if printf '%s\n' "${gpus}" | grep -qiE 'amd|ati|radeon'; then echo amd; return; fi
-    if printf '%s\n' "${gpus}" | grep -qiE 'intel'; then echo intel; return; fi
+  if printf '%s' " ${ids} " | grep -q '0x1002' ||
+    printf '%s\n' "${gpus}" | grep -qiE 'amd|ati|radeon'; then
+    echo amd
+    return
+  fi
+  if printf '%s' " ${ids} " | grep -q '0x8086' ||
+    printf '%s\n' "${gpus}" | grep -qiE 'intel'; then
+    echo intel
+    return
   fi
   echo none
 }

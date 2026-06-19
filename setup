@@ -71,11 +71,14 @@ then
 fi
 
 # --desktop applies only to a real Ubuntu install. The VM/non-Ubuntu path
-# launches a VM and cannot forward the desktop request, so warn instead of
-# dropping it silently.
+# launches a VM and cannot forward the desktop request, so reject the
+# combination explicitly rather than silently running the base setup. Desktop
+# support inside the VM is a separate concern handled by sibling issues. The
+# non-mutating "--desktop --dry-run" preview already ran above and is exempt.
 if [ "$USE_DESKTOP" -eq 1 ] && [ "$USE_VIRTUAL" -eq 1 ]
 then
-  echo "Warning: --desktop is not forwarded to the VM/non-Ubuntu path; running the base setup only." >&2
+  echo "Error: --desktop is not supported with the VM/non-Ubuntu path; run on a real Ubuntu host, or use --desktop --dry-run to preview the plan." >&2
+  exit 1
 fi
 
 if [ "$USE_VIRTUAL" -eq 1 ]
