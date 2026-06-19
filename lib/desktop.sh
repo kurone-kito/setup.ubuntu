@@ -109,11 +109,13 @@ stage_baseline_desktop() { # XFCE (xubuntu-core) + xrdp
     # Keep the host headless-by-default: force the multi-user (CLI) target and
     # disable any display manager that may already be present. The GUI is
     # reached over xrdp on connect, not via a local login screen.
-    sudo systemctl set-default multi-user.target >/dev/null 2>&1 || true
+    sudo systemctl set-default multi-user.target >/dev/null 2>&1 ||
+      log "warning: could not set multi-user.target; the host may boot to a GUI"
     for dm in lightdm gdm3 sddm lxdm nodm; do
       if systemctl list-unit-files "${dm}.service" >/dev/null 2>&1 &&
         systemctl is-enabled "${dm}.service" >/dev/null 2>&1; then
-        sudo systemctl disable "${dm}.service" >/dev/null 2>&1 || true
+        sudo systemctl disable "${dm}.service" >/dev/null 2>&1 ||
+          log "warning: could not disable ${dm}; it may still show a login screen"
       fi
     done
     # Enable and start xrdp; surface a real failure instead of hiding it.
