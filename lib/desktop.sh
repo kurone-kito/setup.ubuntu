@@ -114,13 +114,19 @@ stage_baseline_desktop() { # XFCE (xubuntu-core) + xrdp
     for dm in lightdm gdm3 sddm lxdm nodm; do
       if systemctl list-unit-files "${dm}.service" >/dev/null 2>&1 &&
         systemctl is-enabled "${dm}.service" >/dev/null 2>&1; then
-        sudo systemctl disable "${dm}.service" >/dev/null 2>&1 ||
+        # --now also stops a currently-running login screen, not just the next
+        # boot, so the host is headless immediately.
+        sudo systemctl disable --now "${dm}.service" >/dev/null 2>&1 ||
           log "warning: could not disable ${dm}; it may still show a login screen"
       fi
     done
-    # Enable and start xrdp; surface a real failure instead of hiding it.
-    sudo systemctl enable --now xrdp ||
-      log "warning: could not enable/start xrdp; start it manually"
+    # xrdp is the access path for the desktop layer; if it cannot be enabled on a
+    # systemd host the desktop is unreachable, so fail loudly rather than leaving
+    # a broken install behind.
+    sudo systemctl enable --now xrdp || {
+      log "error: failed to enable xrdp (required for the desktop layer)"
+      exit 1
+    }
     log "default systemd target: $(systemctl get-default 2>/dev/null || echo unknown)"
   else
     log "systemd not detected (e.g. WSL without systemd): start xrdp manually"
