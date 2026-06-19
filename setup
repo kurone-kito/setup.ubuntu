@@ -23,13 +23,63 @@ then
   fi
 fi
 
-while getopts 'v' opt
+USE_DESKTOP=0
+
+# Normalize the dry-run flag/env to 0|1 up front so a value such as "true"
+# from the environment cannot abort the script on a numeric test under set -e.
+case "${DESKTOP_DRY_RUN:-0}" in
+  1 | true | yes | on) DESKTOP_DRY_RUN=1 ;;
+  *) DESKTOP_DRY_RUN=0 ;;
+esac
+
+usage() {
+  echo "Usage: $0 [-v] [--desktop] [--dry-run]" >&2
+}
+
+# POSIX getopts cannot parse long options, so parse arguments manually while
+# keeping the existing -v behavior. Running with no flags is unchanged.
+while [ $# -gt 0 ]
 do
-  case "$opt" in
-    v) USE_VIRTUAL=1 ;;
-    *) echo "Usage: $0 [-v]" >&2; exit 1 ;;
+  case "$1" in
+    -v) USE_VIRTUAL=1 ;;
+    --desktop) USE_DESKTOP=1 ;;
+    --dry-run) DESKTOP_DRY_RUN=1 ;;
+    -h|--help) usage; exit 0 ;;
+    --) shift; break ;;
+    *) usage; exit 1 ;;
   esac
+  shift
 done
+
+# Reject stray positional arguments left after a "--" terminator.
+if [ "$#" -gt 0 ]
+then
+  usage
+  exit 1
+fi
+
+export DESKTOP_DRY_RUN
+
+# A dry run targets the desktop layer and implies it, so it works via the
+# --dry-run flag or the DESKTOP_DRY_RUN env var on its own. It is non-mutating:
+# handle it before any install step and before the VM path so it prints a plan
+# and exits without side effects.
+if [ "$DESKTOP_DRY_RUN" -eq 1 ]
+then
+  lib/desktop.sh
+  exit 0
+fi
+
+# --desktop applies only to a real Ubuntu install. The VM/non-Ubuntu path
+# launches a VM and cannot forward the desktop request, so reject the
+# combination explicitly rather than silently running the base setup. Desktop
+# support inside the VM is a separate concern handled by sibling issues. The
+# non-mutating "--desktop --dry-run" preview already ran above and is exempt.
+if [ "$USE_DESKTOP" -eq 1 ] && [ "$USE_VIRTUAL" -eq 1 ]
+then
+  echo "Error: --desktop is not supported with the VM/non-Ubuntu path; run on a real Ubuntu host, or use --desktop --dry-run to preview the plan." >&2
+  exit 1
+fi
 
 if [ "$USE_VIRTUAL" -eq 1 ]
 then
@@ -43,5 +93,10 @@ lib/docker.sh
 lib/pwsh.sh
 lib/teardown.sh
 lib/locale.sh
+
+if [ "$USE_DESKTOP" -eq 1 ]
+then
+  lib/desktop.sh
+fi
 
 echo done.
