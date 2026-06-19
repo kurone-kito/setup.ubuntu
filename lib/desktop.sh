@@ -251,22 +251,23 @@ stage_gpu_display() { # GPU driver + headless virtual display
     log "installing the NVIDIA driver and enabling a headless virtual display"
     sudo apt-get install -y --no-install-recommends ubuntu-drivers-common ||
       { log "warning: could not install ubuntu-drivers-common; skipping NVIDIA driver"; return 0; }
-    if command -v ubuntu-drivers >/dev/null 2>&1; then
-      sudo ubuntu-drivers autoinstall ||
-        log "warning: ubuntu-drivers could not auto-install an NVIDIA driver"
-    else
-      log "warning: ubuntu-drivers not found; install the NVIDIA driver manually"
-    fi
-    # AllowEmptyInitialConfiguration coexists with the real driver and lets the
-    # GPU X server start with no monitor attached, so it is safe even when a
-    # monitor is present.
-    sudo tee /etc/X11/xorg.conf.d/10-nvidia-headless.conf >/dev/null <<'EOF'
+    # Only write the nvidia headless xorg drop-in once the driver is actually
+    # installed: a config that forces Driver "nvidia" with no driver present
+    # would make Xorg fail to start.
+    if command -v ubuntu-drivers >/dev/null 2>&1 && sudo ubuntu-drivers autoinstall; then
+      # AllowEmptyInitialConfiguration coexists with the real driver and lets the
+      # GPU X server start with no monitor attached, so it is safe even when a
+      # monitor is present.
+      sudo tee /etc/X11/xorg.conf.d/10-nvidia-headless.conf >/dev/null <<'EOF'
 Section "Device"
     Identifier "nvidia-headless"
     Driver "nvidia"
     Option "AllowEmptyInitialConfiguration" "true"
 EndSection
 EOF
+    else
+      log "warning: NVIDIA driver not installed (ubuntu-drivers missing or failed); skipping the nvidia headless xorg config"
+    fi
     ;;
   amd | intel)
     log "ensuring the ${GPU_VENDOR} userspace stack (the kernel driver is built in)"
