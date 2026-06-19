@@ -17,6 +17,12 @@ case "${DESKTOP_DRY_RUN:-0}" in
 *) DESKTOP_DRY_RUN=0 ;;
 esac
 
+# Experimental opt-in: install Sunshine inside WSL (software encoding only).
+case "${DESKTOP_SUNSHINE_WSL:-0}" in
+1 | true | yes | on) DESKTOP_SUNSHINE_WSL=1 ;;
+*) DESKTOP_SUNSHINE_WSL=0 ;;
+esac
+
 log() { printf '[desktop] %s\n' "$*"; }
 plan() { printf '[desktop:plan] %s\n' "$*"; }
 
@@ -144,9 +150,82 @@ stage_baseline_desktop() { # XFCE (xubuntu-core) + xrdp
   fi
 }
 
-stage_sunshine() { # Sunshine host + vendor-aware encoder -> #30
-  log "Sunshine host + encoder selection: not yet implemented (#30)"
-  return 0
+# Map the detected GPU vendor to a Sunshine encoder family. VAAPI is the
+# portable Linux hardware path for both Intel and AMD; NVENC is used for NVIDIA;
+# anything else falls back to software (x264).
+select_encoder() {
+  case "${GPU_VENDOR}" in
+  nvidia) echo nvenc ;;
+  amd | intel) echo vaapi ;;
+  *) echo software ;;
+  esac
+}
+
+stage_sunshine() { # Sunshine host + vendor-aware encoder
+  encoder="$(select_encoder)"
+  # NVENC is not guaranteed under WSL, so the experimental WSL path uses software.
+  if is_wsl; then
+    encoder=software
+    log "Sunshine on WSL is experimental: using software encoding (NVENC not guaranteed under WSL)"
+  fi
+  # Install the Sunshine .deb unless it is already present (idempotent). The
+  # encoder runtime below is ensured either way, so a pre-installed host still
+  # gets hardware-encoding support.
+  if command -v sunshine >/dev/null 2>&1; then
+    log "Sunshine already installed; ensuring encoder runtime (encoder: ${encoder})"
+  else
+    log "installing Sunshine host (encoder: ${encoder})"
+
+    # shellcheck source=/dev/null
+    ubuntu_ver="$(. /etc/os-release 2>/dev/null; printf '%s' "${VERSION_ID:-}")"
+    arch="$(dpkg --print-architecture 2>/dev/null || echo unknown)"
+    case "${arch}" in
+    amd64 | arm64) ;;
+    *)
+      log "warning: no Sunshine package for architecture '${arch}'; skipping"
+      return 0
+      ;;
+    esac
+    if [ -z "${ubuntu_ver}" ]; then
+      log "warning: cannot determine Ubuntu version; skipping Sunshine install"
+      return 0
+    fi
+
+    # Sunshine is published as a .deb by LizardByte (not in the Ubuntu archive),
+    # with prebuilt packages for LTS-class releases. Fetch the build matching
+    # this Ubuntu release/arch and let apt resolve deps. A failure here is
+    # non-fatal: the xrdp desktop from the baseline stage still works.
+    deb="$(mktemp --suffix=.deb)"
+    url="https://github.com/LizardByte/Sunshine/releases/latest/download/sunshine-ubuntu-${ubuntu_ver}-${arch}.deb"
+    if curl -fsSL "${url}" -o "${deb}" &&
+      sudo apt-get install -y --no-install-recommends "${deb}"; then
+      log "Sunshine installed"
+    else
+      log "warning: could not download/install Sunshine for Ubuntu ${ubuntu_ver}/${arch} (no matching LizardByte build, or a network/apt error); the xrdp desktop is unaffected"
+      rm -f "${deb}"
+      return 0
+    fi
+    rm -f "${deb}"
+  fi
+
+  # Install the runtime the selected encoder needs so Sunshine's auto-detection
+  # can use hardware encoding; the encoder is chosen in Sunshine's user config,
+  # which dotfiles owns. NVENC ships with the NVIDIA driver (GPU-driver stage);
+  # software encoding needs nothing extra.
+  case "${encoder}" in
+  vaapi)
+    sudo apt-get install -y --no-install-recommends vainfo mesa-va-drivers ||
+      log "warning: could not install the VAAPI runtime; Sunshine may use software"
+    if [ "${GPU_VENDOR}" = intel ]; then
+      sudo apt-get install -y --no-install-recommends intel-media-va-driver ||
+        log "warning: intel-media-va-driver unavailable; mesa VAAPI will be used"
+    fi
+    ;;
+  nvenc) log "NVENC will use the NVIDIA driver (installed by the GPU-driver stage)" ;;
+  software) log "no hardware encoder: Sunshine will use software (x264) encoding" ;;
+  esac
+
+  log "Sunshine user config (~/.config/sunshine) is delegated to dotfiles"
 }
 
 stage_gpu_display() { # GPU driver + headless virtual display -> #31
@@ -165,7 +244,7 @@ print_plan() {
   case "${ENVIRONMENT}" in
   baremetal)
     plan "install XFCE (xubuntu-core) + xrdp; no display manager (boot stays CLI)"
-    plan "install Sunshine; encoder for vendor '${GPU_VENDOR}' (software if none)"
+    plan "install Sunshine (encoder: $(select_encoder))"
     if [ "${GPU_VENDOR}" = none ]; then
       plan "no GPU: skip GPU driver and headless virtual display"
     else
@@ -174,7 +253,11 @@ print_plan() {
     ;;
   wsl)
     plan "install XFCE (xubuntu-core) + xrdp"
-    plan "WSL: rely on WSLg (WSL2); skip Linux GPU driver and bare-metal Sunshine"
+    if [ "${DESKTOP_SUNSHINE_WSL}" = 1 ]; then
+      plan "WSL: install Sunshine (experimental, software encoding)"
+    else
+      plan "WSL: rely on WSLg (WSL2); skip Linux GPU driver and bare-metal Sunshine"
+    fi
     ;;
   unsupported)
     plan "environment not supported for the desktop layer; nothing to do"
@@ -203,7 +286,12 @@ baremetal)
   ;;
 wsl)
   stage_baseline_desktop
-  log "WSL: relying on WSLg (WSL2); skipping Linux GPU driver and bare-metal Sunshine"
+  if [ "${DESKTOP_SUNSHINE_WSL}" = 1 ]; then
+    log "WSL: --desktop-sunshine-wsl set; installing Sunshine (experimental)"
+    stage_sunshine
+  else
+    log "WSL: relying on WSLg (WSL2); skipping Linux GPU driver and bare-metal Sunshine"
+  fi
   ;;
 unsupported)
   log "environment not supported for the desktop layer; nothing to do"
