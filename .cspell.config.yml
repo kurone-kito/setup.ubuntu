@@ -39,12 +39,15 @@ words:
   - lazyjj
   - ludeeus
   - nodm
+  - nvenc
   - nyancat
   - ollama
   - pylint
   - unpushed
   - unreplied
   - unscored
+  - vaapi
+  - vainfo
   - waivable
   - xkblayout
   - xkbmodel

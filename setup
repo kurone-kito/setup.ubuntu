@@ -31,9 +31,13 @@ case "${DESKTOP_DRY_RUN:-0}" in
   1 | true | yes | on) DESKTOP_DRY_RUN=1 ;;
   *) DESKTOP_DRY_RUN=0 ;;
 esac
+case "${DESKTOP_SUNSHINE_WSL:-0}" in
+  1 | true | yes | on) DESKTOP_SUNSHINE_WSL=1 ;;
+  *) DESKTOP_SUNSHINE_WSL=0 ;;
+esac
 
 usage() {
-  echo "Usage: $0 [-v] [--desktop] [--dry-run]" >&2
+  echo "Usage: $0 [-v] [--desktop] [--dry-run] [--desktop-sunshine-wsl]" >&2
 }
 
 # POSIX getopts cannot parse long options, so parse arguments manually while
@@ -44,6 +48,7 @@ do
     -v) USE_VIRTUAL=1 ;;
     --desktop) USE_DESKTOP=1 ;;
     --dry-run) DESKTOP_DRY_RUN=1 ;;
+    --desktop-sunshine-wsl) DESKTOP_SUNSHINE_WSL=1 ;;
     -h|--help) usage; exit 0 ;;
     --) shift; break ;;
     *) usage; exit 1 ;;
@@ -59,6 +64,7 @@ then
 fi
 
 export DESKTOP_DRY_RUN
+export DESKTOP_SUNSHINE_WSL
 
 # A dry run targets the desktop layer and implies it, so it works via the
 # --dry-run flag or the DESKTOP_DRY_RUN env var on its own. It is non-mutating:
