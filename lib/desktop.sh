@@ -23,6 +23,13 @@ case "${DESKTOP_SUNSHINE_WSL:-0}" in
 *) DESKTOP_SUNSHINE_WSL=0 ;;
 esac
 
+# Opt-in: configure a dummy headless virtual display for AMD/Intel. It can
+# override a connected monitor, so it is only for genuinely monitor-less hosts.
+case "${DESKTOP_DUMMY_DISPLAY:-0}" in
+1 | true | yes | on) DESKTOP_DUMMY_DISPLAY=1 ;;
+*) DESKTOP_DUMMY_DISPLAY=0 ;;
+esac
+
 log() { printf '[desktop] %s\n' "$*"; }
 plan() { printf '[desktop:plan] %s\n' "$*"; }
 
@@ -228,14 +235,82 @@ stage_sunshine() { # Sunshine host + vendor-aware encoder
   log "Sunshine user config (~/.config/sunshine) is delegated to dotfiles"
 }
 
-stage_gpu_display() { # GPU driver + headless virtual display -> #31
+stage_gpu_display() { # GPU driver + headless virtual display
   # Defense-in-depth: never install a Linux GPU driver under WSL (1 or 2).
   if is_wsl; then
     log "WSL detected: refusing GPU driver install (no Linux GPU driver under WSL)"
     return 0
   fi
-  log "GPU driver + headless virtual display: not yet implemented (#31)"
-  return 0
+  # This stage is the least critical part of the desktop layer (a streaming
+  # nicety), and the xrdp desktop already works, so a package failure degrades
+  # gracefully instead of aborting the whole setup.
+  sudo install -d /etc/X11/xorg.conf.d ||
+    { log "warning: could not create /etc/X11/xorg.conf.d; skipping GPU display setup"; return 0; }
+  case "${GPU_VENDOR}" in
+  nvidia)
+    log "installing the NVIDIA driver and enabling a headless virtual display"
+    sudo apt-get install -y --no-install-recommends ubuntu-drivers-common ||
+      { log "warning: could not install ubuntu-drivers-common; skipping NVIDIA driver"; return 0; }
+    # Only write the nvidia headless xorg drop-in once the driver is actually
+    # installed: a config that forces Driver "nvidia" with no driver present
+    # would make Xorg fail to start.
+    if command -v ubuntu-drivers >/dev/null 2>&1 && sudo ubuntu-drivers autoinstall; then
+      # AllowEmptyInitialConfiguration coexists with the real driver and lets the
+      # GPU X server start with no monitor attached, so it is safe even when a
+      # monitor is present.
+      sudo tee /etc/X11/xorg.conf.d/10-nvidia-headless.conf >/dev/null <<'EOF'
+Section "Device"
+    Identifier "nvidia-headless"
+    Driver "nvidia"
+    Option "AllowEmptyInitialConfiguration" "true"
+EndSection
+EOF
+    else
+      log "warning: NVIDIA driver not installed (ubuntu-drivers missing or failed); skipping the nvidia headless xorg config"
+    fi
+    ;;
+  amd | intel)
+    log "ensuring the ${GPU_VENDOR} userspace stack (the kernel driver is built in)"
+    sudo apt-get install -y --no-install-recommends mesa-utils libgl1-mesa-dri ||
+      log "warning: could not install the ${GPU_VENDOR} mesa userspace"
+    # The dummy driver can override a connected monitor, so the headless display
+    # is opt-in (DESKTOP_DUMMY_DISPLAY=1) and intended for monitor-less hosts.
+    if [ "${DESKTOP_DUMMY_DISPLAY}" = 1 ]; then
+      sudo apt-get install -y --no-install-recommends xserver-xorg-video-dummy ||
+        { log "warning: could not install xserver-xorg-video-dummy; skipping dummy display"; return 0; }
+      sudo tee /etc/X11/xorg.conf.d/10-headless-dummy.conf >/dev/null <<'EOF'
+Section "Device"
+    Identifier "headless-dummy"
+    Driver "dummy"
+    VideoRam 256000
+EndSection
+Section "Monitor"
+    Identifier "headless-monitor"
+    HorizSync 5.0 - 1000.0
+    VertRefresh 5.0 - 200.0
+EndSection
+Section "Screen"
+    Identifier "headless-screen"
+    Device "headless-dummy"
+    Monitor "headless-monitor"
+    DefaultDepth 24
+    SubSection "Display"
+        Depth 24
+        Modes "1920x1080"
+    EndSubSection
+EndSection
+EOF
+      log "dummy headless display configured (overrides any local monitor)"
+    else
+      log "${GPU_VENDOR}: skipping the dummy headless display (set DESKTOP_DUMMY_DISPLAY=1 on a monitor-less host)"
+    fi
+    ;;
+  *)
+    log "no GPU vendor detected; skipping GPU driver / virtual display"
+    return 0
+    ;;
+  esac
+  log "GPU display stage complete"
 }
 
 print_plan() {
@@ -245,11 +320,17 @@ print_plan() {
   baremetal)
     plan "install XFCE (xubuntu-core) + xrdp; no display manager (boot stays CLI)"
     plan "install Sunshine (encoder: $(select_encoder))"
-    if [ "${GPU_VENDOR}" = none ]; then
-      plan "no GPU: skip GPU driver and headless virtual display"
-    else
-      plan "install '${GPU_VENDOR}' GPU driver + headless virtual display"
-    fi
+    case "${GPU_VENDOR}" in
+    nvidia) plan "install NVIDIA driver (ubuntu-drivers) + AllowEmptyInitialConfiguration headless display" ;;
+    amd | intel)
+      if [ "${DESKTOP_DUMMY_DISPLAY}" = 1 ]; then
+        plan "install ${GPU_VENDOR} mesa userspace + dummy headless display (overrides a local monitor)"
+      else
+        plan "install ${GPU_VENDOR} mesa userspace (set DESKTOP_DUMMY_DISPLAY=1 for a dummy headless display)"
+      fi
+      ;;
+    *) plan "no GPU: skip GPU driver and headless virtual display" ;;
+    esac
     ;;
   wsl)
     plan "install XFCE (xubuntu-core) + xrdp"
