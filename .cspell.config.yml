@@ -1,5 +1,6 @@
 allowCompoundWords: true
 dictionaries:
+  - bash
   - cpp-compound-words
   - docker
   - en_US
@@ -7,6 +8,8 @@ dictionaries:
   - git
   - markdown
   - misc
+  - npm
+  - python
   - shellscript
   - softwareTerms
   - terraform
@@ -28,10 +31,8 @@ words:
   - byobu
   - desync
   - desynced
-  - esac
   - esync
   - hyfetch
-  - imgbotconfig
   - kito
   - kislyuk
   - kuron
@@ -45,7 +46,6 @@ words:
   - nvenc
   - nyancat
   - ollama
-  - pylint
   - unpushed
   - unreplied
   - unscored
