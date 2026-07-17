@@ -25,6 +25,10 @@ packages:
   - imagemagick
   - yt-dlp
 
+  # Clipboard
+  - xsel
+  - yank
+
   # Cryptography
   - gnupg
   - pinentry-curses
@@ -42,14 +46,15 @@ packages:
   # Download tools
   - ca-certificates
   - curl
-  - httpie
   - wget
 
   # Files management
   - bat
   - eza
+  - file
   - fzf
   - rename
+  - trash-cli
   - zoxide
 
   # Hardware
@@ -69,6 +74,7 @@ packages:
   - software-properties-common
 
   # Remote tools
+  - httpie
   - mkcert
   - mosh
   - openssh-client
@@ -79,7 +85,6 @@ packages:
 
   # SCM tools
   - gh
-  - gist
   - git
   - git-delta
   - git-lfs
@@ -87,13 +92,10 @@ packages:
 
   # Shell utilities
   - bash-completion
-  - rebound
   - shellcheck
   - sudo-rs
   - thefuck
-  - yank
   - zsh
-  - zsh-theme-powerlevel9k
 
   # Text browsing tools
   - links2
@@ -110,12 +112,9 @@ packages:
   - yq
 
   # Texts editors
-  - nano
-  - neovim
   - vim
 
   # TUI
-  - byobu
   - tmux
 timezone: Asia/Tokyo
 write_files:

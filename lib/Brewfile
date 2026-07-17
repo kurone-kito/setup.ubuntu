@@ -8,20 +8,28 @@ brew 'chezmoi'
 brew 'task'
 
 # Development
-brew 'mise'
+brew 'ast-grep'
+brew 'cargo-binstall'
+brew 'deno'
+brew 'direnv'
 brew 'python'
+brew 'tree-sitter'
 
 # Files management
 brew 'fd'
+brew 'watchexec'
+brew 'yazi'
 
 # Generative AI
 brew 'ollama'
 
 # Package management
+brew 'mise'
 brew 'vrc-get'
 
 # Remote
 brew 'awscli'
+brew 'lazyssh'
 
 # SCM tools
 brew 'ghq'
@@ -29,6 +37,28 @@ brew 'gti'
 brew 'jj'
 brew 'lazygit'
 brew 'lazyjj'
+brew 'worktrunk'
+
+# Shell utilities
+brew 'powershell'
+brew 'starship'
+
+# Text browsing tools
+brew 'glow'
+
+# Text converters
+brew 'dprint'
+brew 'pkl'
+
+# Texts editors
+brew 'msedit'
+brew 'neovim'
 
 # TUI
 brew 'zellij'
+
+# Virtualization
+brew 'act'
+brew 'dive'
+brew 'k3sup'
+brew 'lazydocker'

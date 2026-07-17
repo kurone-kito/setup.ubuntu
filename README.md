@@ -12,19 +12,26 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ## Installation apps
 
+|  note   | description                                                                                                                 |
+| :-----: | :-------------------------------------------------------------------------------------------------------------------------- |
+| **`!`** | **DEPENDENCIES**: Removing the apps may cause this setup to stop working correctly.                                         |
+| **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) dependencies**: They're required for the dotfiles to work correctly.  |
+|   (B)   | The apps install via the [Homebrew](https://brew.sh/) package manager, so you can manage them with Homebrew.                |
+|   (M)   | The apps install via the [mise-en-place](https://mise.jdx.dev/) package manager, so you can manage them with Mise-en-place. |
+
 ### Archive tools
 
-- bzip2
+- [bzip2](https://github.com/libarchive/bzip2)
 - [p7zip](https://sourceforge.net/projects/p7zip/)
-- unzip
-- xz-utils
-- zip
+- [unzip](https://manpages.ubuntu.com/manpages/man1/unzip.1.html)
+- [xz-utils](https://tukaani.org/xz/)
+- [zip](https://manpages.ubuntu.com/manpages/man1/zip.1.html)
 
 ### Benchmark tools
 
 - [htop](https://htop.dev)
-- hyfetch
-- hyperfine
+- [hyfetch](https://github.com/hykilpikonna/hyfetch)
+- [hyperfine](https://github.com/sharkdp/hyperfine)
 
 ### Binary converters
 
@@ -33,53 +40,66 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [ImageMagick](https://imagemagick.org/index.php)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 
-#### Configuration tools
+### Clipboard tools
 
-- [chezmoi](https://www.chezmoi.io/)
+- [xsel](http://www.kfish.org/software/xsel/)
+- [yank](https://github.com/mptre/yank)
+
+### Configuration tools
+
+- **`.`** (M) [Bitwarden CLI](https://bitwarden.com/)
+- **`.`** (B) [chezmoi](https://www.chezmoi.io/)
 
 ### Cryptography
 
-- [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
-- pinentry-curses
+- **`!`** [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
+- **`.`** [pinentry-curses](https://manpages.ubuntu.com/manpages/man1/pinentry-curses.1.html)
 
 ### Database
 
 - [SQLite](https://www.sqlite.org/)
-- [Taskwarrior](https://taskwarrior.org/)
+- (B) [Taskwarrior](https://taskwarrior.org/)
 
 ### Development tools
 
-- build-essential
-- cargo
+- (B) [ast-grep](https://ast-grep.github.io/)
+- **`!`** build-essential
+- **`!`** [cargo](https://doc.rust-lang.org/stable/cargo/)
+- (B) **`!`** [Cargo Binary Install](https://github.com/cargo-bins/cargo-binstall)
 - [CMake](https://cmake.org)
+- (B) [Deno](https://deno.com/)
+- (B) [direnv](https://direnv.net/)
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
-- make
-- mise
-- python3
+- [make](https://www.gnu.org/software/make/)
+- **`.`** (M) [Node.js](https://nodejs.org/)
+- (B) [python3](https://www.python.org/)
+- (B) [tree-sitter](https://tree-sitter.github.io/tree-sitter/)
 
 ### Download tools
 
-- ca-certificates
-- [curl](https://curl.se)
-- httpie
+- **`!`** [ca-certificates](https://curl.se/docs/caextract.html)
+- **`!`** [curl](https://curl.se)
 - [GNU wget](https://www.gnu.org/software/wget/)
 
 ### Files management
 
 - [bat](https://github.com/sharkdp/bat)
-- eza
-- fd
+- [eza](https://github.com/eza-community/eza)
+- (B) [fd](https://github.com/sharkdp/fd)
 - [fzf](https://github.com/junegunn/fzf)
 - [rename](http://plasmasturm.org/code/rename/)
-- zoxide
+- [trash-cli](https://github.com/andreafrancia/trash-cli)
+- (B) [watchexec](https://github.com/watchexec/watchexec)
+- (B) [yazi](https://yazi-rs.github.io/)
+- **`.`** [zoxide](https://crates.io/crates/zoxide)
 
 #### Generative AI
 
-- [Ollama](https://ollama.com/)
+- (B) [Ollama](https://ollama.com/)
 
 ### Hardware
 
-- keyboard-configuration
+- **`!`** keyboard-configuration
 
 ### Jokes
 
@@ -88,84 +108,91 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 ### Locales
 
-- language-pack-ja
+- **`!`** language-pack-ja
 
 ### Package manager
 
-- apt-file
-- apt-transport-https
+- [apt-file](https://manpages.ubuntu.com/manpages/man1/apt-file.1.html)
+- [apt-transport-https](https://manpages.ubuntu.com/manpages/man1/apt-transport-https.1.html)
 - apt-utils
-- [Homebrew](https://brew.sh/)
-- software-properties-common
-- vrc-get
+- **`!`** [Homebrew](https://brew.sh/)
+- **`!`** (B) [mise-en-place](https://mise.jdx.dev/)
+- **`!`** software-properties-common
+- **`.`** (B) [vrc-get](https://github.com/vrc-get/vrc-get)
 
 ### Remote tools
 
-- [awscli](https://aws.amazon.com/cli/)
+- **`.`** (B) [awscli](https://aws.amazon.com/cli/)
+- [httpie](https://httpie.io/)
+- [LazySSH](https://github.com/Adembc/lazyssh)
 - [mkcert](https://mkcert.dev/)
-- mosh
-- OpenSSH Server & Client
-- OpenSSL
+- [mosh](https://mosh.org/)
+- **`.`** [OpenSSH Server & Client](https://www.openssh.org/)
+- [OpenSSL](https://www.openssl.org/)
 - [OpenVPN](https://openvpn.net/)
 - [rsync](https://rsync.samba.org/)
 
 ### SCM tools
 
-- [ghq](https://github.com/x-motemen/ghq)
-- [GitHub CLI](https://cli.github.com/)
-- [Gist](http://defunkt.io/gist/)
-- [Git](https://git-scm.com/)
-- [git-delta: A viewer for git and diff output](https://github.com/dandavison/delta)
-- [Git Large File Storage](https://git-lfs.github.com/)
-- [gti](https://r-wos.org/hacks/gti)
-- [Jujutsu](https://jj-vcs.dev/)
-- [lazygit](https://github.com/jesseduffield/lazygit)
-- [lazyjj](https://github.com/Cretezy/lazyjj)
+- **`.`** (B) [ghq](https://github.com/x-motemen/ghq)
+- **`.`** [GitHub CLI](https://cli.github.com/)
+- **`.`** [Git](https://git-scm.com/)
+- **`.`** [git-delta: A viewer for git and diff output](https://github.com/dandavison/delta)
+- **`.`** [Git Large File Storage](https://git-lfs.github.com/)
+- (B) [gti](https://r-wos.org/hacks/gti)
+- (B) [Jujutsu](https://jj-vcs.dev/)
+- (B) [lazygit](https://github.com/jesseduffield/lazygit)
+- (B) [lazyjj](https://github.com/Cretezy/lazyjj)
 - [Apache Subversion](https://subversion.apache.org/)
+- (B) [Worktrunk](https://worktrunk.dev/)
 
 ### Shell utilities
 
-- bash-completion
-- [Microsoft PowerShell](https://microsoft.com/PowerShell)
-- rebound
+- [bash-completion](https://github.com/scop/bash-completion)
+- **`.`** (B) [Microsoft PowerShell](https://microsoft.com/PowerShell)
 - [shellcheck](https://www.shellcheck.net)
-- sudo-rs
+- **`.`** (B) [Starship](https://starship.rs/)
+- [sudo-rs](https://github.com/trifectatechfoundation/sudo-rs)
 - [The Fuck](https://github.com/nvbn/thefuck)
-- yank
-- zsh
-- zsh-theme-powerlevel9k
+- **`.`** [zsh](https://www.zsh.org/)
 
 ### Text browsing tools
 
-- links2
+- (B) [glow](https://github.com/charmbracelet/glow)
+- [links2](https://links.twibright.com/)
 - [mdp](https://github.com/visit1985/mdp)
-- tealdeer
-- w3m
+- [tealdeer](https://tealdeer-rs.github.io/tealdeer/)
+- [w3m](https://w3m.sourceforge.net/)
 
 ### Text converters
 
 - [cloc](https://github.com/AlDanial/cloc)
+- [dprint](https://dprint.dev/)
 - [groff](https://www.gnu.org/software/groff/)
 - [jc](https://kellyjonbrazil.github.io/jc/)
 - [jq](https://stedolan.github.io/jq/)
+- (B) [pkl](https://pkl-lang.org/)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
-- [yq](https://mikefarah.gitbook.io/yq)
+- **`!`** [yq](https://mikefarah.gitbook.io/yq)
 
 ### Texts editors
 
-- [GNU Nano](https://www.nano-editor.org)
-- [Neovim](https://neovim.io/)
-- [Vim](https://www.vim.org/)
+- (B) [Microsoft Edit](https://github.com/microsoft/edit)
+- **`.`** (B) [Neovim](https://neovim.io/)
+- **`.`** [Vim](https://www.vim.org/)
 
 ### TUI
 
-- [byobu](https://www.byobu.org/)
-- [tmux](https://github.com/tmux/tmux)
-- [zellij](https://zellij.dev)
+- **`.`** [tmux](https://github.com/tmux/tmux)
+- **`.`** (B) [zellij](https://zellij.dev)
 
 #### Virtualizations
 
-- Docker community edition
+- (B) [act](https://github.com/nektos/act)
+- (B) [dive](https://github.com/wagoodman/dive)
+- (B) [k3sup](https://github.com/alexellis/k3sup)
+- (B) [Docker community edition](https://www.docker.com/)
+- (B) [lazydocker](https://github.com/jesseduffield/lazydocker)
 
 ### Others
 

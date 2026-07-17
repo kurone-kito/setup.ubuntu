@@ -13,8 +13,8 @@ then
   # to be evaluated at each shell startup, not expanded here.
   # shellcheck disable=SC2016
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "${HOME}/.bashrc"
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 brew update
 brew bundle --file=lib/Brewfile

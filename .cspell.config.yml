@@ -1,5 +1,6 @@
 allowCompoundWords: true
 dictionaries:
+  - bash
   - cpp-compound-words
   - docker
   - en_US
@@ -7,6 +8,9 @@ dictionaries:
   - git
   - markdown
   - misc
+  - npm
+  - python
+  - shellscript
   - softwareTerms
   - terraform
 enableGlobDot: true
@@ -22,15 +26,13 @@ ignorePaths:
   - cspell.config.yml
 language: en,ja
 useGitignore: true
-version: '0.2'
+version: "0.2"
 words:
   - byobu
   - desync
   - desynced
-  - esac
   - esync
   - hyfetch
-  - imgbotconfig
   - kito
   - kislyuk
   - kuron
@@ -39,11 +41,11 @@ words:
   - lazyjj
   - libgl
   - ludeeus
+  - msedit
   - nodm
   - nvenc
   - nyancat
   - ollama
-  - pylint
   - unpushed
   - unreplied
   - unscored
@@ -56,4 +58,6 @@ words:
   - xkbvariant
   - xorgxrdp
   - xrdp
+  - xsel
   - xsession
+  - yazi
