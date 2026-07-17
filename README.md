@@ -190,6 +190,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 
 - (B) [act](https://github.com/nektos/act)
 - (B) [dive](https://github.com/wagoodman/dive)
+- (B) [k3sup](https://github.com/alexellis/k3sup)
 - (B) [Docker community edition](https://www.docker.com/)
 - (B) [lazydocker](https://github.com/jesseduffield/lazydocker)
 
