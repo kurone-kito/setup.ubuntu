@@ -37,4 +37,4 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install \
   docker-ce docker-ce-cli docker-ce-rootless-extras docker-compose-plugin
 
 sudo groupadd docker || true
-sudo usermod -aG docker "$USER"
+sudo usermod -aG docker "$(id -un)"

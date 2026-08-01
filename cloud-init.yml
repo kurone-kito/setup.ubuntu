@@ -163,6 +163,7 @@ write_files:
 
       if [ -f "${TARPATH}" ]
       then
+        mkdir -p "${DEPLOYED}"
         tar -xvf "${TARPATH}" -C "${DEPLOYED}"
         rm "${TARPATH}"
       fi
