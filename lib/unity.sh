@@ -12,4 +12,10 @@ cd "$(cd "$(dirname "$0")"; pwd)/.."
 UNITY_CLI_CHANNEL=beta
 export UNITY_CLI_CHANNEL
 
-curl -fsSL https://public-cdn.cloud.unity3d.com/hub/prod/cli/install.sh | bash -
+# Download to a temp file first: `curl ... | bash -` would let a failed
+# curl exit the pipeline at 0 (bash runs on an empty stdin), silently
+# skipping the install instead of failing this stage.
+installer="$(mktemp)"
+trap 'rm -f "$installer"' EXIT
+curl -fsSL https://public-cdn.cloud.unity3d.com/hub/prod/cli/install.sh -o "$installer"
+bash "$installer"
