@@ -172,6 +172,8 @@ autopilot never performs them — only a human maintainer does:
 ## Coverage
 
 This page was derived from a full sweep of every
-`.github/instructions/*.instructions.md` file (18 files) and every
-`.github/instructions/lite/*.instructions.md` file (4 files) in this
-repository at authoring time.
+`.github/instructions/*.instructions.md` file (18 files) and, when the
+target repository has one, every `.github/instructions/lite/*.instructions.md`
+file. This repository's `.github/instructions/lite/` is intentionally
+absent (see `docs/idd-policy.md`), so only the 18 non-lite files applied
+at authoring time.

@@ -9,12 +9,16 @@ new rule.
 
 This matrix is derived by sweeping the current
 `.github/instructions/*.instructions.md` corpus, including the `lite/`
-subdirectory. The instruction files remain the sole authoritative source
-for phase behavior. Where this document and an instruction file
-disagree, the instruction file wins, and the disagreement is a bug in
-this document, not a second valid interpretation — please file an issue
-so the mismatch can be corrected. This document never overrides, relaxes,
-or extends a gate defined in `.github/instructions/`.
+subdirectory when the target repository has one. This repository's
+`.github/instructions/lite/` is intentionally absent (see
+`docs/idd-policy.md`), so this sweep covers only the 18 non-lite
+instruction files actually present here. The instruction files remain
+the sole authoritative source for phase behavior. Where this document
+and an instruction file disagree, the instruction file wins, and the
+disagreement is a bug in this document, not a second valid
+interpretation — please file an issue so the mismatch can be corrected.
+This document never overrides, relaxes, or extends a gate defined in
+`.github/instructions/`.
 
 ## Actor classes
 
