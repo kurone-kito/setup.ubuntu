@@ -43,7 +43,7 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 ### クリップボードツール
 
 - [xsel](http://www.kfish.org/software/xsel/)
-- yank
+- [yank](https://github.com/mptre/yank)
 
 ### 設定管理ツール
 
@@ -64,7 +64,7 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 
 - (B) [ast-grep](https://ast-grep.github.io/)
 - **`!`** build-essential
-- **`!`** cargo
+- **`!`** [cargo](https://doc.rust-lang.org/stable/cargo/)
 - (B) **`!`** [Cargo Binary Install](https://github.com/cargo-bins/cargo-binstall)
 - [CMake](https://cmake.org)
 - (B) [Deno](https://deno.com/)
@@ -72,12 +72,12 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
 - make
 - **`.`** (M) [Node.js](https://nodejs.org/)
-- (B) python3
+- (B) [python3](https://www.python.org/)
 - (B) [tree-sitter](https://tree-sitter.github.io/tree-sitter/)
 
 ### ダウンロードツール
 
-- **`!`** ca-certificates
+- **`!`** [ca-certificates](https://curl.se/docs/caextract.html)
 - **`!`** [curl](https://curl.se)
 - [GNU wget](https://www.gnu.org/software/wget/)
 
@@ -85,13 +85,13 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 
 - [bat](https://github.com/sharkdp/bat)
 - eza
-- (B) fd
+- (B) [fd](https://github.com/sharkdp/fd)
 - [fzf](https://github.com/junegunn/fzf)
 - [rename](http://plasmasturm.org/code/rename/)
 - [trash-cli](https://github.com/andreafrancia/trash-cli)
 - (B) [watchexec](https://github.com/watchexec/watchexec)
 - (B) [yazi](https://yazi-rs.github.io/)
-- **`.`** zoxide
+- **`.`** [zoxide](https://crates.io/crates/zoxide)
 
 #### 生成 AI
 
@@ -118,7 +118,7 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - **`!`** [Homebrew](https://brew.sh/)
 - **`!`** (B) [mise-en-place](https://mise.jdx.dev/)
 - **`!`** software-properties-common
-- **`.`** (B) vrc-get
+- **`.`** (B) [vrc-get](https://github.com/vrc-get/vrc-get)
 
 ### リモートツール
 
