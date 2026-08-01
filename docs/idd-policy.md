@@ -6,6 +6,17 @@ records the onboarding decisions and must stay aligned with
 [`.github/idd/config.json`](../.github/idd/config.json) whenever a value
 changes.
 
+## Imported template snapshot
+
+- Initial import: `iddVersion 0.3.0` on 2026-06-18 (`d81554b`).
+- Resynced: `iddVersion 0.4.0`, imported from
+  [`kurone-kito/idd-skill`](https://github.com/kurone-kito/idd-skill)
+  `main` at commit
+  [`4e8c7043edcb00dd8447dee83e7a17e5b2604d5d`](https://github.com/kurone-kito/idd-skill/commit/4e8c7043edcb00dd8447dee83e7a17e5b2604d5d)
+  (2026-07-24). `.github/instructions/lite/` is deliberately excluded —
+  it targets the lightweight local-model tier this repository does not
+  use.
+
 ## Project values
 
 - `REPO_NAME`: `setup.ubuntu`
