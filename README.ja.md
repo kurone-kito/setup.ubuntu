@@ -12,10 +12,17 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 
 ## インストールされるアプリ
 
+|  記号   | 説明                                                                                                                         |
+| :-----: | :--------------------------------------------------------------------------------------------------------------------------- |
+| **`!`** | **依存関係**: これらのアプリを削除すると、このセットアップが正しく動作しなくなる場合があります。                             |
+| **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) の依存関係**: dotfiles を正しく動作させるために必要です。              |
+|   (B)   | [Homebrew](https://brew.sh/) パッケージマネージャー経由でインストールされるため、Homebrew で管理できます。                   |
+|   (M)   | [mise-en-place](https://mise.jdx.dev/) パッケージマネージャー経由でインストールされるため、mise-en-place で管理できます。    |
+
 ### アーカイブツール
 
 - bzip2
-- [p7zip](https://sourceforge.net/projects/p7zip/)
+- [p7zip](https://github.com/ip7z/7zip)
 - unzip
 - xz-utils
 - zip
@@ -33,53 +40,66 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - [ImageMagick](https://imagemagick.org/index.php)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
 
-#### 設定管理ツール
+### クリップボードツール
 
-- [chezmoi](https://www.chezmoi.io/)
+- [xsel](http://www.kfish.org/software/xsel/)
+- yank
+
+### 設定管理ツール
+
+- **`.`** (M) [Bitwarden CLI](https://bitwarden.com/)
+- **`.`** (B) [chezmoi](https://www.chezmoi.io/)
 
 ### 暗号化
 
-- [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
-- pinentry-curses
+- **`!`** [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
+- **`.`** [pinentry-curses](https://manpages.ubuntu.com/manpages/man1/pinentry-curses.1.html)
 
 ### データベース
 
 - [SQLite](https://www.sqlite.org/)
-- [Taskwarrior](https://taskwarrior.org/)
+- (B) [Taskwarrior](https://taskwarrior.org/)
 
 ### 開発ツール
 
-- build-essential
-- cargo
+- (B) [ast-grep](https://ast-grep.github.io/)
+- **`!`** build-essential
+- **`!`** cargo
+- (B) **`!`** [Cargo Binary Install](https://github.com/cargo-bins/cargo-binstall)
 - [CMake](https://cmake.org)
+- (B) [Deno](https://deno.com/)
+- (B) [direnv](https://direnv.net/)
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
 - make
-- mise
-- python3
+- **`.`** (M) [Node.js](https://nodejs.org/)
+- (B) python3
+- (B) [tree-sitter](https://tree-sitter.github.io/tree-sitter/)
 
 ### ダウンロードツール
 
-- ca-certificates
-- [curl](https://curl.se)
-- httpie
+- **`!`** ca-certificates
+- **`!`** [curl](https://curl.se)
 - [GNU wget](https://www.gnu.org/software/wget/)
 
 ### ファイル管理
 
 - [bat](https://github.com/sharkdp/bat)
 - eza
-- fd
+- (B) fd
 - [fzf](https://github.com/junegunn/fzf)
 - [rename](http://plasmasturm.org/code/rename/)
-- zoxide
+- [trash-cli](https://github.com/andreafrancia/trash-cli)
+- (B) [watchexec](https://github.com/watchexec/watchexec)
+- (B) [yazi](https://yazi-rs.github.io/)
+- **`.`** zoxide
 
 #### 生成 AI
 
-- [Ollama](https://ollama.com/)
+- (B) [Ollama](https://ollama.com/)
 
 ### ハードウェア
 
-- keyboard-configuration
+- **`!`** keyboard-configuration
 
 ### ジョーク
 
@@ -88,55 +108,58 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 
 ### ロケール
 
-- language-pack-ja
+- **`!`** language-pack-ja
 
 ### パッケージマネージャー
 
 - apt-file
 - apt-transport-https
 - apt-utils
-- [Homebrew](https://brew.sh/)
-- software-properties-common
-- vrc-get
+- **`!`** [Homebrew](https://brew.sh/)
+- **`!`** (B) [mise-en-place](https://mise.jdx.dev/)
+- **`!`** software-properties-common
+- **`.`** (B) vrc-get
 
 ### リモートツール
 
-- [awscli](https://aws.amazon.com/cli/)
+- **`.`** (B) [awscli](https://aws.amazon.com/cli/)
+- [httpie](https://httpie.io/)
+- [LazySSH](https://github.com/Adembc/lazyssh)
 - [mkcert](https://mkcert.dev/)
 - mosh
-- OpenSSH Server & Client
+- [ngrok](https://ngrok.com/)
+- **`.`** [OpenSSH Server & Client](https://www.openssh.org/)
 - OpenSSL
 - [OpenVPN](https://openvpn.net/)
 - [rsync](https://rsync.samba.org/)
 
 ### SCM ツール
 
-- [ghq](https://github.com/x-motemen/ghq)
-- [GitHub CLI](https://cli.github.com/)
-- [Gist](http://defunkt.io/gist/)
-- [Git](https://git-scm.com/)
-- [git-delta: A viewer for git and diff output](https://github.com/dandavison/delta)
-- [Git Large File Storage](https://git-lfs.github.com/)
-- [gti](https://r-wos.org/hacks/gti)
-- [Jujutsu](https://jj-vcs.dev/)
-- [lazygit](https://github.com/jesseduffield/lazygit)
-- [lazyjj](https://github.com/Cretezy/lazyjj)
+- **`.`** (B) [ghq](https://github.com/x-motemen/ghq)
+- **`.`** [GitHub CLI](https://cli.github.com/)
+- **`.`** [Git](https://git-scm.com/)
+- **`.`** [git-delta: A viewer for git and diff output](https://github.com/dandavison/delta)
+- **`.`** [Git Large File Storage](https://git-lfs.github.com/)
+- (B) [gti](https://r-wos.org/hacks/gti)
+- (B) [Jujutsu](https://jj-vcs.dev/)
+- (B) [lazygit](https://github.com/jesseduffield/lazygit)
+- (B) [lazyjj](https://github.com/Cretezy/lazyjj)
 - [Apache Subversion](https://subversion.apache.org/)
+- (B) [Worktrunk](https://worktrunk.dev/)
 
 ### シェルユーティリティ
 
 - bash-completion
-- [Microsoft PowerShell](https://microsoft.com/PowerShell)
-- rebound
+- **`.`** (B) [Microsoft PowerShell](https://microsoft.com/PowerShell)
 - [shellcheck](https://www.shellcheck.net)
+- **`.`** (B) [Starship](https://starship.rs/)
 - sudo-rs
 - [The Fuck](https://github.com/nvbn/thefuck)
-- yank
-- zsh
-- zsh-theme-powerlevel9k
+- **`.`** [zsh](https://www.zsh.org/)
 
 ### テキストブラウジングツール
 
+- (B) [glow](https://github.com/charmbracelet/glow)
 - links2
 - [mdp](https://github.com/visit1985/mdp)
 - tealdeer
@@ -145,27 +168,32 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 ### テキスト変換ツール
 
 - [cloc](https://github.com/AlDanial/cloc)
+- [dprint](https://dprint.dev/)
 - [groff](https://www.gnu.org/software/groff/)
 - [jc](https://kellyjonbrazil.github.io/jc/)
 - [jq](https://stedolan.github.io/jq/)
+- (B) [pkl](https://pkl-lang.org/)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
-- [yq](https://mikefarah.gitbook.io/yq)
+- **`!`** [yq](https://github.com/kislyuk/yq)
 
 ### テキストエディター
 
-- [GNU Nano](https://www.nano-editor.org)
-- [Neovim](https://neovim.io/)
-- [Vim](https://www.vim.org/)
+- (B) [Microsoft Edit](https://github.com/microsoft/edit)
+- **`.`** (B) [Neovim](https://neovim.io/)
+- **`.`** [Vim](https://www.vim.org/)
 
 ### TUI
 
-- [byobu](https://www.byobu.org/)
-- [tmux](https://github.com/tmux/tmux)
-- [zellij](https://zellij.dev)
+- **`.`** [tmux](https://github.com/tmux/tmux)
+- **`.`** (B) [zellij](https://zellij.dev)
 
 #### 仮想化
 
-- Docker community edition
+- (B) [act](https://github.com/nektos/act)
+- (B) [dive](https://github.com/wagoodman/dive)
+- (B) [k3sup](https://github.com/alexellis/k3sup)
+- [Docker community edition](https://www.docker.com/)
+- (B) [lazydocker](https://github.com/jesseduffield/lazydocker)
 
 ### その他
 

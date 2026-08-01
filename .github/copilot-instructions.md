@@ -24,6 +24,13 @@ minimum necessary configuration required. Configuration matters are the
 responsibility of the [dotfiles](https://github.com/kurone-kito/dotfiles)
 repository.
 
+## Documentation
+
+`README.md` and `README.ja.md` document the same tool inventory in
+different languages. Any change to the tool inventory in `README.md`
+(adding, removing, or re-describing an installed tool) must update
+`README.ja.md` in the same change, so the two files never drift apart.
+
 ## IDD Workflow
 
 This project uses Issue-Driven Development (IDD) with parallel AI agents.
