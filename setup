@@ -139,6 +139,7 @@ run_stage lib/homebrew.sh
 run_stage lib/mise.sh
 run_stage lib/docker.sh
 run_stage lib/ngrok.sh
+run_stage lib/unity.sh
 run_stage lib/teardown.sh
 run_stage lib/locale.sh
 

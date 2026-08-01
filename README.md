@@ -93,6 +93,10 @@ Dev environment preference for the Ubuntu Linux distribution.
 - (B) [yazi](https://yazi-rs.github.io/)
 - **`.`** [zoxide](https://crates.io/crates/zoxide)
 
+### Game development
+
+- [Unity CLI](https://docs.unity.com/en-us/unity-cli)
+
 #### Generative AI
 
 - (B) [Ollama](https://ollama.com/)

@@ -93,6 +93,10 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - (B) [yazi](https://yazi-rs.github.io/)
 - **`.`** [zoxide](https://crates.io/crates/zoxide)
 
+### ゲーム開発
+
+- [Unity CLI](https://docs.unity.com/en-us/unity-cli)
+
 #### 生成 AI
 
 - (B) [Ollama](https://ollama.com/)
