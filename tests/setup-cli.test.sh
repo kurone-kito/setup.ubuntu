@@ -55,6 +55,7 @@ check "--dry-run" 0 "[desktop:plan]" ./setup --dry-run
 check "DESKTOP_DRY_RUN=true env var" 0 "[desktop:plan]" env DESKTOP_DRY_RUN=true ./setup
 check "--desktop -v rejected on the VM path" 1 "not supported" ./setup --desktop -v
 check "--desktop -v --dry-run is exempt" 0 "[desktop:plan]" ./setup --desktop -v --dry-run
+check "--unity -v rejected on the VM path" 1 "not supported" ./setup --unity -v
 
 if [ "${FAILURES}" -gt 0 ]
 then
