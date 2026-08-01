@@ -29,6 +29,7 @@ useGitignore: true
 version: "0.2"
 words:
   - byobu
+  - deprioritize
   - desync
   - desynced
   - esync
@@ -46,9 +47,15 @@ words:
   - nvenc
   - nyancat
   - ollama
+  - qwen
+  - resynced
+  - toctou
+  - undispositioned
+  - unioned
   - unpushed
   - unreplied
   - unscored
+  - unwaived
   - vaapi
   - vainfo
   - waivable
