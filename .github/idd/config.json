@@ -20,7 +20,23 @@
     "post-fix-validate": "npx -y markdownlint-cli2 --fix \"**/*.md\" && npx -y markdownlint-cli2 \"**/*.md\" && npx -y cspell lint \"**\" --no-progress"
   },
   "helperRuntime": {
-    "profile": "instructions-only"
+    "profile": "ephemeral-npx"
+  },
+  "advisoryBotLogins": [
+    "copilot-pull-request-reviewer[bot]",
+    "coderabbitai[bot]",
+    "chatgpt-codex-connector[bot]"
+  ],
+  "advisoryWait": {
+    "convergenceScope": "idd-claimed"
+  },
+  "worktreeGuard": {
+    "enabled": true
+  },
+  "labels": {
+    "roadmapLabelName": "roadmap",
+    "blockedByHumanLabelName": "status:blocked-by-human",
+    "needsDecisionLabelName": "status:needs-decision"
   },
   "issueScope": "roadmap-first",
   "orphanFirstPolicy": "none",

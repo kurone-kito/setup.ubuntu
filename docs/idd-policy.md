@@ -61,7 +61,18 @@ scripts.
   source layout by #44; a future template resync must copy the
   upstream bundle to that same installed path, not the pre-#44
   location)
-- Helper runtime profile: `instructions-only`
+- Helper runtime profile: `ephemeral-npx` (see
+  [Helper runtime](#helper-runtime-ephemeral-npx) below)
+- Advisory bot logins: `copilot-pull-request-reviewer[bot]`,
+  `coderabbitai[bot]`, `chatgpt-codex-connector[bot]`
+- Advisory-wait convergence scope: `idd-claimed` (see
+  [Helper runtime](#helper-runtime-ephemeral-npx) below for the
+  rationale)
+- Worktree guard: `enabled: true` (see
+  [Helper runtime](#helper-runtime-ephemeral-npx) below for the
+  activation step)
+- Labels: roadmap `roadmap`, blocked-by-human
+  `status:blocked-by-human`, needs-decision `status:needs-decision`
 - Claim timing: stale `PT24H` / heartbeat `PT12H` (defaults)
 
 This is a personal repository with a single owner and maintainer
@@ -70,3 +81,47 @@ self-authorizes before starting work. Pull-request review automation in
 this repository is handled by CodeRabbit
 ([`.coderabbit.yaml`](../.coderabbit.yaml)); the `copilot-advisory` profile
 treats such bot reviews as advisory rather than blocking.
+
+## Helper runtime (`ephemeral-npx`)
+
+This repository has no `package.json` and no lockfile, ruling out the
+`package-manager` profile, which requires a manifest to resolve against.
+`vendored-node` was declined too, though it needs no manifest: it copies
+a local helper bundle into the repository at import time, which would
+add files to this shell-and-Terraform repository and need re-vendoring
+on every upstream bump. `ephemeral-npx` avoids both costs.
+
+- Pinned helper package spec:
+  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/4e8c7043edcb00dd8447dee83e7a17e5b2604d5d`
+  — intentionally pinned to the same commit the instruction files were
+  imported from in #41, so a helper's JSON output contract can never
+  drift away from the instruction step that reads it.
+- Canonical invocation form: `npx --yes --package <pinned-spec>
+  idd-<helper>`. Under this profile the `idd-*` bin facade is the
+  authoritative surface, not `node scripts/*.mjs`.
+- A helper failure is a stop-and-ask condition, never a silent
+  fallback to prose.
+- One-time activation for the worktree guard:
+
+  ```sh
+  git config core.hooksPath .githooks && chmod +x .githooks/pre-commit .githooks/pre-push
+  ```
+
+  `core.hooksPath` is uncommitted git config, not repository content,
+  so every fresh clone or ephemeral agent environment must rerun this
+  step. This plain (non-`--worktree`-scoped) form writes to the
+  repository's shared config, so it applies across every worktree of a
+  given clone rather than to just one — this is the correct scope for
+  this guard: `.githooks/_idd-worktree-guard.sh` only ever blocks a
+  commit or push made from the *primary* worktree while `HEAD` sits on
+  an `issue/*` or `roadmap-audit/*` branch, so it is a guaranteed no-op
+  in every sibling implementation worktree.
+- Why `advisoryWait.convergenceScope` is `idd-claimed` rather than the
+  `all-prs` default: this repository merges Dependabot pull requests,
+  which carry no IDD claim and would otherwise be swept into an
+  advisory-convergence gate they can never satisfy on their own.
+- `advisoryWait.primaryBotLogin` and `advisoryWait.secondaryBotLogin`
+  are deliberately left unset: Copilot is tracked without a pinned
+  login, and CodeRabbit reviews through an app install rather than as
+  a requestable reviewer, so it cannot satisfy the once-per-HEAD
+  secondary-bot contract.
