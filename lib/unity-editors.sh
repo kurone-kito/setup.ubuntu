@@ -8,10 +8,19 @@ cd "$(cd "$(dirname "$0")"; pwd)/.."
 log() { printf '[unity] %s\n' "$*"; }
 plan() { printf '[unity:plan] %s\n' "$*"; }
 
+# Falls back to the vendor installer's default xdg-layout location: the
+# CLI may already be installed there from an earlier run whose PATH edit
+# (to ~/.bashrc) only reaches future shells, not this one.
 if ! command -v unity >/dev/null 2>&1
 then
-  echo "Error: the unity CLI is not on PATH. Run ./setup once (without --dry-run) first so lib/unity.sh installs it." >&2
-  exit 1
+  if [ -x "${HOME}/.local/bin/unity" ]
+  then
+    PATH="${HOME}/.local/bin:${PATH}"
+    export PATH
+  else
+    echo "Error: the unity CLI is not on PATH. Run ./setup once (without --dry-run) first so lib/unity.sh installs it." >&2
+    exit 1
+  fi
 fi
 
 DRY_RUN=0
@@ -123,11 +132,22 @@ then
   exit 0
 fi
 
-avail_kib="$(df -Pk "$HOME" | awk 'NR==2 {print $4}')"
+# Check space on the CLI's actual configured Editor install path, not
+# assumed to be under $HOME: `unity install-path --set` can point it
+# elsewhere. Walk up to the nearest existing ancestor first, since the
+# target directory itself may not exist yet on a first install and df
+# requires a real path.
+disk_check_path="$(unity install-path)"
+while [ ! -d "$disk_check_path" ]
+do
+  disk_check_path="$(dirname "$disk_check_path")"
+done
+
+avail_kib="$(df -Pk "$disk_check_path" | awk 'NR==2 {print $4}')"
 avail_gib=$((avail_kib / 1024 / 1024))
 if [ "$avail_gib" -lt "$REQUIRED_DISK_GIB" ]
 then
-  echo "Error: --unity needs ~${REQUIRED_DISK_GIB} GiB free at ${HOME}, but only ${avail_gib} GiB is available." >&2
+  echo "Error: --unity needs ~${REQUIRED_DISK_GIB} GiB free at ${disk_check_path}, but only ${avail_gib} GiB is available." >&2
   exit 1
 fi
 
