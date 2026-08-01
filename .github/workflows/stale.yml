@@ -15,7 +15,13 @@ jobs:
           days-before-stale: 60
           close-issue-message: StaleBot closed the issue due to prolonged inactivity.
           close-pr-message: StaleBot closed the pull request due to prolonged inactivity.
-          exempt-issue-labels: bug,enhancement
+          # Mirrors labels.roadmapLabelName, labels.blockedByHumanLabelName,
+          # labels.needsDecisionLabelName, and issueAuthoring.authoringLabelName
+          # in .github/idd/config.json (the last defaults to status:authoring;
+          # the repo does not set issueAuthoring explicitly). Every one of
+          # these marks an issue IDD deliberately parks without activity; a
+          # label rename in config.json needs the matching entry updated here.
+          exempt-issue-labels: bug,enhancement,roadmap,status:blocked-by-human,status:needs-decision,status:authoring
           exempt-pr-labels: bug,enhancement
           stale-issue-label: stale
           stale-issue-message: StaleBot marked the issue as stale because there has been no activity.
