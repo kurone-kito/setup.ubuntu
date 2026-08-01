@@ -229,8 +229,10 @@ step this repository does not hold credentials for:
 ./setup --unity --dry-run  # print the plan only; install nothing
 ```
 
-See [docs/unity.md](docs/unity.md) for the version policy, the disk budget,
-the licensing handoff, and the VRChat-on-Linux caveat.
+`--dry-run` needs the Unity CLI already on `PATH` to resolve live version
+data; any prior `./setup` run already has it. See [docs/unity.md](docs/unity.md)
+for the version policy, the disk budget, the licensing handoff, and the
+VRChat-on-Linux caveat.
 
 ## Test (Run on VM)
 

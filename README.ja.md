@@ -231,8 +231,11 @@ Unity CLI は既定のパスでインストールされます。Unity Editor 本
 ./setup --unity --dry-run  # プランのみ表示し、何も導入しない
 ```
 
-バージョンポリシー・ディスク使用量・ライセンスの受け渡し・VRChat の
-Linux 対応状況については [docs/unity.md](docs/unity.md) を参照してください。
+`--dry-run` は最新バージョン情報を取得するため、Unity CLI が既に `PATH`
+上にあることを前提とします。過去に一度でも `./setup` を実行済みであれば
+既にインストールされています。バージョンポリシー・ディスク使用量・
+ライセンスの受け渡し・VRChat の Linux 対応状況については
+[docs/unity.md](docs/unity.md) を参照してください。
 
 ## テスト（VM 上で実行）
 

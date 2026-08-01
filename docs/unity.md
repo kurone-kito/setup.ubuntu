@@ -18,6 +18,13 @@ requiring `sudo`. `--unity` is rejected on the VM / non-Ubuntu path because it
 cannot be forwarded into the launched VM; run it on a real Ubuntu host
 instead.
 
+`--unity --dry-run` needs the Unity CLI already on `PATH` to resolve live
+version data — it does not install the CLI itself, since that would make
+`--dry-run` install something. Any prior `./setup` run already has it (the
+CLI installs unconditionally); on a genuinely first-ever run, `--unity
+--dry-run` reports that the CLI isn't there yet and to run `./setup` once
+first.
+
 ## What gets installed
 
 Two pinned Editors, each with the `android`, `linux-il2cpp`, and
