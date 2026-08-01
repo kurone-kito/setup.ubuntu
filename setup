@@ -94,18 +94,53 @@ then
   exit 0
 fi
 
+log() { printf '[setup] %s\n' "$*"; }
+
+CURRENT_STAGE=""
+COMPLETED_STAGES=""
+
+# Announces a stage before running it, and records it as completed
+# afterward so a failure can report what a re-run would repeat.
+run_stage() {
+  CURRENT_STAGE="$1"
+  log "starting: ${CURRENT_STAGE}"
+  "$1"
+  if [ -z "$COMPLETED_STAGES" ]
+  then
+    COMPLETED_STAGES="$1"
+  else
+    COMPLETED_STAGES="${COMPLETED_STAGES}, $1"
+  fi
+  CURRENT_STAGE=""
+}
+
+# Runs on every exit from the native install sequence below, including an
+# interrupt (via the INT/TERM/HUP trap's exit). CURRENT_STAGE is only
+# non-empty here if the shell exited while a stage was in flight, so a
+# clean finish or an early exit elsewhere in this script prints nothing.
+report_failure() {
+  status=$?
+  if [ -n "$CURRENT_STAGE" ]
+  then
+    log "stage failed: ${CURRENT_STAGE}"
+    log "stages completed before the failure: ${COMPLETED_STAGES:-none}"
+  fi
+  kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+  exit "$status"
+}
+
 sudo -v
 while true; do sleep 30; sudo -n true; kill -0 "$$" || exit; done 2>/dev/null &
 SUDO_KEEPALIVE_PID=$!
-trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true' EXIT
+trap report_failure EXIT
 trap 'exit 1' INT TERM HUP
-lib/base-install.sh
-lib/homebrew.sh
-lib/mise.sh
-lib/docker.sh
-lib/ngrok.sh
-lib/teardown.sh
-lib/locale.sh
+run_stage lib/base-install.sh
+run_stage lib/homebrew.sh
+run_stage lib/mise.sh
+run_stage lib/docker.sh
+run_stage lib/ngrok.sh
+run_stage lib/teardown.sh
+run_stage lib/locale.sh
 
 if [ "$USE_DESKTOP" -eq 1 ]
 then
