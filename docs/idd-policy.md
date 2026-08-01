@@ -73,6 +73,17 @@ scripts.
   activation step)
 - Labels: see [IDD label set](#idd-label-set) below
 - Claim timing: stale `PT24H` / heartbeat `PT12H` (defaults)
+- Autopilot-suitability floor: `3` (default) — no repository-specific
+  reason to raise or lower the autopilot-selection floor recorded yet.
+- Issue scope: `roadmap-first` (default) — Discover walks the roadmap
+  path first with an orphan fallback, matching this repository's
+  roadmap-driven workflow so far (#48 and its children).
+- Orphan-first policy: `none` (default) — no orphan-first override is
+  in effect.
+- Workshop example repository: `""` (empty string, treated as unset;
+  default) — this repository has not published a `docs/workshop/`, so
+  the `idd-doctor` example-repository back-link check is intentionally
+  skipped.
 - Claude Code permission baseline: installed at `.claude/settings.json`
   (#43), adapted from the opt-in template baseline documented in
   [`docs/permissions.md`](permissions.md#claude-code-permission-baseline).
