@@ -1,0 +1,45 @@
+name: IDD advisory-convergence gate
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_review:
+    types: [submitted]
+  pull_request_review_comment:
+    types: [created, edited, deleted]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: PR number to re-check (e.g. after posting a maintainer waiver)
+        required: true
+        type: number
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  idd-advisory-convergence:
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Trusted default-branch checkout, never the PR head, for any
+          # trigger type including workflow_dispatch -- a PR must not be
+          # able to edit its own verdict logic or .github/idd/config.json
+          # to force this check green. --pr below still evaluates the
+          # right PR: every live API call is driven by that flag, not by
+          # what's checked out locally.
+          ref: main
+          persist-credentials: false
+      - name: Run advisory-convergence verdict (--assert)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          npx --yes --package
+          https://codeload.github.com/kurone-kito/idd-skill/tar.gz/4e8c7043edcb00dd8447dee83e7a17e5b2604d5d
+          idd-advisory-convergence
+          --pr ${{ github.event.pull_request.number || inputs.pr_number }}
+          --assert
