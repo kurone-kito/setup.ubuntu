@@ -219,6 +219,26 @@ bare-metal 向けの GPU ストリーミング用 Sunshine）を追加できま�
 セッションは接続時のみ開始します。クライアント一覧・WSL2 経路・セキュリティ・
 chezmoi への受け渡しは [docs/desktop.md](docs/desktop.md) を参照してください。
 
+## Unity（任意）
+
+Unity CLI は既定のパスでインストールされます。Unity Editor 本体は
+**オプトイン**であり、ライセンス未認証の状態でインストールされます —
+ライセンスの有効化はこのリポジトリが認証情報を保持しない、運用者側の
+別ステップです:
+
+```sh
+./setup --unity            # 固定バージョンの Unity Editor を導入（実機 Ubuntu）
+./setup --unity --dry-run  # プランのみ表示し、何も導入しない
+```
+
+`--dry-run` は最新バージョン情報を取得するため、Unity CLI が既に `PATH`
+上にあることを前提とします。実機 Ubuntu で過去に一度でも `./setup` を
+実行済みであれば既にインストールされています（VM/non-Ubuntu 経路のみを
+使ってきたホストでは、host 側の `PATH` にはインストールされません）。
+バージョンポリシー・ディスク使用量・
+ライセンスの受け渡し・VRChat の Linux 対応状況については
+[docs/unity.md](docs/unity.md) を参照してください。
+
 ## テスト（VM 上で実行）
 
 いくつかのツールが必要です:
