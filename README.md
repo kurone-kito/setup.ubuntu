@@ -22,7 +22,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 ### Archive tools
 
 - [bzip2](https://github.com/libarchive/bzip2)
-- [p7zip](https://sourceforge.net/projects/p7zip/)
+- [p7zip](https://github.com/ip7z/7zip)
 - [unzip](https://manpages.ubuntu.com/manpages/man1/unzip.1.html)
 - [xz-utils](https://tukaani.org/xz/)
 - [zip](https://manpages.ubuntu.com/manpages/man1/zip.1.html)
@@ -127,6 +127,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [LazySSH](https://github.com/Adembc/lazyssh)
 - [mkcert](https://mkcert.dev/)
 - [mosh](https://mosh.org/)
+- [ngrok](https://ngrok.com/)
 - **`.`** [OpenSSH Server & Client](https://www.openssh.org/)
 - [OpenSSL](https://www.openssl.org/)
 - [OpenVPN](https://openvpn.net/)
@@ -173,7 +174,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - [jq](https://stedolan.github.io/jq/)
 - (B) [pkl](https://pkl-lang.org/)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
-- **`!`** [yq](https://mikefarah.gitbook.io/yq)
+- **`!`** [yq](https://github.com/kislyuk/yq)
 
 ### Texts editors
 
@@ -191,7 +192,7 @@ Dev environment preference for the Ubuntu Linux distribution.
 - (B) [act](https://github.com/nektos/act)
 - (B) [dive](https://github.com/wagoodman/dive)
 - (B) [k3sup](https://github.com/alexellis/k3sup)
-- (B) [Docker community edition](https://www.docker.com/)
+- [Docker community edition](https://www.docker.com/)
 - (B) [lazydocker](https://github.com/jesseduffield/lazydocker)
 
 ### Others
