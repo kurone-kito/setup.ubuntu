@@ -169,3 +169,33 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   guards against structurally cannot occur there. Enforcement for that
   rule stays local, via `.githooks/pre-commit`/`pre-push` and a
   developer's own `idd-doctor --strict` run.
+- `.github/workflows/idd-advisory-convergence.yml` (#47) resolves its
+  `idd-advisory-convergence` invocation from the same pinned spec — the
+  commit SHA now has to stay in sync across five locations on a future
+  resync, the four above plus this workflow file. This workflow is
+  **hosted but not yet registered as a required check**: no
+  ruleset exists on this repository today (`gh api
+  repos/{owner}/{repo}/rulesets` returns `[]`), so a maintainer who
+  wants to enforce it opens Settings → Rules → Rulesets → New branch
+  ruleset, targets `main`, enables "Require status checks to pass", and
+  adds `idd-advisory-convergence` (the job id) to the required-checks
+  list — this creates the repository's first ruleset rather than
+  editing an existing one.
+  `--assert` exits non-zero for any not-ready verdict, including the
+  ordinary "Copilot has not reviewed this HEAD yet" pending case —
+  GitHub Actions has no distinct non-failing "pending" state, so this
+  check legitimately shows red until the advisory review converges.
+  This is by design, not a failure to fix.
+  The waiver escape path after `advisoryWait.convergenceDeadline` (24h
+  from the HEAD commit timestamp) only exists once
+  `ciGate.externalCheckWaivers.mode` is `maintainer-authorized` (not its
+  default, `disabled`) and `idd-advisory-convergence` is listed under
+  `ciGate.externalChecks.waivable`. **Neither precondition is met
+  today**: `ciGate` is absent from `.github/idd/config.json` entirely,
+  so both default closed. A maintainer who wants the escape hatch has
+  to add both keys explicitly; until then, a stuck not-ready verdict
+  past the 24h deadline has no waiver available, only the underlying
+  advisory review actually converging. Posting a waiver comment, once
+  the escape hatch is enabled, does not by itself re-run the check —
+  a fresh trigger (push, review, review-comment activity, or
+  `workflow_dispatch`) still has to fire.
