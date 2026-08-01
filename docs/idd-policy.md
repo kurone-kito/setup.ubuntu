@@ -156,3 +156,16 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   login, and CodeRabbit reviews through an app install rather than as
   a requestable reviewer, so it cannot satisfy the once-per-HEAD
   secondary-bot contract.
+- CI-side consumer: `.github/workflows/idd-doctor.yml` (#46) resolves
+  its `idd-doctor` invocation from the pinned spec above. The same
+  commit SHA now has to stay in sync across four locations on a future
+  resync: the two occurrences in this file (the
+  [imported-snapshot line](#imported-template-snapshot) and the pinned
+  spec above), `.claude/settings.json`'s permission allow-list (#43),
+  and this workflow file. The workflow omits `--strict`: strict mode's
+  sibling-worktree check has no observable signal in a CI checkout —
+  `pull_request` runs always check out a detached commit, never a
+  named `issue/*`/`roadmap-audit/*` branch, so the violation `--strict`
+  guards against structurally cannot occur there. Enforcement for that
+  rule stays local, via `.githooks/pre-commit`/`pre-push` and a
+  developer's own `idd-doctor --strict` run.
