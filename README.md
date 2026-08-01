@@ -218,6 +218,20 @@ The default boot stays headless (no display manager); a graphical session
 starts only on connect. See [docs/desktop.md](docs/desktop.md) for the client
 matrix, the WSL2 path, security notes, and the chezmoi handoff.
 
+## Unity (optional)
+
+The Unity CLI installs in the default path. The Unity Editors themselves are
+**opt-in** and install unlicensed — activation is a separate, operator-side
+step this repository does not hold credentials for:
+
+```sh
+./setup --unity            # install the pinned Unity Editors (real Ubuntu host)
+./setup --unity --dry-run  # print the plan only; install nothing
+```
+
+See [docs/unity.md](docs/unity.md) for the version policy, the disk budget,
+the licensing handoff, and the VRChat-on-Linux caveat.
+
 ## Test (Run on VM)
 
 Required some tools:
