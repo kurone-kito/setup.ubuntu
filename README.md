@@ -230,7 +230,9 @@ step this repository does not hold credentials for:
 ```
 
 `--dry-run` needs the Unity CLI already on `PATH` to resolve live version
-data; any prior `./setup` run already has it. See [docs/unity.md](docs/unity.md)
+data; any prior `./setup` run on a real Ubuntu host already has it (a
+VM/non-Ubuntu-only host never installs it on its own `PATH`). See
+[docs/unity.md](docs/unity.md)
 for the version policy, the disk budget, the licensing handoff, and the
 VRChat-on-Linux caveat.
 

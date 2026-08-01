@@ -20,10 +20,12 @@ instead.
 
 `--unity --dry-run` needs the Unity CLI already on `PATH` to resolve live
 version data — it does not install the CLI itself, since that would make
-`--dry-run` install something. Any prior `./setup` run already has it (the
-CLI installs unconditionally); on a genuinely first-ever run, `--unity
---dry-run` reports that the CLI isn't there yet and to run `./setup` once
-first.
+`--dry-run` install something. Any prior `./setup` run **on a real Ubuntu
+host** already has it (the CLI installs unconditionally on that path); a
+host that has only ever gone through the VM/non-Ubuntu path never installs
+`unity` on its own `PATH` either, since `setup` never reaches `lib/unity.sh`
+there. On a genuinely first-ever run, `--unity --dry-run` reports that the
+CLI isn't there yet and to run `./setup` once first.
 
 ## What gets installed
 
