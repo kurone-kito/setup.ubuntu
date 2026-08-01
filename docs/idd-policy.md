@@ -124,6 +124,16 @@ in `docs/policy-constants.md`.
 | `idd:ready` | `approvalSignals.readyLabelName` | defaulted (key absent from `config.json`) | A3.5 issue-author approval gate |
 | `status:authoring` | `issueAuthoring.authoringLabelName` | defaulted (key absent from `config.json`) | Discover authoring guard (A0-T/A0-O/A3) |
 
+`.github/workflows/stale.yml` must exempt `roadmap`,
+`status:blocked-by-human`, `status:needs-decision`, and
+`status:authoring` from its `exempt-issue-labels` (#50): each marks an
+issue IDD deliberately parks without activity — a roadmap stays open by
+design across its whole initiative, and the three hold labels exist
+precisely because a human has not acted yet. The stale bot cannot read
+`.github/idd/config.json`, so the workflow keeps a literal exempt list
+with a comment naming the four policy keys above it mirrors; keep both
+in sync if any of these label names ever changes.
+
 ## Helper runtime (`ephemeral-npx`)
 
 This repository has no `package.json` and no lockfile, ruling out the
