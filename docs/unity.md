@@ -56,8 +56,8 @@ The default module set for both Editors combined is measured at roughly
 install path before downloading anything, and rejects the run otherwise. To
 trim the footprint, run `unity install <version> -m <module...>` directly
 with a smaller module list instead of `./setup --unity` — for example,
-`--no-cm` skips the Android SDK/NDK toolchain modules `--cm` bundles, or
-omitting `android` entirely skips Android support altogether.
+omitting `--cm` skips the Android SDK/NDK toolchain modules it bundles, or
+dropping `android` from `-m` entirely skips Android support altogether.
 
 ## Licensing handoff
 
