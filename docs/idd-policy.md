@@ -56,7 +56,10 @@ scripts.
 - CI wait policy: `PT30M` / `PT10M` / `rerun-once` (defaults)
 - Issue-author approval gate: enabled (default)
 - Maintainer approval actors: `owners-and-maintainers-only` (default)
-- Issue-authoring companion: installed (`skills/issue-authoring/`)
+- Issue-authoring companion: installed (`.claude/skills/issue-authoring/`
+  — moved from `skills/issue-authoring/`; a future template resync must
+  copy the upstream bundle to `.claude/skills/issue-authoring/`, not
+  `skills/`)
 - Helper runtime profile: `instructions-only`
 - Claim timing: stale `PT24H` / heartbeat `PT12H` (defaults)
 
