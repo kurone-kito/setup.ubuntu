@@ -71,8 +71,7 @@ scripts.
 - Worktree guard: `enabled: true` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below for the
   activation step)
-- Labels: roadmap `roadmap`, blocked-by-human
-  `status:blocked-by-human`, needs-decision `status:needs-decision`
+- Labels: see [IDD label set](#idd-label-set) below
 - Claim timing: stale `PT24H` / heartbeat `PT12H` (defaults)
 - Claude Code permission baseline: installed at `.claude/settings.json`
   (#43), adapted from the opt-in template baseline documented in
@@ -88,10 +87,31 @@ scripts.
 
 This is a personal repository with a single owner and maintainer
 (`kurone-kito`). The issue-author approval gate stays enabled; the owner
-self-authorizes before starting work. Pull-request review automation in
-this repository is handled by CodeRabbit
+self-authorizes before starting work. `kurone-kito` satisfies
+`owners-and-maintainers-only`, so owner-authored issues self-authorize
+and the `idd:ready` label below is only needed for issues filed by
+someone else. Pull-request review automation in this repository is
+handled by CodeRabbit
 ([`.coderabbit.yaml`](../.coderabbit.yaml)); the `copilot-advisory` profile
 treats such bot reviews as advisory rather than blocking.
+
+## IDD label set
+
+This repository had no pre-existing label taxonomy to map onto, so the
+IDD label names below are the upstream defaults, adopted unchanged
+(#45). Three (`roadmap`, `status:blocked-by-human`,
+`status:needs-decision`) are explicitly configured under `labels.*` in
+[`.github/idd/config.json`](../.github/idd/config.json); the other two
+have no entry there and resolve via the distributed defaults recorded
+in `docs/policy-constants.md`.
+
+| Label | Policy key | Configured or defaulted | Consumed by |
+| --- | --- | --- | --- |
+| `roadmap` | `labels.roadmapLabelName` | configured | Discover roadmap-first scanning, A1.5 roadmap completion audit |
+| `status:blocked-by-human` | `labels.blockedByHumanLabelName` | configured | A4.5 suitability triage, roadmap audit non-autonomous gap |
+| `status:needs-decision` | `labels.needsDecisionLabelName` | configured | A4.5 suitability triage, roadmap audit |
+| `idd:ready` | `approvalSignals.readyLabelName` | defaulted (key absent from `config.json`) | A3.5 issue-author approval gate |
+| `status:authoring` | `issueAuthoring.authoringLabelName` | defaulted (key absent from `config.json`) | Discover authoring guard (A0-T/A0-O/A3) |
 
 ## Helper runtime (`ephemeral-npx`)
 
