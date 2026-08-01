@@ -45,20 +45,38 @@ VRCHAT_CHANGESET="887be4894c44"
 # of jq: this script can run before base-install.sh (a bare --unity
 # --dry-run only needs the CLI, already required above), so jq is not
 # guaranteed to be on PATH yet.
+#
+# Both helpers fail loudly with a targeted message when the field is
+# missing/renamed, rather than a bare failed pipeline aborting the
+# script under `set -e` with no explanation.
 json_field() {
-  printf '%s' "$1" | grep -o "\"$2\":[[:space:]]*\"[^\"]*\"" | head -1 | sed 's/.*"\([^"]*\)"$/\1/'
+  value="$(printf '%s' "$1" | grep -o "\"$2\":[[:space:]]*\"[^\"]*\"" | head -1 | sed 's/.*"\([^"]*\)"$/\1/')"
+  if [ -z "$value" ]
+  then
+    echo "Error: could not find a \"$2\" string field in the unity CLI's JSON output. Its output format may have changed." >&2
+    exit 1
+  fi
+  printf '%s' "$value"
 }
 
 json_number_field() {
-  printf '%s' "$1" | grep -o "\"$2\":[[:space:]]*[0-9]*" | head -1 | grep -o '[0-9]*$'
+  value="$(printf '%s' "$1" | grep -o "\"$2\":[[:space:]]*[0-9]*" | head -1 | grep -o '[0-9]*$' || true)"
+  if [ -z "$value" ]
+  then
+    echo "Error: could not find a \"$2\" numeric field in the unity CLI's JSON output. Its output format may have changed." >&2
+    exit 1
+  fi
+  printf '%s' "$value"
 }
 
 resolve() {
   # $1 = version selector, $2 = changeset (empty if none)
+  # -m takes every module in one variadic flag (not one -m per module);
+  # word-splitting $MODULES is intentional to pass them as separate
+  # arguments to that one flag, since this script is POSIX sh and a bash
+  # array is not available.
   if [ -n "$2" ]
   then
-    # Word-splitting $MODULES is intentional: each module is its own -m
-    # argument, and this script is POSIX sh so a bash array is not available.
     # shellcheck disable=SC2086
     unity install "$1" -c "$2" --dry-run --non-interactive --yes --json -m $MODULES --cm
   else
@@ -113,9 +131,12 @@ then
   exit 1
 fi
 
+# Installs the exact version validated above, not the selector: re-passing
+# the selector here could resolve to a different (newer) release if one
+# shipped between the resolve call and this one.
 log "installing general-games Editor ${general_version}..."
 # shellcheck disable=SC2086
-unity install "$GENERAL_SELECTOR" --non-interactive --yes --accept-eula -m $MODULES --cm
+unity install "$general_version" --non-interactive --yes --accept-eula -m $MODULES --cm
 
 log "installing VRChat Editor ${vrchat_version}..."
 # shellcheck disable=SC2086
