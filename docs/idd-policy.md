@@ -74,6 +74,17 @@ scripts.
 - Labels: roadmap `roadmap`, blocked-by-human
   `status:blocked-by-human`, needs-decision `status:needs-decision`
 - Claim timing: stale `PT24H` / heartbeat `PT12H` (defaults)
+- Claude Code permission baseline: installed at `.claude/settings.json`
+  (#43), adapted from the opt-in template baseline documented in
+  [`docs/permissions.md`](permissions.md#claude-code-permission-baseline).
+  Three deltas from that opt-in default. Two follow directly from the
+  `fully_autonomous_merge` policy already recorded above: `gh pr merge`
+  is allowlisted, and the `idd-merge-execute` deny entries are dropped
+  so `--apply` merges are not blocked. The third is unrelated to merge
+  policy: the generic `node scripts/*` / `node bin/*` allow entries are
+  replaced with this repository's actual `ephemeral-npx` invocation
+  form. Every other allow/deny entry, including the deliberate absence
+  of any `gh api` allow, matches upstream unchanged.
 
 This is a personal repository with a single owner and maintainer
 (`kurone-kito`). The issue-author approval gate stays enabled; the owner

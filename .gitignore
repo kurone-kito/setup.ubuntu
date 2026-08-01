@@ -184,3 +184,11 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/archives,homebrew,linux,macos,terraform,vim,visualstudiocode,windows
+
+### Claude Code ###
+# Personal permission overrides layered on top of .claude/settings.json
+.claude/settings.local.json
+# Some machine-level git configs treat .claude/* as local-only by
+# default; force-track the shared repository baseline explicitly so a
+# blanket `git add` on such a machine cannot silently drop it.
+!.claude/settings.json
