@@ -8,5 +8,8 @@ rm -f setup-ubuntu.tar
 if command -v terraform >/dev/null 2>&1
 then
   terraform destroy -auto-approve || true
+fi
+if command -v multipass >/dev/null 2>&1
+then
   multipass delete -p setup-ubuntu || true
 fi

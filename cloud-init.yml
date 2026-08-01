@@ -120,6 +120,11 @@ timezone: Asia/Tokyo
 write_files:
   - path: /etc/apt/preferences.d/999-hold-kernel.pref
     content: |
+      # This deliberately blocks kernel package upgrades, including
+      # security updates, to avoid an upgrade-triggered reboot in the
+      # middle of provisioning this disposable build VM. Do not copy
+      # this file onto a long-lived host: it would silently suppress
+      # kernel security updates there too.
       Package: linux-generic*
       Pin: release a=*
       Pin-Priority: -1
