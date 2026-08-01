@@ -65,7 +65,9 @@ scripts.
   [Helper runtime](#helper-runtime-ephemeral-npx) below)
 - Advisory bot logins: `copilot-pull-request-reviewer[bot]`,
   `coderabbitai[bot]`, `chatgpt-codex-connector[bot]`
-- Advisory-wait convergence scope: `idd-claimed` (see rationale below)
+- Advisory-wait convergence scope: `idd-claimed` (see
+  [Helper runtime](#helper-runtime-ephemeral-npx) below for the
+  rationale)
 - Worktree guard: `enabled: true` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below for the
   activation step)
@@ -107,17 +109,17 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
 
   `core.hooksPath` is uncommitted git config, not repository content,
   so every fresh clone or ephemeral agent environment must rerun this
-  step. Because this repository does not enable
-  `extensions.worktreeConfig`, the setting is shared across every
-  worktree of a given clone rather than scoped to one — this is the
-  correct scope for this guard: `.githooks/_idd-worktree-guard.sh`
-  only ever blocks a commit or push made from the *primary* worktree
-  while `HEAD` sits on an `issue/*` or `roadmap-audit/*` branch, so it
-  is a guaranteed no-op in every sibling implementation worktree.
+  step. This plain (non-`--worktree`-scoped) form writes to the
+  repository's shared config, so it applies across every worktree of a
+  given clone rather than to just one — this is the correct scope for
+  this guard: `.githooks/_idd-worktree-guard.sh` only ever blocks a
+  commit or push made from the *primary* worktree while `HEAD` sits on
+  an `issue/*` or `roadmap-audit/*` branch, so it is a guaranteed no-op
+  in every sibling implementation worktree.
 - Why `advisoryWait.convergenceScope` is `idd-claimed` rather than the
-  `all-prs` default: this repository auto-merges Dependabot pull
-  requests, which carry no IDD claim and would otherwise be swept into
-  an advisory-convergence gate they can never satisfy on their own.
+  `all-prs` default: this repository merges Dependabot pull requests,
+  which carry no IDD claim and would otherwise be swept into an
+  advisory-convergence gate they can never satisfy on their own.
 - `advisoryWait.primaryBotLogin` and `advisoryWait.secondaryBotLogin`
   are deliberately left unset: Copilot is tracked without a pinned
   login, and CodeRabbit reviews through an app install rather than as
