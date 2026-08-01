@@ -110,7 +110,7 @@ needs-decision, blocked-by-human, and out-of-scope.
 - When editing this bundle inside the source repository, keep the
   bundled references synchronized with the canonical maintenance docs in
   [../../docs/issue-authoring-skill.md](../../docs/issue-authoring-skill.md)
-  and [../../docs/idd-workflow.md](../../docs/idd-workflow.md).
+  and [../../../docs/idd-workflow.md](../../../docs/idd-workflow.md).
 
 ## Output Checklist
 
