@@ -197,5 +197,6 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   past the 24h deadline has no waiver available, only the underlying
   advisory review actually converging. Posting a waiver comment, once
   the escape hatch is enabled, does not by itself re-run the check —
-  a fresh trigger (push, review, review-comment activity, or
-  `workflow_dispatch`) still has to fire.
+  a fresh trigger (a `pull_request` synchronize, review or
+  review-comment activity, or `workflow_dispatch`) still has to fire;
+  this workflow has no `push` trigger.
