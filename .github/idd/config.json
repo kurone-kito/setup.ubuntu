@@ -31,6 +31,9 @@
   "advisoryWait": {
     "convergenceScope": "idd-claimed"
   },
+  "ciGate": {
+    "trustEmptyProtectionReads": true
+  },
   "worktreeGuard": {
     "enabled": true
   },
