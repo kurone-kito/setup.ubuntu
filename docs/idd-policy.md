@@ -16,6 +16,18 @@ changes.
   (2026-07-24). `.github/instructions/lite/` is deliberately excluded —
   it targets the lightweight local-model tier this repository does not
   use.
+- Resynced: `iddVersion 0.6.0`, imported from
+  [`kurone-kito/idd-skill`](https://github.com/kurone-kito/idd-skill)
+  `main` at commit
+  [`abd841ac0712dec83231ca77096abea67a3497b4`](https://github.com/kurone-kito/idd-skill/commit/abd841ac0712dec83231ca77096abea67a3497b4)
+  (2026-08-12). `.github/instructions/lite/` remains deliberately
+  excluded, unchanged reasoning from the 0.4.0 entry.
+  `helperRuntime.packageSpec` is now pinned to the same commit so the
+  `ephemeral-npx` runtime and the distributed instructions never drift
+  apart. `.markdownlint-cli2.yaml` required a hand merge (this
+  repository's file predates upstream's own copy) rather than a straight
+  overwrite. Registering `idd-advisory-convergence` as a required status
+  check was reconsidered and declined again.
 
 ## Project values
 
@@ -144,10 +156,11 @@ add files to this shell-and-Terraform repository and need re-vendoring
 on every upstream bump. `ephemeral-npx` avoids both costs.
 
 - Pinned helper package spec:
-  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/4e8c7043edcb00dd8447dee83e7a17e5b2604d5d`
+  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/abd841ac0712dec83231ca77096abea67a3497b4`
   — intentionally pinned to the same commit the instruction files were
-  imported from in #41, so a helper's JSON output contract can never
-  drift away from the instruction step that reads it.
+  imported from (originally in #41, resynced to this commit in #88), so
+  a helper's JSON output contract can never drift away from the
+  instruction step that reads it.
 - Canonical invocation form: `npx --yes --package <pinned-spec>
   idd-<helper>`. Under this profile the `idd-*` bin facade is the
   authoritative surface, not `node scripts/*.mjs`.
@@ -194,14 +207,21 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   `idd-advisory-convergence` invocation from the same pinned spec — the
   commit SHA now has to stay in sync across five locations on a future
   resync, the four above plus this workflow file. This workflow is
-  **hosted but not yet registered as a required check**: no
-  ruleset exists on this repository today (`gh api
-  repos/{owner}/{repo}/rulesets` returns `[]`), so a maintainer who
-  wants to enforce it opens Settings → Rules → Rulesets → New branch
-  ruleset, targets `main`, enables "Require status checks to pass", and
-  adds `idd-advisory-convergence` (the job id) to the required-checks
-  list — this creates the repository's first ruleset rather than
-  editing an existing one.
+  **hosted but not registered as a required check**: two GitHub
+  Rulesets exist on this repository today (`gh api
+  repos/{owner}/{repo}/rulesets` includes rulesets named `main` and
+  `features`, both `enforcement: active`) — a maintainer-created
+  addition, not one this IDD loop configured. Each enables
+  `copilot_code_review`
+  (`review_on_push: true`), so Copilot now reviews every push
+  automatically; `main` (targeting `~DEFAULT_BRANCH`) also enables the
+  `deletion` / `non_fast_forward` rules and a `pull_request` rule with
+  `required_approving_review_count: 0`. Neither ruleset declares a
+  `required_status_checks` rule, so `idd-advisory-convergence` still is
+  not a GitHub-enforced merge gate — a maintainer who wants to enforce
+  it opens Settings → Rules → Rulesets → edit `main`, enables "Require
+  status checks to pass", and adds `idd-advisory-convergence` (the job
+  id) to the required-checks list.
   `--assert` exits non-zero for any not-ready verdict, including the
   ordinary "Copilot has not reviewed this HEAD yet" pending case —
   GitHub Actions has no distinct non-failing "pending" state, so this
@@ -212,9 +232,13 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   `ciGate.externalCheckWaivers.mode` is `maintainer-authorized` (not its
   default, `disabled`) and `idd-advisory-convergence` is listed under
   `ciGate.externalChecks.waivable`. **Neither precondition is met
-  today**: `ciGate` is absent from `.github/idd/config.json` entirely,
-  so both default closed. A maintainer who wants the escape hatch has
-  to add both keys explicitly; until then, a stuck not-ready verdict
+  today**: `ciGate` now exists in `.github/idd/config.json` (added by
+  #99 to trust an empty classic branch-protection read, now that this
+  repository's branch protection lives in the rulesets above instead of
+  the classic API), but it sets only `trustEmptyProtectionReads`;
+  `externalCheckWaivers` is still unset, so both default closed. A
+  maintainer who wants the escape hatch has to add both keys
+  explicitly; until then, a stuck not-ready verdict
   past the 24h deadline has no waiver available, only the underlying
   advisory review actually converging. Posting a waiver comment, once
   the escape hatch is enabled, does not by itself re-run the check —
