@@ -182,4 +182,4 @@ Apply one outcome:
 the three outcomes above: when a child issue is split into two or more
 issues, bring the roadmap task list and sequencing notes current in the
 same action, per the issue-authoring contract's same-action rule
-(`skills/issue-authoring/references/contract.md`).
+(`.claude/skills/issue-authoring/references/contract.md`).
