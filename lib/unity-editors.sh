@@ -161,11 +161,6 @@ then
   exit 0
 fi
 
-unity_apt_package="$(resolve_apt_package libgtk-3-0t64 libgtk-3-0)"
-log "installing Editor runtime dependency (${unity_apt_package})..."
-sudo DEBIAN_FRONTEND=noninteractive apt-get install \
-  --no-install-recommends -y -qq "$unity_apt_package"
-
 # Check space on the CLI's actual configured Editor install path, not
 # assumed to be under $HOME: `unity install-path --set` can point it
 # elsewhere. Walk up to the nearest existing ancestor first, since the
@@ -184,6 +179,13 @@ then
   echo "Error: --unity needs ~${REQUIRED_DISK_GIB} GiB free at ${disk_check_path}, but only ${avail_gib} GiB is available." >&2
   exit 1
 fi
+
+# Runs only after the disk preflight above passes, so a run that fails
+# that check leaves no partial apt-level system change behind.
+unity_apt_package="$(resolve_apt_package libgtk-3-0t64 libgtk-3-0)"
+log "installing Editor runtime dependency (${unity_apt_package})..."
+sudo DEBIAN_FRONTEND=noninteractive apt-get install \
+  --no-install-recommends -y -qq "$unity_apt_package"
 
 # Installs the exact version validated above, not the selector: re-passing
 # the selector here could resolve to a different (newer) release if one
