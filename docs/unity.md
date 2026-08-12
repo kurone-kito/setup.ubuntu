@@ -37,6 +37,14 @@ Two pinned Editors, each with the `android`, `linux-il2cpp`, and
 - **`2022.3.22f1`** (changeset `887be4894c44`) — the exact build VRChat's SDK
   targets.
 
+`lib/unity-editors.sh` also installs one apt package alongside the Editors,
+`libgtk-3-0t64` (`libgtk-3-0` on Ubuntu releases that predate the 64-bit
+`time_t` package rename): the freshly installed Editor binary fails the
+dynamic linker on `libgtk-3.so.0` without it, before ever reaching Unity's
+own license check. Discovered empirically — see the comment above
+`resolve_apt_package` in that script for the reproduction. No other
+package was needed, with or without the `linux-il2cpp` module installed.
+
 ## Version policy
 
 The general-games Editor is selected with the explicit `6.3` selector, not
