@@ -50,6 +50,35 @@ GENERAL_PREFIX="6000.3."
 VRCHAT_VERSION="2022.3.22f1"
 VRCHAT_CHANGESET="887be4894c44"
 
+# Discovered empirically (#85): a freshly installed Editor
+# (`-batchmode -nographics -quit`, no project) on a clean Ubuntu image
+# carrying only the packages `lib/base-install.sh` already installs
+# fails the dynamic linker before reaching Unity's own license check —
+# `error while loading shared libraries: libgtk-3.so.0: cannot open
+# shared object file: No such file or directory`. Installing the
+# package below is the only apt dependency this repeatedly reproduced;
+# once present, the Editor reaches "No valid Unity Editor license
+# found" cleanly (both without any module and with `linux-il2cpp`
+# installed), so no other library is missing.
+#
+# The package providing `libgtk-3.so.0` was renamed for the 64-bit
+# `time_t` transition: `libgtk-3-0t64` on 24.04+, still `libgtk-3-0` on
+# 22.04 and older (no transitional package bridges the two names, so a
+# hardcoded single name breaks one release or the other).
+resolve_apt_package() {
+  # $1 = current (post-t64-rename) name, $2 = pre-rename name
+  if apt-cache show "$1" >/dev/null 2>&1
+  then
+    printf '%s' "$1"
+  elif apt-cache show "$2" >/dev/null 2>&1
+  then
+    printf '%s' "$2"
+  else
+    echo "Error: neither '$1' nor '$2' is a known apt package on this system (stale apt lists, or an unsupported Ubuntu release). Run 'sudo apt-get update' and retry, or file an issue if this release genuinely lacks both." >&2
+    exit 1
+  fi
+}
+
 # `unity install --dry-run --json` output is parsed with grep/sed instead
 # of jq: this script can run before base-install.sh (a bare --unity
 # --dry-run only needs the CLI, already required above), so jq is not
@@ -150,6 +179,13 @@ then
   echo "Error: --unity needs ~${REQUIRED_DISK_GIB} GiB free at ${disk_check_path}, but only ${avail_gib} GiB is available." >&2
   exit 1
 fi
+
+# Runs only after the disk preflight above passes, so a run that fails
+# that check leaves no partial apt-level system change behind.
+unity_apt_package="$(resolve_apt_package libgtk-3-0t64 libgtk-3-0)"
+log "installing Editor runtime dependency (${unity_apt_package})..."
+sudo DEBIAN_FRONTEND=noninteractive apt-get install \
+  --no-install-recommends -y -qq "$unity_apt_package"
 
 # Installs the exact version validated above, not the selector: re-passing
 # the selector here could resolve to a different (newer) release if one
