@@ -311,8 +311,8 @@ default below is unchanged.
     `readiness: { ready: boolean, reasons: string[], authoringHeld: boolean,`
     `startable: boolean }` — the A3 startability of each open leaf (dependency
     resolution across visible `Blocked by #N` / `Depends on #N` / task-list refs
-    and hidden `{{PROJECT_MARKER_PREFIX}}-blocked-by` markers, plus
-    authoring-hold), where `reasons` lists the sorted filter reasons (e.g.
+    and hidden `<!-- {{PROJECT_MARKER_PREFIX}}-blocked-by: ... -->` markers,
+    plus authoring-hold), where `reasons` lists the sorted filter reasons (e.g.
     `blocked_by_open_issue:#N`) and is empty when `ready`, and `startable` is
     `ready` **and** not claim-blocked (it folds
     in `claimEligible` when `--with-claim-state` also ran; otherwise claim

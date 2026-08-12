@@ -179,6 +179,6 @@ autopilot never performs them — only a human maintainer does:
 ## Coverage
 
 This page was derived from a full sweep of every
-`.github/instructions/*.instructions.md` file and every
-`.github/instructions/lite/*.instructions.md` file in this repository at
-authoring time.
+`.github/instructions/*.instructions.md` file, and every
+`.github/instructions/lite/*.instructions.md` file when that directory
+is present, in this repository at authoring time.
