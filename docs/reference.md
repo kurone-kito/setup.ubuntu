@@ -1,3 +1,10 @@
+---
+type: reference
+title: IDD Detailed Reference
+description: Maps each operational question to the authoritative phase file or policy page that answers it.
+tags: [reference, navigation]
+---
+
 # IDD Detailed Reference
 
 Use this page when you already know the IDD loop exists and need the
@@ -6,7 +13,8 @@ question. It is a navigation surface, not a replacement for the phase
 instructions themselves.
 
 For first-time adoption, start with [Getting started](getting-started.md)
-or [Core concepts](concepts.md) before using this reference.
+or [Core concepts](concepts.md) before using this reference. See the
+[IDD Documentation Index](index.md) for the full topic map.
 
 ## Phase Map
 
@@ -32,17 +40,17 @@ or [Core concepts](concepts.md) before using this reference.
 
 ## Policy and Support Pages
 
-| Topic                                  | Read                                                        |
-| -------------------------------------- | ----------------------------------------------------------- |
-| Cross-agent entry path                 | [IDD workflow guide](idd-workflow.md)                       |
-| Review policy choices                  | [IDD review policy profiles](idd-review-policy-profiles.md) |
-| Distributed policy defaults            | [IDD policy constants](policy-constants.md)                 |
-| Credential boundaries and threat model | [Permissions](permissions.md)                               |
-| Safe adopter customization surfaces    | [Customization](customization.md)                           |
-| Live digest and comment cleanup        | [IDD comment minimization](idd-comment-minimization.md)     |
-| Helper-script adoption policy          | [IDD helper script evaluation](idd-helper-scripts.md)       |
-| Reversible vs. gated mutations         | [IDD autonomy contract](idd-autonomy-contract.md)           |
-| Actor-vs-concept quick check           | [IDD concept ownership](idd-concept-ownership.md)           |
+| Topic                                  | Read                                                                                                                  |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Cross-agent entry path                 | [IDD workflow guide](idd-workflow.md)                                                                                 |
+| Review policy choices                  | [IDD review policy profiles](idd-review-policy-profiles.md)                                                           |
+| Distributed policy defaults            | [IDD policy constants](policy-constants.md)                                                                           |
+| Credential boundaries and threat model | [Permissions](permissions.md)                                                                                         |
+| Safe adopter customization surfaces    | [Customization](customization.md)                                                                                     |
+| Live digest and comment cleanup        | [IDD comment minimization](idd-comment-minimization.md)                                                               |
+| Helper-script adoption policy          | [IDD helper script evaluation](idd-helper-scripts.md)                                                                 |
+| Reversible vs. gated mutations         | [IDD autonomy contract](idd-autonomy-contract.md)                                                                     |
+| Docs bundle frontmatter convention     | [Customizing IDD § Docs Bundle Frontmatter Convention (OKF)](customization.md#docs-bundle-frontmatter-convention-okf) |
 
 ## Maintainer Note
 
