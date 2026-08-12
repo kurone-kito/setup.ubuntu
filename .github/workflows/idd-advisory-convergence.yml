@@ -1,8 +1,8 @@
 name: IDD advisory-convergence gate
-# Optional, opt-in required-check workflow (see ONBOARDING.md "Optional
-# — host idd-advisory-convergence as a required-check CI workflow" for
-# the full rationale, the required-check Ruleset registration step, and
-# the waiver-after-deadline escape path).
+# Optional, opt-in required-check workflow, hosted here since roadmap
+# #48/#47 registered it (see docs/idd-policy.md's "Helper runtime
+# (ephemeral-npx)" section for the required-check Ruleset registration
+# decision and the waiver-after-deadline escape path).
 #
 # This repository adapts the upstream idd-template/ copy of this file to
 # its own ephemeral-npx helper-runtime profile (.github/idd/config.json
