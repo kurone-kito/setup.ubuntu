@@ -210,9 +210,10 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   resync, the four above plus this workflow file. This workflow is
   **hosted but not registered as a required check**: two GitHub
   Rulesets exist on this repository today (`gh api
-  repos/{owner}/{repo}/rulesets` returns `main` and `features`, both
-  `enforcement: active`) — a maintainer-created addition, not one this
-  IDD loop configured. Each enables `copilot_code_review`
+  repos/{owner}/{repo}/rulesets` includes rulesets named `main` and
+  `features`, both `enforcement: active`) — a maintainer-created
+  addition, not one this IDD loop configured. Each enables
+  `copilot_code_review`
   (`review_on_push: true`), so Copilot now reviews every push
   automatically; `main` (targeting `~DEFAULT_BRANCH`) also enables the
   `deletion` / `non_fast_forward` rules and a `pull_request` rule with
