@@ -70,8 +70,12 @@ resolve_apt_package() {
   if apt-cache show "$1" >/dev/null 2>&1
   then
     printf '%s' "$1"
-  else
+  elif apt-cache show "$2" >/dev/null 2>&1
+  then
     printf '%s' "$2"
+  else
+    echo "Error: neither '$1' nor '$2' is a known apt package on this system (stale apt lists, or an unsupported Ubuntu release). Run 'sudo apt-get update' and retry, or file an issue if this release genuinely lacks both." >&2
+    exit 1
   fi
 }
 
