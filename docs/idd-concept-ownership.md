@@ -1,3 +1,10 @@
+---
+type: reference
+title: IDD — Concept Ownership Matrix
+description: Answers which actor may touch a given IDD concept at a given phase without re-reading every instruction file.
+tags: [concept-ownership, matrix]
+---
+
 # IDD — Concept Ownership Matrix
 
 Use this page to answer "may this actor touch this concept, right now?"
@@ -9,16 +16,12 @@ new rule.
 
 This matrix is derived by sweeping the current
 `.github/instructions/*.instructions.md` corpus, including the `lite/`
-subdirectory when the target repository has one. This repository's
-`.github/instructions/lite/` is intentionally absent (see
-`docs/idd-policy.md`), so this sweep covers only the 18 non-lite
-instruction files actually present here. The instruction files remain
-the sole authoritative source for phase behavior. Where this document
-and an instruction file disagree, the instruction file wins, and the
-disagreement is a bug in this document, not a second valid
-interpretation — please file an issue so the mismatch can be corrected.
-This document never overrides, relaxes, or extends a gate defined in
-`.github/instructions/`.
+subdirectory. The instruction files remain the sole authoritative source
+for phase behavior. Where this document and an instruction file
+disagree, the instruction file wins, and the disagreement is a bug in
+this document, not a second valid interpretation — please file an issue
+so the mismatch can be corrected. This document never overrides, relaxes,
+or extends a gate defined in `.github/instructions/`.
 
 ## Actor classes
 
@@ -43,7 +46,7 @@ back as evidence for a gate.
 | Concept | Creator | Mutator | Verifier |
 | --- | --- | --- | --- |
 | Issue body | Human maintainer (or the issue-authoring skill) | Human maintainer; the issue-authoring skill before an active claim or open PR exists; worker session only for roadmap task-list updates (A1.5) | A0-T/A3/A3.5 readiness checks |
-| Status / blocker labels (`status:authoring`, `status:blocked-by-human`, `status:needs-decision`, `idd:ready`, `triage:{outcome}`) | Human maintainer for the ready label; issue-authoring skill for `status:authoring`; worker session for `status:needs-decision`/`status:blocked-by-human` (A1.5 non-autonomous gap, E6 escalation) or the optional diagnostic `triage:` label (A4.5) | Issue-authoring skill removes `status:authoring`; human maintainer removes `status:blocked-by-human`/`status:needs-decision`/`idd:ready` regardless of which actor applied it — resolving that blocker is the human judgment the label exists to enforce | A0/A3/A3.5/A4.5 gates |
+| Status / blocker labels (`status:authoring` — draft marker and claim-suppression lock while an issue is held, `status:blocked-by-human`, `status:needs-decision`, `idd:ready`, `triage:{outcome}`) | Human maintainer for the ready label; issue-authoring skill for `status:authoring`; worker session for `status:needs-decision`/`status:blocked-by-human` (A1.5 non-autonomous gap, E6 escalation) or the optional diagnostic `triage:` label (A4.5) | Issue-authoring skill removes `status:authoring` only on the user's explicit hold-release request; human maintainer removes `status:blocked-by-human`/`status:needs-decision`/`idd:ready` regardless of which actor applied it — resolving that blocker is the human judgment the label exists to enforce | A0/A3/A3.5/A4.5 gates |
 | Claim marker (`claimed-by`) | Worker session, A5 | Worker session (heartbeat, `unclaimed-by`) or a later worker session (stale takeover, A5/Resume-stall S5) | Claim revalidation gate before every mutation; Resume Step 1 |
 | Activation-nonce marker | Worker session, alongside every fresh claim activation (A5) | Immutable once posted; superseded implicitly by the next activation's nonce | Claim verification step 5; claim revalidation gate |
 | Heartbeat | Worker session holding the claim, re-posting `claimed-by` with the same `{claim-id}` | Worker session, every ≤ 12 h while holding | Claim-state parsing rule 3.5 (heartbeat branch invariant) |
@@ -81,7 +84,7 @@ matrix's general "who mutates" column above.
 | Branch and worktree | Deleted | Worker or merge-capable session, F4 — only after F3 merge succeeds |
 | Review thread | Resolved | Worker session, immediately after posting a disposition reply (E6/E13) — **except** an `**Awaiting maintainer decision**` reply, which leaves the thread unresolved until a maintainer responds (F2's unresolved-threads gate relies on this); or a human reviewer resolving their own thread |
 | PR | Merged | Merge-capable session, F3, only once the full F2/F2.5 gate checklist holds |
-| `review-watermark` / `review-baseline` / `advisory-wait*` markers | Superseded / minimized as `OUTDATED` | Worker session, after a newer valid marker of the same kind exists for the same claim or HEAD |
+| `review-watermark` / `review-baseline` / `advisory-wait:` / `advisory-wait-recovery:` / `advisory-reroll:` markers | Superseded / minimized as `OUTDATED` | Worker session, after a newer valid marker of the same kind exists for the same claim or HEAD |
 | Claim-marker chain (`claimed-by`/`unclaimed-by`/heartbeat) | Superseded / minimized as `OUTDATED` | Worker session, but **only** the prior claim-id's chain after a verified `supersedes: <prior-id>` takeover — a same-claim heartbeat chain must never be hidden; it is the active-claim audit trail |
 | External-check waiver | Expired, or consumed | Worker session, rerunning the waived check so it reflects the waiver; expiry itself is a time-driven transition (`expiresAt`) that needs no actor |
 | Blocked-by-human / needs-decision label | Removed | Human maintainer only, after resolving the underlying blocker |
