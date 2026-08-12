@@ -27,8 +27,7 @@ changes.
   apart. `.markdownlint-cli2.yaml` required a hand merge (this
   repository's file predates upstream's own copy) rather than a straight
   overwrite. Registering `idd-advisory-convergence` as a required status
-  check was reconsidered and declined again, matching the 0.4.0 entry's
-  original reasoning.
+  check was reconsidered and declined again.
 
 ## Project values
 
