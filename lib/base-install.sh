@@ -11,7 +11,11 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
 sudo DEBIAN_FRONTEND=noninteractive apt-get install \
   --no-install-recommends -y -qq yq
 
-# NOTE: The yq from apt is kislyuk/yq.
-mapfile -t packages < <(yq -r '.packages | sort | .[]' cloud-init.yml)
+# NOTE: The yq from apt is kislyuk/yq. Invoke it by absolute path (not
+# a bare `yq`) so this always resolves to that binary even when a
+# different yq implementation earlier on PATH (for example, one
+# installed by mise) would otherwise shadow it -- the two use
+# incompatible CLI syntax.
+mapfile -t packages < <(/usr/bin/yq -r '.packages | sort | .[]' cloud-init.yml)
 sudo DEBIAN_FRONTEND=noninteractive apt-get install \
   --no-install-recommends -y -qq "${packages[@]}"
