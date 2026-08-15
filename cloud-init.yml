@@ -52,7 +52,6 @@ packages:
   - bat
   - eza
   - file
-  - fzf
   - rename
   - trash-cli
   - zoxide
@@ -75,7 +74,6 @@ packages:
 
   # Remote tools
   - httpie
-  - mkcert
   - mosh
   - openssh-client
   - openssh-server
@@ -86,7 +84,6 @@ packages:
   # SCM tools
   - gh
   - git
-  - git-delta
   - git-lfs
   - subversion
 
@@ -100,14 +97,12 @@ packages:
   # Text browsing tools
   - links2
   - mdp
-  - tealdeer
   - w3m
 
   # Text converters
   - cloc
   - groff
   - jc
-  - jq
   - ripgrep
   - yq
 
