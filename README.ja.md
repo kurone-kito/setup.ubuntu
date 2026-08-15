@@ -86,7 +86,6 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - [bat](https://github.com/sharkdp/bat)
 - eza
 - (B) [fd](https://github.com/sharkdp/fd)
-- [fzf](https://github.com/junegunn/fzf)
 - [rename](http://plasmasturm.org/code/rename/)
 - [trash-cli](https://github.com/andreafrancia/trash-cli)
 - (B) [watchexec](https://github.com/watchexec/watchexec)
@@ -129,7 +128,6 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - **`.`** (B) [awscli](https://aws.amazon.com/cli/)
 - [httpie](https://httpie.io/)
 - [LazySSH](https://github.com/Adembc/lazyssh)
-- [mkcert](https://mkcert.dev/)
 - mosh
 - [ngrok](https://ngrok.com/)
 - **`.`** [OpenSSH Server & Client](https://www.openssh.org/)
@@ -142,7 +140,6 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - **`.`** (B) [ghq](https://github.com/x-motemen/ghq)
 - **`.`** [GitHub CLI](https://cli.github.com/)
 - **`.`** [Git](https://git-scm.com/)
-- **`.`** [git-delta: A viewer for git and diff output](https://github.com/dandavison/delta)
 - **`.`** [Git Large File Storage](https://git-lfs.github.com/)
 - (B) [gti](https://r-wos.org/hacks/gti)
 - (B) [Jujutsu](https://jj-vcs.dev/)
@@ -166,7 +163,6 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - (B) [glow](https://github.com/charmbracelet/glow)
 - links2
 - [mdp](https://github.com/visit1985/mdp)
-- tealdeer
 - w3m
 
 ### テキスト変換ツール
@@ -175,7 +171,6 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 - [dprint](https://dprint.dev/)
 - [groff](https://www.gnu.org/software/groff/)
 - [jc](https://kellyjonbrazil.github.io/jc/)
-- [jq](https://stedolan.github.io/jq/)
 - (B) [pkl](https://pkl-lang.org/)
 - [ripgrep](https://github.com/BurntSushi/ripgrep)
 - **`!`** [yq](https://github.com/kislyuk/yq)
