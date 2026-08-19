@@ -10,15 +10,6 @@ Dev environment preference for the Ubuntu Linux distribution.
 ./setup
 ```
 
-## Installation apps
-
-|  note   | description                                                                                                                 |
-| :-----: | :-------------------------------------------------------------------------------------------------------------------------- |
-| **`!`** | **DEPENDENCIES**: Removing the apps may cause this setup to stop working correctly.                                         |
-| **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) dependencies**: They're required for the dotfiles to work correctly.  |
-|   (B)   | The apps install via a [Homebrew](https://brew.sh/) **formula** (`brew 'name'` in `lib/Brewfile`), so you can manage them with Homebrew. |
-|   (M)   | The apps install via this repository's [mise-en-place](https://mise.jdx.dev/) `lib/mise.sh`, so you can manage them with Mise-en-place. |
-
 ## Ownership boundary
 
 The inventory below is what *this* repository installs. Some CLI tools
@@ -28,6 +19,15 @@ mise config instead — see
 [docs/dotfiles-boundary.md](docs/dotfiles-boundary.md) for the full
 layer list and the handed-off tools. Running `chezmoi apply` (from a
 fresh shell, after `./setup`) is what installs those handed-off CLIs.
+
+## Installation apps
+
+|  note   | description                                                                                                                 |
+| :-----: | :-------------------------------------------------------------------------------------------------------------------------- |
+| **`!`** | **DEPENDENCIES**: Removing the apps may cause this setup to stop working correctly.                                         |
+| **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) dependencies**: They're required for the dotfiles to work correctly.  |
+|   (B)   | The apps install via a [Homebrew](https://brew.sh/) **formula** (`brew 'name'` in `lib/Brewfile`), so you can manage them with Homebrew. |
+|   (M)   | The apps install via this repository's [mise-en-place](https://mise.jdx.dev/) `lib/mise.sh`, so you can manage them with Mise-en-place. |
 
 ### Archive tools
 
