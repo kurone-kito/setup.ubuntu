@@ -24,6 +24,18 @@ minimum necessary configuration required. Configuration matters are the
 responsibility of the [dotfiles](https://github.com/kurone-kito/dotfiles)
 repository.
 
+## Homebrew
+
+This repository's Homebrew path is **formulae-only**: `lib/Brewfile`
+may use `brew 'name'`, never `cask 'name'`. A token is a `(B)` marker
+candidate (the marker used in `README.md`/`README.ja.md`'s app tables)
+only after `brew info --formula NAME` succeeds on Linux — `brew info`,
+`brew search`, and `brew install --dry-run` can resolve a **cask** on
+this Ubuntu Linuxbrew and must not be treated as formula evidence.
+Classic `app`/`pkg` casks remain macOS-only, but since Homebrew 4.5.0
+some casks ship Linux `binary` artifacts and are no longer universally
+macOS-only; neither fact makes a cask in-scope here.
+
 ## Documentation
 
 `README.md` and `README.ja.md` document the same tool inventory in
