@@ -1,3 +1,10 @@
+---
+type: guide
+title: Optional Unity layer
+description: Documents the Unity CLI install and the opt-in pinned Editor layer.
+tags: [unity, editor]
+---
+
 # Optional Unity layer
 
 The Unity CLI installs in the default `./setup` path — it needs no `sudo` and
