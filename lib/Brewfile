@@ -1,5 +1,6 @@
 # -*- mode: ruby -*-
 # vim: set ft=ruby :
+# formulae only; do not add `cask` stanzas
 
 # Configuration
 brew 'chezmoi'
