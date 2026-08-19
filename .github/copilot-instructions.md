@@ -22,7 +22,9 @@ the project's standards and practices:
 The scope of this project is to install software on Ubuntu and perform the
 minimum necessary configuration required. Configuration matters are the
 responsibility of the [dotfiles](https://github.com/kurone-kito/dotfiles)
-repository.
+repository. Some CLI installs are also owned by dotfiles, via its shared
+mise config — see [docs/dotfiles-boundary.md](../docs/dotfiles-boundary.md)
+for the layer boundary.
 
 ## Homebrew
 
