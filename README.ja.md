@@ -17,7 +17,16 @@ Ubuntu Linux ディストリビューション向けの開発環境設定です�
 | **`!`** | **依存関係**: これらのアプリを削除すると、このセットアップが正しく動作しなくなる場合があります。                             |
 | **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) の依存関係**: dotfiles を正しく動作させるために必要です。              |
 |   (B)   | [Homebrew](https://brew.sh/) の **フォーミュラ**（`lib/Brewfile` の `brew 'name'`。`name` はパッケージ名）経由でインストールされるため、Homebrew で管理できます。 |
-|   (M)   | [mise-en-place](https://mise.jdx.dev/) パッケージマネージャー経由でインストールされるため、mise-en-place で管理できます。    |
+|   (M)   | このリポジトリの [mise-en-place](https://mise.jdx.dev/) `lib/mise.sh` 経由でインストールされるため、mise-en-place で管理できます。 |
+
+## 所有境界
+
+以下の一覧は*このリポジトリ*がインストールする対象です。以前このリポジトリでインストールしていた一部の CLI ツールは、
+[dotfiles](https://github.com/kurone-kito/dotfiles) リポジトリの共有
+mise 設定に移管されました。移管先の一覧や層構造については
+[docs/dotfiles-boundary.md](docs/dotfiles-boundary.md)（英語）を参照してください。
+`./setup` 実行後、新しいシェルで `chezmoi apply` を実行することで、
+それらの移管された CLI がインストールされます。
 
 ### アーカイブツール
 
