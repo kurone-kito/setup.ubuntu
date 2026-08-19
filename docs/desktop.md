@@ -1,3 +1,10 @@
+---
+type: guide
+title: Optional desktop layer
+description: Walks through enabling the opt-in graphical desktop layer for GUI workloads.
+tags: [desktop, gui]
+---
+
 # Optional desktop layer
 
 The default `./setup` installs a CLI-only environment. An **opt-in**

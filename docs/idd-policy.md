@@ -1,3 +1,10 @@
+---
+type: reference
+title: IDD policy decisions
+description: Records this repository's onboarding decisions for the imported IDD workflow.
+tags: [idd-policy, onboarding]
+---
+
 # IDD policy decisions
 
 This project adopts the Issue-Driven Development (IDD) workflow from the
