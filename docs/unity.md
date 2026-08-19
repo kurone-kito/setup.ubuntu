@@ -1,8 +1,8 @@
 ---
 type: guide
 title: Optional Unity layer
-description: Walks through enabling the opt-in Unity CLI and pinned Editor layer.
-tags: [unity, gui]
+description: Documents the Unity CLI install and the opt-in pinned Editor layer.
+tags: [unity, editor]
 ---
 
 # Optional Unity layer
