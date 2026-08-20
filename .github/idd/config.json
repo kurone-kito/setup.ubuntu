@@ -23,11 +23,7 @@
     "profile": "ephemeral-npx",
     "packageSpec": "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/f51a8bb73a47452eff5799e8a27251b660ba4ae0"
   },
-  "advisoryBotLogins": [
-    "copilot-pull-request-reviewer[bot]",
-    "coderabbitai[bot]",
-    "chatgpt-codex-connector[bot]"
-  ],
+  "advisoryBotLogins": ["copilot-pull-request-reviewer[bot]"],
   "advisoryWait": {
     "convergenceScope": "idd-claimed"
   },

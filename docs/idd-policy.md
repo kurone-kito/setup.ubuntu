@@ -82,8 +82,14 @@ scripts.
   location)
 - Helper runtime profile: `ephemeral-npx` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below)
-- Advisory bot logins: `copilot-pull-request-reviewer[bot]`,
-  `coderabbitai[bot]`, `chatgpt-codex-connector[bot]`
+- Advisory bot logins: `copilot-pull-request-reviewer[bot]` only.
+  `coderabbitai[bot]` and `chatgpt-codex-connector[bot]` were dropped
+  2026-08-19 (#115) — across PRs #111-#113 both only ever posted
+  structural non-review notices (Codex: account-level usage-limit
+  exhaustion; CodeRabbit: this repository's star count below its
+  10-star automatic-review threshold), never a real review. Re-add
+  either login via a follow-up issue if the underlying condition
+  clears.
 - Advisory-wait convergence scope: `idd-claimed` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below for the
   rationale)
