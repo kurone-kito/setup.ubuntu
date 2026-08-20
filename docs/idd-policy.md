@@ -100,6 +100,24 @@ scripts.
   source layout by #44; a future template resync must copy the
   upstream bundle to that same installed path, not the pre-#44
   location)
+- `.github/instructions/idd-roadmap-audit.instructions.md`'s
+  contract-path reference intentionally points at that same installed
+  `.claude/skills/issue-authoring/references/contract.md` location,
+  not upstream `idd-template/`'s generic
+  `skills/issue-authoring/references/contract.md` example path (#125).
+  This is a **permanent, intentional divergence** from upstream — a
+  future template resync must not "fix" it back to the literal
+  upstream path. That same file's `{{PROJECT_MARKER_PREFIX}}` token
+  (an installed instruction file, not reusable template
+  documentation) is unrelated: it resolves to the literal prefix
+  `setup-ubuntu`, used as `setup-ubuntu-roadmap-id`, the same ordinary
+  substitution as every other installed instruction file — not a
+  second divergence. This does not extend to every
+  `{{PROJECT_MARKER_PREFIX}}` occurrence repository-wide —
+  reusable template documentation such as
+  `docs/onboarding/placeholders.md` and `docs/customization.md`
+  deliberately keeps the literal placeholder as reference text and
+  must stay unsubstituted.
 - Helper runtime profile: `ephemeral-npx` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below)
 - Advisory bot logins: `copilot-pull-request-reviewer[bot]` only.
