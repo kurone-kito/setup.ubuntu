@@ -35,6 +35,26 @@ changes.
   repository's file predates upstream's own copy) rather than a straight
   overwrite. Registering `idd-advisory-convergence` as a required status
   check was reconsidered and declined again.
+- Resynced: `iddVersion 0.7.0`, imported from
+  [`kurone-kito/idd-skill`](https://github.com/kurone-kito/idd-skill)
+  `main` at commit
+  [`f51a8bb73a47452eff5799e8a27251b660ba4ae0`](https://github.com/kurone-kito/idd-skill/commit/f51a8bb73a47452eff5799e8a27251b660ba4ae0)
+  (2026-08-19). `.github/instructions/lite/` remains deliberately
+  excluded, unchanged reasoning from the 0.4.0/0.6.0 entries.
+  `helperRuntime.packageSpec` is re-pinned to the same commit (#119),
+  keeping the `ephemeral-npx` runtime and the distributed instructions
+  in sync; this file's own "Pinned helper package spec" line below
+  moves to match. The two new optional policy fields this release
+  added (`authoringLanguage`, `critiqueLoop.delegate`) were considered
+  and not adopted — no product/design decision favors either yet.
+  Registering `idd-advisory-convergence` as a required status check
+  remains unchanged this cycle; see #114, deferred until this resync's
+  wall-clock-deadline polling fix is confirmed live. The imported
+  workflow surface shipped 2 of the 3 upstream files
+  (`idd-advisory-convergence.yml`, `post-merge-cleanup.yml`); the third
+  (`idd-advisory-convergence-comment.yml`) split out to #128, blocked
+  on an upstream gap — no `ephemeral-npx`-reachable bin export for
+  `scripts/review-comment-origin.mjs` exists in `f51a8bb7`.
 
 ## Project values
 
@@ -169,11 +189,11 @@ add files to this shell-and-Terraform repository and need re-vendoring
 on every upstream bump. `ephemeral-npx` avoids both costs.
 
 - Pinned helper package spec:
-  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/abd841ac0712dec83231ca77096abea67a3497b4`
+  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/f51a8bb73a47452eff5799e8a27251b660ba4ae0`
   — intentionally pinned to the same commit the instruction files were
-  imported from (originally in #41, resynced to this commit in #88), so
-  a helper's JSON output contract can never drift away from the
-  instruction step that reads it.
+  imported from (originally in #41, resynced in #88, resynced to this
+  commit in #119), so a helper's JSON output contract can never drift
+  away from the instruction step that reads it.
 - Canonical invocation form: `npx --yes --package <pinned-spec>
   idd-<helper>`. Under this profile the `idd-*` bin facade is the
   authoritative surface, not `node scripts/*.mjs`.
