@@ -305,6 +305,29 @@ infer), adopt the guard recipe in
 [Customizing IDD — Reserved-label guard recipe](../customization.md#reserved-label-guard-recipe)
 before relying on unattended discovery or hold semantics.
 
+### Bootstrap execution mode
+
+Confirm whether the initial IDD import itself runs through the
+distributed direct-import default or through the optional
+issue-mediated alternate:
+
+- `direct-import` (distributed default, "theirs-flow"): Steps 2, 4, 5,
+  and 6 import the template with a direct, unreviewed commit, then hand
+  off to the normal claim -> work -> PR -> CI -> merge loop for every
+  subsequent change.
+- `issue-mediated`: routes that same import through a reviewable
+  issue -> branch -> PR -> merge cycle instead, using the placeholder
+  values and Step 1B policy decisions already confirmed earlier in the
+  hearing. Choose this when the operator wants every repository
+  mutation — including the very first one — to have a reviewable
+  record, or simply prefers not to grant an agent a direct-commit path.
+
+If the operator does not state a preference, propose `direct-import`
+and only switch modes on explicit confirmation. See
+[Onboarding Reference — Issue-Mediated
+Bootstrap](issue-mediated-bootstrap.md) for the full procedure and
+prerequisites.
+
 ## Related default policies to confirm
 
 The onboarding entry point should also confirm whether the repository
@@ -368,7 +391,7 @@ through GitHub's classic branch-protection API uses the explicit
   (observed 2026-08-11 onboarding a companion repository;
   [kurone-kito/idd-skill#1925](https://github.com/kurone-kito/idd-skill/issues/1925)).
   See [ONBOARDING.md's required-status-check registration
-  step](../../ONBOARDING.md#optional--host-idd-advisory-convergence-as-a-required-check-ci-workflow)
+  step](https://github.com/kurone-kito/idd-skill/blob/main/idd-template/ONBOARDING.md#optional--host-idd-advisory-convergence-as-a-required-check-ci-workflow)
   for the working `PATCH` snippet, including the merge caveat (`PATCH`
   replaces the whole `checks` list) and the producer-pinning trade-off
   of `app_id: -1`.
@@ -464,6 +487,10 @@ This repository uses the following IDD policies:
 
 - **`issueAuthoring.maxClarificationRounds`**:
   `{3 | custom finite bound}`
+
+### Bootstrap Execution Mode
+
+**Mode**: `{direct-import | issue-mediated}`
 ```
 
 When the repository uses a non-default merge, review, or thread policy,
