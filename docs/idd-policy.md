@@ -109,9 +109,11 @@ scripts.
   future template resync must not "fix" it back to the literal
   upstream path. That same file's `{{PROJECT_MARKER_PREFIX}}` token
   (an installed instruction file, not reusable template
-  documentation) is unrelated: it is ordinary substitution to
-  `setup-ubuntu`, not a second divergence. This does not extend to
-  every `{{PROJECT_MARKER_PREFIX}}` occurrence repository-wide —
+  documentation) is unrelated: it resolves to the literal prefix
+  `setup-ubuntu`, used as `setup-ubuntu-roadmap-id`, the same ordinary
+  substitution as every other installed instruction file — not a
+  second divergence. This does not extend to every
+  `{{PROJECT_MARKER_PREFIX}}` occurrence repository-wide —
   reusable template documentation such as
   `docs/onboarding/placeholders.md` and `docs/customization.md`
   deliberately keeps the literal placeholder as reference text and
