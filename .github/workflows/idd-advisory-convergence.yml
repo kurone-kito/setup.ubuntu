@@ -38,14 +38,14 @@ on:
         required: true
         type: number
       runner:
-        description: Runner label (default ubuntu-slim)
+        description: Runner label (default ubuntu-slim; falls back to
+          the CI_RUNNER_LABEL repository variable, then ubuntu-slim,
+          when left unset)
         required: false
         type: string
-        default: ubuntu-slim
   workflow_call:
     inputs:
       runner:
-        default: ubuntu-slim
         required: false
         type: string
       pr_number:
