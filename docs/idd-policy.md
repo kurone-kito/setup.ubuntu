@@ -215,13 +215,24 @@ scripts.
   `workflow-boundary.md`'s "capability-checked create-with-label
   operation" requirement, new in `0.11.0`'s #142 resync): this
   repository has no `ephemeral-npx`-published helper for it and none
-  is expected upstream soon, so it formally adopts `gh issue create`
-  followed by label application and a re-fetch/verify step as the
-  locally-accepted substitute (#157, #164) — the same sequence already
-  used to create #155, #157, #163, and #164 themselves. This is a
-  **permanent, intentional local divergence** from the distributed
-  contract's undefined fallback, not an unresolved gap; a future
-  template resync must not treat it as one.
+  is expected upstream soon, so it formally adopts `gh issue create
+  --label <name>` (atomic at creation, not a separate follow-up call)
+  plus an immediate re-fetch/verify step as a **deliberately partial**
+  local substitute (#157, #164) — a review on PR #165 correctly caught
+  that this only covers the atomic-label half of the full requirement.
+  It does **not** implement the hidden publication token or the
+  journal `pending`/`member`/`cleanup` state-write protocol
+  `contract.md`/`workflow-boundary.md` also require for safe recovery
+  after an interrupted authoring session; that half remains genuinely
+  unimplemented, not merely undocumented. Accepted as a pragmatic,
+  live-maintainer-approved gap for now, since this repository's
+  standalone authoring is currently single-session and
+  human-supervised in practice; revisit with real tooling (or the full
+  hand-rolled protocol) the first time an actual concurrent-authoring
+  collision or interrupted-session recovery is observed. This is a
+  **permanent, intentional local divergence** for the atomic-label
+  half only — the token/journal half is an open, accepted risk, not a
+  divergence to defend.
 - `authoringLanguage: "en"` — pinned explicitly at `0.11.0` (#143),
   previously left unadopted twice. This repository's global Claude
   Code instructions direct English documentation/comments regardless
