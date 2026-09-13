@@ -143,8 +143,13 @@ changes.
     yet satisfy: no configured `issueAuthoring.journalIssue` for
     standalone issue authoring, and no `ephemeral-npx` capability for
     the new capability-checked issue-publication command. Tracked as
-    `status:needs-decision` in #157; resolved live with the maintainer
-    and implemented in #164 — see
+    `status:needs-decision` in #157; decided live with the maintainer
+    and implemented in #164 — `issueAuthoring.journalIssue` is now
+    configured, and atomic-label issue creation is covered by a
+    deliberately partial local fallback. The fallback's remaining
+    half (the hidden publication token and journal
+    pending/member/cleanup state-write protocol for interrupted-session
+    recovery) is an accepted, still-open gap, not resolved — see
     [Policy decisions](#policy-decisions) below.
 
 ## Project values
