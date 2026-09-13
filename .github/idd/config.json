@@ -37,6 +37,9 @@
   "providerOutage": {
     "declarationTarget": 158
   },
+  "issueAuthoring": {
+    "journalIssue": "kurone-kito/setup.ubuntu#163"
+  },
   "authoringLanguage": "en",
   "upstreamEscalation": {
     "enabled": true
