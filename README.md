@@ -32,7 +32,6 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 ### Archive tools
 
 - [bzip2](https://github.com/libarchive/bzip2)
-- [p7zip](https://github.com/ip7z/7zip)
 - [unzip](https://manpages.ubuntu.com/manpages/man1/unzip.1.html)
 - [xz-utils](https://tukaani.org/xz/)
 - [zip](https://manpages.ubuntu.com/manpages/man1/zip.1.html)
@@ -109,7 +108,6 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 #### Generative AI
 
 - [CodeRabbit CLI](https://docs.coderabbit.ai/cli/overview)
-- (B) [Ollama](https://ollama.com/)
 
 ### Hardware
 
@@ -164,7 +162,6 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 - [bash-completion](https://github.com/scop/bash-completion)
 - **`.`** (B) [Microsoft PowerShell](https://microsoft.com/PowerShell)
 - [shellcheck](https://www.shellcheck.net)
-- **`.`** (B) [Starship](https://starship.rs/)
 - [sudo-rs](https://github.com/trifectatechfoundation/sudo-rs)
 - [The Fuck](https://github.com/nvbn/thefuck)
 - **`.`** [zsh](https://www.zsh.org/)
@@ -189,12 +186,10 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 ### Texts editors
 
 - (B) [Microsoft Edit](https://github.com/microsoft/edit)
-- **`.`** (B) [Neovim](https://neovim.io/)
 - **`.`** [Vim](https://www.vim.org/)
 
 ### TUI
 
-- **`.`** [tmux](https://github.com/tmux/tmux)
 - **`.`** (B) [zellij](https://zellij.dev)
 
 #### Virtualizations

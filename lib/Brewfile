@@ -21,9 +21,6 @@ brew 'fd'
 brew 'watchexec'
 brew 'yazi'
 
-# Generative AI
-brew 'ollama'
-
 # Package management
 brew 'mise'
 brew 'vrc-get'
@@ -42,7 +39,6 @@ brew 'worktrunk'
 
 # Shell utilities
 brew 'powershell'
-brew 'starship'
 
 # Text browsing tools
 brew 'glow'
@@ -53,7 +49,6 @@ brew 'pkl'
 
 # Texts editors
 brew 'msedit'
-brew 'neovim'
 
 # TUI
 brew 'zellij'
