@@ -31,7 +31,6 @@ mise 設定に移管されました。移管先の一覧や層構造について
 ### アーカイブツール
 
 - bzip2
-- [p7zip](https://github.com/ip7z/7zip)
 - unzip
 - xz-utils
 - zip
@@ -108,7 +107,6 @@ mise 設定に移管されました。移管先の一覧や層構造について
 #### 生成 AI
 
 - [CodeRabbit CLI](https://docs.coderabbit.ai/cli/overview)
-- (B) [Ollama](https://ollama.com/)
 
 ### ハードウェア
 
@@ -163,7 +161,6 @@ mise 設定に移管されました。移管先の一覧や層構造について
 - bash-completion
 - **`.`** (B) [Microsoft PowerShell](https://microsoft.com/PowerShell)
 - [shellcheck](https://www.shellcheck.net)
-- **`.`** (B) [Starship](https://starship.rs/)
 - sudo-rs
 - [The Fuck](https://github.com/nvbn/thefuck)
 - **`.`** [zsh](https://www.zsh.org/)
@@ -188,12 +185,10 @@ mise 設定に移管されました。移管先の一覧や層構造について
 ### テキストエディター
 
 - (B) [Microsoft Edit](https://github.com/microsoft/edit)
-- **`.`** (B) [Neovim](https://neovim.io/)
 - **`.`** [Vim](https://www.vim.org/)
 
 ### TUI
 
-- **`.`** [tmux](https://github.com/tmux/tmux)
 - **`.`** (B) [zellij](https://zellij.dev)
 
 #### 仮想化

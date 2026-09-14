@@ -47,6 +47,13 @@ install paths for the same tool.
 They appear on `PATH` after `chezmoi apply` deploys dotfiles' mise
 config.
 
+**Second wave** ([#168](https://github.com/kurone-kito/setup.ubuntu/issues/168),
+via [`kurone-kito/dotfiles#436`](https://github.com/kurone-kito/dotfiles/issues/436)/
+[#440](https://github.com/kurone-kito/dotfiles/pull/440)): `7zip`
+(`ip7z/7zip`, apt package `p7zip`), `neovim`, `ollama`, `starship`, and
+`tmux` are also no longer installed by `./setup`. Same PATH mechanism
+as above.
+
 ## Explicit non-moves
 
 - **`yq` stays.** `lib/base-install.sh` apt-installs `kislyuk/yq` and

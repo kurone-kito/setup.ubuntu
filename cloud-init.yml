@@ -9,7 +9,6 @@ package_upgrade: true
 packages:
   # Archive tools
   - bzip2
-  - p7zip
   - unzip
   - xz-utils
   - zip
@@ -108,9 +107,6 @@ packages:
 
   # Texts editors
   - vim
-
-  # TUI
-  - tmux
 timezone: Asia/Tokyo
 write_files:
   - path: /etc/apt/preferences.d/999-hold-kernel.pref
