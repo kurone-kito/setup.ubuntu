@@ -1,7 +1,7 @@
 ---
 type: reference
 title: Dotfiles and mise ownership boundary
-description: Records this Ubuntu stack's apt/Homebrew/mise install-ownership layers and why five tools moved to dotfiles.
+description: Records this Ubuntu stack's apt/Homebrew/mise install-ownership layers and why ten tools moved to dotfiles.
 tags: [dotfiles, mise, ownership]
 ---
 
@@ -20,7 +20,7 @@ later session does not need to reconstruct it from git history.
 | apt (`cloud-init.yml` + `lib/base-install.sh`)                     | This repository       | Base packages installed at cloud-init time                    |
 | Homebrew (`lib/Brewfile`)                                          | This repository       | Formulae installed via `brew bundle`                           |
 | This repository's `lib/mise.sh`                                    | This repository       | Node.js, Bitwarden CLI                                         |
-| dotfiles mise (`home/dot_config/mise/config.toml`)                 | `dotfiles`            | The cross-platform CLI list, including the five tools below   |
+| dotfiles mise (`home/dot_config/mise/config.toml`)                 | `dotfiles`            | The cross-platform CLI list, including the ten tools below   |
 | dotfiles / chezmoi                                                  | `dotfiles`            | User-facing configuration (see [desktop.md](desktop.md) / [unity.md](unity.md) for the layer-specific detail) |
 
 ## Why some installs moved
@@ -76,7 +76,7 @@ install path is out of scope here.
 ## Operator consequence
 
 `./setup` installs chezmoi and mise, but it never runs `chezmoi apply`.
-The five handed-off CLIs above are missing on a machine that has not
+The ten handed-off CLIs above are missing on a machine that has not
 applied dotfiles. One Ubuntu-specific PATH note: `lib/homebrew.sh`
 appends `brew shellenv` to `~/.bashrc`, so a fresh bash session after
 `./setup` can already see `mise` (itself a Homebrew formula) without
