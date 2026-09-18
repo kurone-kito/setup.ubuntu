@@ -145,12 +145,10 @@ changes.
     the new capability-checked issue-publication command. Tracked as
     `status:needs-decision` in #157; decided live with the maintainer
     and implemented in #164 — `issueAuthoring.journalIssue` is now
-    configured, and atomic-label issue creation is covered by a
-    deliberately partial local fallback. The fallback's remaining
-    half (the hidden publication token and journal
-    pending/member/cleanup state-write protocol for interrupted-session
-    recovery) is an accepted, still-open gap, not resolved — see
-    [Policy decisions](#policy-decisions) below.
+    configured, and atomic-label issue creation is covered by a local
+    `gh issue create --label` fallback. The remaining
+    publication-token / journal half of that fallback is now closed
+    (#180) — see [Policy decisions](#policy-decisions) below.
 
 ## Project values
 
@@ -216,28 +214,18 @@ scripts.
   Standalone (non-roadmap-anchored) issue authoring stays allowed, not
   disabled.
 - Capability-checked create-with-label publication command
-  (`.claude/skills/issue-authoring/references/contract.md`/
-  `workflow-boundary.md`'s "capability-checked create-with-label
-  operation" requirement, new in `0.11.0`'s #142 resync): this
-  repository has no `ephemeral-npx`-published helper for it and none
-  is expected upstream soon, so it formally adopts `gh issue create
-  --label <name>` (atomic at creation, not a separate follow-up call)
-  plus an immediate re-fetch/verify step as a **deliberately partial**
-  local substitute (#157, #164) — a review on PR #165 correctly caught
-  that this only covers the atomic-label half of the full requirement.
-  It does **not** implement the hidden publication token or the
-  journal `pending`/`member`/`cleanup` state-write protocol
-  `contract.md`/`workflow-boundary.md` also require for safe recovery
-  after an interrupted authoring session; that half remains genuinely
-  unimplemented, not merely undocumented. Accepted as a pragmatic,
-  live-maintainer-approved gap for now, since this repository's
-  standalone authoring is currently single-session and
-  human-supervised in practice; revisit with real tooling (or the full
-  hand-rolled protocol) the first time an actual concurrent-authoring
-  collision or interrupted-session recovery is observed. This is a
-  **permanent, intentional local divergence** for the atomic-label
-  half only — the token/journal half is an open, accepted risk, not a
-  divergence to defend.
+  (`.claude/skills/issue-authoring/references/contract.md`): keep
+  `gh issue create --label <authoringLabelName>` as the atomic
+  create-with-label operation (permanent local substitute; still no
+  upstream `idd-issue-create` bin). Publication token,
+  publication-intent journal writes, owner markers, and the
+  hide-on-supersede sweep follow the installed
+  `.claude/skills/issue-authoring/references/` contract. Invoke
+  `idd-post-idd-marker` and `idd-sweep-authoring-markers` as
+  `npx --yes --package <helperRuntime.packageSpec> <idd-bin>`
+  (`ephemeral-npx`; pin source of truth: `.github/idd/config.json`).
+  Journal: `kurone-kito/setup.ubuntu#163`. `scripts/` is not added;
+  `helperRuntime.profile` stays `ephemeral-npx`.
 - `authoringLanguage: "en"` — pinned explicitly at `0.11.0` (#143),
   previously left unadopted twice. This repository's global Claude
   Code instructions direct English documentation/comments regardless
