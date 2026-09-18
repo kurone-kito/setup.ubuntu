@@ -7,10 +7,11 @@ tags: [onboarding, host-setup]
 
 # Onboarding Reference — Optional Host Setup
 
-Use this reference alongside `idd-template/ONBOARDING.md` when you want to
-enable one of the optional host-level integrations it mentions but does not
-walk through inline. None of these steps are required to finish the hearing
-or the core import.
+Use this reference alongside
+[`ONBOARDING.md`](https://github.com/kurone-kito/idd-skill/blob/v0.12.0/idd-template/ONBOARDING.md)
+when you want to enable one of the optional host-level integrations it
+mentions but does not walk through inline. None of these steps are
+required to finish the hearing or the core import.
 
 This page is the detailed companion for:
 
@@ -576,8 +577,8 @@ enable **Dismiss stale pull request approvals when new commits are
 pushed** (or its equivalent) so approval applies to the workflow
 revision that will merge. Without those settings, CODEOWNERS only
 requests or routes a review and does not make approval a merge gate.
-`idd-template/ONBOARDING.md`'s dry-run — Readiness assessment report's
-`CODEOWNERS present` item checks only that a CODEOWNERS file
+The [dry-run — Readiness assessment](https://github.com/kurone-kito/idd-skill/blob/v0.12.0/idd-template/ONBOARDING.md#dry-run--readiness-assessment)
+report's `CODEOWNERS present` item checks only that a CODEOWNERS file
 exists; it does not verify workflow-path coverage, producer binding, or
 these required-review settings (preventive; no observed incident yet).
 
@@ -793,9 +794,13 @@ bundle is third-party code, so marking it `linguist-vendored` drops it
 from your repository's language statistics and de-prioritizes it in code
 search — useful when your own code is mostly docs or another language and
 you do not want the copied `.mjs`/schema files to dominate the language
-bar. (This is the adopter-side counterpart of the source repository's
-`linguist-generated` artifacts; the semantics differ deliberately:
-generated = first-party build output, vendored = copied third-party code.)
+bar. Do **not** mark those copied files `linguist-generated=true`
+(generated = first-party build output; vendored = copied third-party
+code; observed 2026-09-13, issue `#2958`, when
+`template-distribution.md` told adopters to copy the source
+repository's generated-output stanza onto this third-party set). The
+source repository uses `linguist-generated` only for its own built
+`.mjs` artifacts, not for this copied set.
 
 The helper-runtime manifest emits the exact lines from the same
 `managedFiles` import-graph it uses to vend the bundle, so the attribute
