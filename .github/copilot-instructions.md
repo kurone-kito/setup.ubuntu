@@ -67,3 +67,156 @@ remote-tracking ref `origin/main` — it does **not** move the local
 `main` branch, so a stale local `main` silently cuts the new branch
 off from work that already merged. See
 [B1 — Create worktree (with branch)](instructions/idd-work.instructions.md#b1--create-worktree-with-branch).
+
+## Commit rules
+
+This project follows
+[Conventional Commits](https://www.conventionalcommits.org/).
+A `.gitmessage` template is available at the repository root for
+guidance when writing commit messages. Git does not use it
+automatically, so contributors who want the template prefilled in
+their editor should opt in once per clone:
+
+```sh
+git config commit.template .gitmessage
+```
+
+### Format
+
+```txt
+<type>[optional scope]: <user-facing description>
+
+<body: address purpose, context, and what changed>
+
+[optional footer(s)]
+```
+
+### Subject line
+
+- Use the format: `<type>[optional scope]: <description>`
+- Write from the **user's perspective** — briefly state what this
+  commit solves or improves for the end user or developer
+- Write in **lowercase**, imperative mood (e.g., "add", not "added")
+- Keep the subject line at most **72 characters**
+- Do **not** end with a period
+
+### Types
+
+Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`,
+`chore`, `ci`, `build`, `perf`
+
+### Scopes
+
+- Optional, in parentheses: `feat(ci):`, `fix(lint):`, `docs(readme):`
+- Keep scopes **lowercase**, short, and consistent
+- Use the directory or component name that best describes the area
+
+### Body (line 3+)
+
+The body should address three aspects:
+
+- **Why** — the purpose or motivation behind the change
+- **Context** — what was needed, the situation or constraint
+- **What changed** — the concrete action taken
+
+Prefer the **why → context → change** order when practical.
+Write these as **natural prose** — weave the aspects into coherent
+sentences rather than using labeled sections. Labeled sections
+(`Why:` / `Context:` / `Change:`) are acceptable only when explicit
+paragraph separation improves clarity.
+
+Omit any aspect whose information **cannot be reliably inferred**.
+If the subject line is self-explanatory, the body may be omitted
+entirely. **Breaking changes must always include a body.**
+
+Wrap body lines at **72 characters**.
+
+### Breaking changes
+
+- Append `!` after the type/scope: `feat!: remove deprecated endpoint`
+- Add a `BREAKING CHANGE:` trailer in the footer with a detailed
+  explanation of what breaks and migration steps
+
+### Footers / trailers
+
+- `Closes #<issue>` / `Refs #<issue>` — link to issues
+- `Co-authored-by: Name <email>` — credit co-authors
+- `BREAKING CHANGE: <description>` — detail the breaking change
+
+### Atomic commits
+
+Keep each commit as **small and focused** as possible:
+
+- **One logical change per commit** — if the subject line needs
+  "and", consider splitting
+- **Separate refactoring** from behavior changes
+- **Separate formatting/style** changes from logic changes
+- **Separate dependency updates** from code changes
+- When in doubt, prefer smaller commits that are easy to review,
+  revert, and bisect
+
+### Examples
+
+#### Good — single-line (trivial change)
+
+```txt
+fix: correct typo in feature request template
+```
+
+#### Good — prose body
+
+```txt
+feat(ci): add concurrency settings to lint workflow
+
+Parallel lint runs on the same branch waste resources and
+cause race conditions in status checks. GitHub Actions
+supports concurrency groups that automatically cancel
+redundant runs, so add a concurrency group keyed on branch
+name with cancel-in-progress enabled.
+
+Refs #42
+```
+
+#### Good — breaking change
+
+```txt
+feat!: require node 20 as minimum version
+
+Node 18 reached end-of-life in April 2025 and no longer
+receives security updates, while the project now standardizes
+on the active Node 20 LTS baseline. All production
+environments have already been upgraded to node 20+, so
+update the engines field and CI matrix to require node >= 20.
+
+BREAKING CHANGE: drop support for node 16 and 18. Users
+must upgrade to node 20 or later.
+Closes #108
+```
+
+#### Bad — vague, developer-centric
+
+```txt
+fix: update code
+```
+
+#### Bad — too large / non-atomic
+
+```txt
+feat: add auth system and refactor database layer and update docs
+```
+
+## Coding standards
+
+- **Indentation**: 2 spaces (enforced by `.editorconfig`)
+- **Line endings**: LF only (enforced by `.editorconfig` and
+  `.gitattributes`)
+- **Trailing whitespace**: trimmed (except in Markdown)
+- **Final newline**: always present
+- **File naming**: lowercase with hyphens (e.g.,
+  `feature-request.yml`) unless constrained by a platform convention
+  (e.g., `CONTRIBUTING.md`)
+
+## Guardrails
+
+- **Do not** modify community documents (CODE_OF_CONDUCT, CONTRIBUTING)
+  without explicit approval
