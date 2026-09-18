@@ -25,8 +25,8 @@ Updating `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and
 existing file, create a minimal stub, or point at a sibling file that
 already owns the guidance — not a mechanical rewrite. `idd-onboard` has
 no `--update-agent-entries` mode. Follow
-[Step 5 — Update agent entry files](https://github.com/kurone-kito/idd-skill/blob/v0.12.0/idd-template/ONBOARDING.md#step-5--update-agent-entry-files)
-in `ONBOARDING.md` for the append/stub/pointer decision and the
+[Step 5 — Update agent entry files](https://github.com/kurone-kito/idd-skill/blob/11105d705820e50be0a14fcc174587abbaf62b30/idd-template/ONBOARDING.md#step-5--update-agent-entry-files)
+for the append/stub/pointer decision and the
 cross-file-consistency check it links to, and [Onboarding Reference —
 Agent Entry and Verification](agent-entry-and-verification.md) for the
 per-file examples.
