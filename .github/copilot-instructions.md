@@ -97,7 +97,7 @@ git config commit.template .gitmessage
 - Write from the **user's perspective** — briefly state what this
   commit solves or improves for the end user or developer
 - Write in **lowercase**, imperative mood (e.g., "add", not "added")
-- Keep the subject line under **72 characters**
+- Keep the subject line at most **72 characters**
 - Do **not** end with a period
 
 ### Types
