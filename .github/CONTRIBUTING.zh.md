@@ -15,3 +15,5 @@ Language: [🇬🇧](./CONTRIBUTING.md) | [🇯🇵](./CONTRIBUTING.ja.md) | **�
    请从用户角度撰写标题行，正文应说明变更的原因（Why）、相关背景（Context）
    以及具体更改内容（Change），可以使用自然段落或适当的小标题来组织内容。
    仓库根目录提供了 `.gitmessage` 模板。
+   完整格式与示例请参见
+   [`.github/copilot-instructions.md`](copilot-instructions.md#commit-rules)。
