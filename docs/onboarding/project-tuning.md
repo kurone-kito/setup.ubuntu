@@ -7,9 +7,9 @@ tags: [onboarding, project-tuning]
 
 # Onboarding Reference — Project Tuning
 
-Use this reference after `idd-template/ONBOARDING.md`'s
-Helper-assisted path `--hear` / `--import` / `--substitute` /
-`--record-policy` sequence
+Use this reference after the
+[Helper-assisted path](https://github.com/kurone-kito/idd-skill/blob/v0.12.0/idd-template/ONBOARDING.md#helper-assisted-path)'s
+`--hear` / `--import` / `--substitute` / `--record-policy` sequence
 (or the equivalent manual Steps 1A-4) has run. It indexes the
 judgment calls that stay manual
 because they depend on repository-specific state the catalog and CLI
@@ -24,10 +24,10 @@ Updating `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and
 `.github/copilot-instructions.md` is a judgment call — append to an
 existing file, create a minimal stub, or point at a sibling file that
 already owns the guidance — not a mechanical rewrite. `idd-onboard` has
-no `--update-agent-entries` mode. Follow the Step 5 — Update agent
-entry files section of `idd-template/ONBOARDING.md` for the
-append/stub/pointer decision and the cross-file-consistency check it
-links to, and [Onboarding Reference —
+no `--update-agent-entries` mode. Follow
+[Step 5 — Update agent entry files](https://github.com/kurone-kito/idd-skill/blob/v0.12.0/idd-template/ONBOARDING.md#step-5--update-agent-entry-files)
+in `ONBOARDING.md` for the append/stub/pointer decision and the
+cross-file-consistency check it links to, and [Onboarding Reference —
 Agent Entry and Verification](agent-entry-and-verification.md) for the
 per-file examples.
 
@@ -120,9 +120,9 @@ does not carry the native destination on its own: the hearing catalog
 records only `installed`/`not installed`, never which of
 `.agents/skills/`, `.claude/skills/`, or `.opencode/skills/` was
 chosen. Ask the operator directly which single native destination to
-use (see the Optional companion boundary section of
-`idd-template/ONBOARDING.md` for the allowed values and the
-do-not-duplicate rule), then fetch or
+use (see
+[Optional companion boundary](https://github.com/kurone-kito/idd-skill/blob/v0.12.0/idd-template/ONBOARDING.md#optional-companion-boundary)
+for the allowed values and the do-not-duplicate rule), then fetch or
 copy the `skills/issue-authoring/` bundle into that destination
 yourself: see
 [Remote fetch examples](template-distribution.md#remote-fetch-examples)
