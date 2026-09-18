@@ -149,6 +149,48 @@ changes.
     `gh issue create --label` fallback. The remaining
     publication-token / journal half of that fallback is now closed
     (#180) — see [Policy decisions](#policy-decisions) below.
+- Resynced: `iddVersion 0.12.0`, imported from
+  [`kurone-kito/idd-skill`](https://github.com/kurone-kito/idd-skill)
+  `main` at commit
+  [`11105d705820e50be0a14fcc174587abbaf62b30`](https://github.com/kurone-kito/idd-skill/commit/11105d705820e50be0a14fcc174587abbaf62b30)
+  (2026-09-18), via roadmap #175. Children: #176 (pin), #177
+  (corpus), #178 (workflows), #179 (skills), #180 (publication
+  protocol), #181 (this finalize). `.github/instructions/lite/`
+  remains deliberately excluded, unchanged reasoning from prior
+  entries. 2026-09-18 maintainer hearing, recorded here against
+  shipped sibling outcomes — not open questions:
+  - `critiqueLoop.deferAfterRounds` inherits the new upstream
+    default of 12 (was 15). The key is intentionally unset in
+    `.github/idd/config.json` so the distributed default applies
+    (#176 left it absent; this finalize records the hearing).
+  - Cursor remains docs-only: Cursor CLI is documented on the
+    `AGENTS.md` path inside imported `docs/idd-workflow.md` and
+    `docs/onboarding/agent-entry-and-verification.md`. `CURSOR.md`
+    is not added (#177).
+  - Hosted workflows were hand-merged, not template-pasted (#178):
+    `idd-advisory-convergence.yml` stays this repository's
+    `ephemeral-npx` rewrite (0.12.0 self-waiver scopes and evidence
+    rules ported in; both hardcoded `packageSpec` SHAs bumped);
+    `post-merge-cleanup.yml` took the 0.12.0 `workflow_dispatch`
+    trust-gap fixes while keeping `ubuntu-slim` and action SHA
+    pins; `idd-advisory-convergence-comment.yml` had no 0.12.0
+    logic delta and was left untouched.
+  - Profile-selected helper invocation forms were kept in
+    `idd-overview-appendix.instructions.md` (provider-outage park)
+    and `idd-suitability.instructions.md` (high-confidence close)
+    rather than taking upstream 0.12.0's hardcoded
+    `node scripts/*.mjs` paths (#177).
+  - Companion skills were resynced in full at `.claude/skills/`
+    (#179), keeping the installed-path precedent (#44, #150).
+  - `critiqueLoop.telemetryHook` remains unset. Registering
+    `idd-advisory-convergence` as a required GitHub-ruleset status
+    check was declined again. `ONBOARDING.md` is still not
+    imported (docs deep-link the upstream file). `idd-template/`
+    and `scripts/` are still not copied. All reaffirmed from the
+    0.11.0 hearing on 2026-09-18.
+  - The publication-token / journal protocol is closed by the
+    protocol child (#180); see that child's Policy decisions
+    bullet. This finalize does not rewrite it.
 
 ## Project values
 
@@ -195,6 +237,10 @@ scripts.
   and rejected because it would skip the per-agent pass whenever the
   delegate merely exits 0, a review-quality regression rather than an
   addition.
+- Critique-loop defer-after-rounds: inherit the `0.12.0` default of
+  12. `critiqueLoop.deferAfterRounds` is intentionally unset in
+  `.github/idd/config.json` so the distributed default applies
+  (hearing 2026-09-18, #181).
 - CI wait policy: `PT30M` / `PT10M` / `rerun-once` (defaults)
 - Issue-author approval gate: enabled (default)
 - Maintainer approval actors: `owners-and-maintainers-only` (default)
@@ -367,12 +413,12 @@ add files to this shell-and-Terraform repository and need re-vendoring
 on every upstream bump. `ephemeral-npx` avoids both costs.
 
 - Pinned helper package spec:
-  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/1f90787ebf4021673ce6e5eb69741df331fd2037`
+  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/11105d705820e50be0a14fcc174587abbaf62b30`
   — intentionally pinned to the same commit the instruction files were
   imported from (originally in #41, resynced in #88, resynced to
-  `f51a8bb7` in #119, resynced to this commit in #140), so a helper's
-  JSON output contract can never drift away from the instruction step
-  that reads it.
+  `f51a8bb7` in #119, resynced to `1f90787e` in #140, resynced to this
+  commit in #176), so a helper's JSON output contract can never drift
+  away from the instruction step that reads it.
 - Canonical invocation form: `npx --yes --package <pinned-spec>
   idd-<helper>`. Under this profile the `idd-*` bin facade is the
   authoritative surface, not `node scripts/*.mjs`.
