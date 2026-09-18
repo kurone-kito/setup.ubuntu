@@ -192,3 +192,10 @@ $RECYCLE.BIN/
 # default; force-track the shared repository baseline explicitly so a
 # blanket `git add` on such a machine cannot silently drop it.
 !.claude/settings.json
+
+# OpenAI Codex sandbox
+.codex/
+
+### NeoVim ###
+# Project-local NeoVim config
+.nvim.lua
