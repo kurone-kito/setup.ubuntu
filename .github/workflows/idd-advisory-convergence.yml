@@ -157,7 +157,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
         run: >-
           npx --yes --package
-          https://codeload.github.com/kurone-kito/idd-skill/tar.gz/1f90787ebf4021673ce6e5eb69741df331fd2037
+          https://codeload.github.com/kurone-kito/idd-skill/tar.gz/11105d705820e50be0a14fcc174587abbaf62b30
           idd-advisory-convergence
           --pr "$PR_NUMBER"
           --assert
@@ -194,16 +194,23 @@ jobs:
     runs-on: ${{ inputs.runner || vars.CI_RUNNER_LABEL || 'ubuntu-slim' }}
     timeout-minutes: 10
     # Narrower than the verdict job's read-only posture above: this job
-    # additionally needs `pull-requests: read` (to diff and fetch the PR)
-    # and `issues: write` (to post the marker, and to read the linked
-    # issue's own comment stream to resolve its active claim -- the
-    # PR-conversation-comment endpoint and the linked-issue-comment
-    # endpoint are both gated under the Issues permission category, same
-    # as the verdict job's own header comment already notes for reads).
+    # needs `pull-requests: write` (to diff/fetch the PR, and -- this is
+    # the load-bearing grant -- to actually post the marker below) and
+    # `issues: write` (to post the marker, and to read the linked issue's
+    # own comment stream to resolve its active claim). kurone-kito/idd-skill#2951:
+    # with only `pull-requests: read`, the marker POST failed with HTTP
+    # 403 "Resource not accessible by integration", confirmed by a live
+    # A/B test. Do not narrow `pull-requests` back to `read` without
+    # re-running an equivalent live test.
+    # `checks: read` / `statuses: read` (kurone-kito/idd-skill#2995): the
+    # `--auto-bootstrap` path also reads `pr.statusCheckRollup`, which
+    # needs both scopes explicitly.
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: write
+      checks: read
+      statuses: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -234,12 +241,32 @@ jobs:
           # marker at all. Read the PR files REST endpoint directly
           # instead, which reports both `filename` and (when present)
           # `previous_filename` for a renamed entry.
+          #
+          # kurone-kito/idd-skill#3104: this raw `gh api` call always
+          # targeted `github.com` regardless of the runner's actual host --
+          # `GH_ENTERPRISE_TOKEN` above only covers auth, not host
+          # targeting. Mirror `gh-exec.mts`'s `resolveGhApiHostname` (#1962)
+          # in shell: respect an already-set `GH_HOST`; otherwise derive the
+          # host from the Actions-provided `GITHUB_SERVER_URL`, and only
+          # pass `--hostname` when that host is non-empty and not
+          # `github.com`, so GitHub.com-hosted runs keep their existing argv
+          # unchanged.
           ALLOWLIST=(
             ".github/idd/config.json"
             ".github/workflows/idd-advisory-convergence.yml"
             ".github/workflows/idd-advisory-convergence-comment.yml"
           )
+          GH_API_HOSTNAME_ARGS=()
+          if [ -z "${GH_HOST:-}" ]; then
+            SERVER_HOST=$(printf '%s' "$GITHUB_SERVER_URL" \
+              | sed -E 's#^[a-zA-Z][a-zA-Z0-9+.-]*://##; s#/+$##' \
+              | tr '[:upper:]' '[:lower:]')
+            if [ -n "$SERVER_HOST" ] && [ "$SERVER_HOST" != "github.com" ]; then
+              GH_API_HOSTNAME_ARGS=(--hostname "$SERVER_HOST")
+            fi
+          fi
           CHANGED=$(gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER/files" \
+            "${GH_API_HOSTNAME_ARGS[@]}" \
             --paginate --jq '.[] | .filename, (.previous_filename // empty)')
           TOUCHED=false
           for FILE in "${ALLOWLIST[@]}"; do
@@ -262,7 +289,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           npx --yes --package \
-            https://codeload.github.com/kurone-kito/idd-skill/tar.gz/1f90787ebf4021673ce6e5eb69741df331fd2037 \
+            https://codeload.github.com/kurone-kito/idd-skill/tar.gz/11105d705820e50be0a14fcc174587abbaf62b30 \
             idd-external-check-waiver --pr "$PR_NUMBER" --check idd-advisory-convergence \
             --reason self-referential-bootstrap-auto --run-id "$GITHUB_RUN_ID" \
             --auto-bootstrap --apply --yes | tee /tmp/idd-waiver-report.json
