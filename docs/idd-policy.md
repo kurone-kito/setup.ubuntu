@@ -221,10 +221,10 @@ scripts.
   publication-intent journal writes, owner markers, and the
   hide-on-supersede sweep follow the installed
   `.claude/skills/issue-authoring/references/` contract. Invoke
-  `idd-post-idd-marker` and `idd-sweep-authoring-markers` via
-  `npx --yes --package <helperRuntime.packageSpec>` (`ephemeral-npx`;
-  pin source of truth: `.github/idd/config.json`). Journal:
-  `kurone-kito/setup.ubuntu#163`. `scripts/` is not added;
+  `idd-post-idd-marker` and `idd-sweep-authoring-markers` as
+  `npx --yes --package <helperRuntime.packageSpec> <idd-bin>`
+  (`ephemeral-npx`; pin source of truth: `.github/idd/config.json`).
+  Journal: `kurone-kito/setup.ubuntu#163`. `scripts/` is not added;
   `helperRuntime.profile` stays `ephemeral-npx`.
 - `authoringLanguage: "en"` — pinned explicitly at `0.11.0` (#143),
   previously left unadopted twice. This repository's global Claude
