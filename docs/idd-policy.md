@@ -145,10 +145,10 @@ changes.
     the new capability-checked issue-publication command. Tracked as
     `status:needs-decision` in #157; decided live with the maintainer
     and implemented in #164 — `issueAuthoring.journalIssue` is now
-    configured, and atomic-label issue creation is covered by a
-    deliberately partial local fallback. The remaining
-    publication-token / journal protocol is now a closed gap (#180) —
-    see [Policy decisions](#policy-decisions) below.
+    configured, and atomic-label issue creation is covered by a local
+    `gh issue create --label` fallback. The remaining
+    publication-token / journal half of that fallback is now closed
+    (#180) — see [Policy decisions](#policy-decisions) below.
 
 ## Project values
 
@@ -221,9 +221,10 @@ scripts.
   publication-intent journal writes, owner markers, and the
   hide-on-supersede sweep follow the installed
   `.claude/skills/issue-authoring/references/` contract. Invoke
-  `idd-post-idd-marker` and `idd-sweep-authoring-markers` in
-  `ephemeral-npx` form against the pinned `helperRuntime.packageSpec`.
-  Journal: `kurone-kito/setup.ubuntu#163`. `scripts/` is not added;
+  `idd-post-idd-marker` and `idd-sweep-authoring-markers` via
+  `npx --yes --package <helperRuntime.packageSpec>` (`ephemeral-npx`;
+  pin source of truth: `.github/idd/config.json`). Journal:
+  `kurone-kito/setup.ubuntu#163`. `scripts/` is not added;
   `helperRuntime.profile` stays `ephemeral-npx`.
 - `authoringLanguage: "en"` — pinned explicitly at `0.11.0` (#143),
   previously left unadopted twice. This repository's global Claude
