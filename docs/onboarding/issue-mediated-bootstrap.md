@@ -8,7 +8,7 @@ tags: [onboarding, bootstrap]
 # Onboarding Reference — Issue-Mediated Bootstrap
 
 Use this reference alongside
-[`ONBOARDING.md`](https://github.com/kurone-kito/idd-skill/blob/v0.12.0/idd-template/ONBOARDING.md)
+[`ONBOARDING.md`](https://github.com/kurone-kito/idd-skill/blob/v0.14.0/idd-template/ONBOARDING.md)
 when the operator wants an audited bootstrap trail instead of the
 distributed default direct-import ("theirs-flow") path. This page is
 the detailed companion for the pointer subsection between Step 1C and
@@ -323,9 +323,7 @@ absolute policy-document path before running this command:
 ```
 
 With `instructions-only`, or when the pinned clone or its working Node.js
-runtime is unavailable, follow the manual Step 3 procedure in
-[`ONBOARDING.md`](https://github.com/kurone-kito/idd-skill/blob/11105d705820e50be0a14fcc174587abbaf62b30/idd-template/ONBOARDING.md)
-(this repository does not keep a local `ONBOARDING.md`)
+runtime is unavailable, follow the manual Step 3 procedure in `ONBOARDING.md`
 and the policy-decisions template: use the embedded transcript as the
 source, write the selected policy section into the target documentation,
 set the core-bootstrap companion status to `not installed`, and retain the
@@ -499,7 +497,7 @@ examples ("start issue authoring to implement {inferred gap}", "run the
 IDD loop"). Derive `{inferred gap}` and the other prompt content using
 the same repository-evidence-read method the optional Dry-run readiness
 report already performs
-([Dry-run — Readiness assessment](https://github.com/kurone-kito/idd-skill/blob/v0.12.0/idd-template/ONBOARDING.md#dry-run--readiness-assessment))
+([Dry-run — Readiness assessment](https://github.com/kurone-kito/idd-skill/blob/v0.14.0/idd-template/ONBOARDING.md#dry-run--readiness-assessment))
 — detected package manager, missing prerequisites, and so on — rather
 than inventing a new inference mechanism. Run that read **fresh, after
 this merge**, not reused from the pre-import dry-run's stored output:
@@ -543,6 +541,13 @@ explicitly not the full autonomous Discover -> Claim -> Work loop:
   protection, or review bot the target repository already had before
   choosing IDD — those keep gating the bootstrap PR exactly as they did
   before, and this note is never grounds for disregarding them.
+- **A local `idd-doctor` run flags the same condition** (2026-09-23;
+  issue `#3229`): with no sibling worktree, the primary worktree's
+  `issue/*` HEAD trips B1 too — a WARN ("likely a past B1 violation")
+  without `--strict`, or an ERROR ("B1 violation: this branch must
+  live in a sibling worktree...", non-zero exit) under `--strict`;
+  neither is a real problem. Both clear once the primary worktree
+  checks out the default branch after merge.
 
 On an active target repository, also expect
 [concurrent default-branch drift](#concurrent-base-branch-drift-during-the-bootstrap-pr)
@@ -628,6 +633,15 @@ Disposition:
   review profile requires a reviewer or maintainer resolution, not
   merely an approval. Do not patch the vendored copy just to silence
   the comment.
+- **`resolve-review-thread.mjs --claimless` refuses this PR** — it
+  closes its own bootstrap issue, so `--claimless` fails closed
+  (2026-09-23; issue `#3229`). Recover: (a) a fresh, trusted-actor
+  `claimed-by` marker (`supersedes: none`) bound to the PR's head
+  branch, unlocking `--claim-issue`/`--claim-id`, released
+  (`unclaimed-by`) afterward; or (b) reply to the thread's top-level
+  comment (REST `.../comments/{root-id}/replies`) in E13's
+  disposition form (`idd-helper-scripts.md`), then resolve its
+  thread id via GraphQL `resolveReviewThread`.
 - **After merge, qualify before escalating.**
   [Upstream-candidate escalation][upstream-candidate] is opt-in
   (`upstreamEscalation.enabled`, default `false`) and only accepts

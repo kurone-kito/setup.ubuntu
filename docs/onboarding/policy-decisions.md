@@ -175,9 +175,9 @@ skill ID to multiple runtime roots by default (preventive; no observed incident
 yet); a mixed-runtime target should
 use one native copy plus an explicit manual route unless the operator
 deliberately accepts identical duplicates. The companion helps draft
-IDD-ready issues and roadmaps. By default, it publishes each drafted
-`ready` body directly under the configured authoring label once it
-passes the mechanical pre-publish gate and the critique pass — no
+IDD-ready issues and roadmaps. By default, it publishes each publishable
+drafted body directly under the configured authoring label once it
+passes the completed-draft review and then the mechanical pre-publish gate — no
 separate publish approval step — unless the current request explicitly
 asked for a preview instead. Releasing that authoring hold is the
 single boundary within the companion's own workflow that still needs an
@@ -623,6 +623,19 @@ When the repository uses a non-default merge, review, or thread policy,
 describe the local effect in prose near the selected value so future
 agents do not need to infer what changed.
 
+**Recording resolved placeholder values.** If you hand-add content
+inside an imported template file — for example a table noting which
+placeholder resolved to which value — spell the placeholder name
+without doubled braces (for example `REPO_NAME`, not `{{REPO_NAME}}`);
+`idd-onboard.mjs --verify` flags a doubled-brace token there as
+leftover residue. This policy document is a fixed scanner exclusion
+(tokens here are skipped, never scanned); a custom
+`--write-policy-doc` target sits outside the imported set unless its
+path matches one, so its token usually lands under
+`outOfScopeTokens` instead. See
+[Onboarding Reference — Placeholder Values](placeholders.md) for the
+full placeholder list.
+
 ## Machine-readable policy file
 
 `.github/idd/config.json` is the machine-readable record of the same
@@ -654,7 +667,7 @@ Keep these rules in mind:
   approval model that the distributed runtime already enforces
 - use `skipIssueAuthorApprovalGate: true` when the repository
   intentionally opts out; omitted or `false` keeps the gate enabled
-- replace `kurone-kito` in `trustedMarkerActors` with a
+- replace `{{TRUSTED_MARKER_ACTOR}}` in `trustedMarkerActors` with a
   single JSON-escaped GitHub login string first, then add any extra
   quoted array entries manually for additional trusted marker actors
 - keep command strings JSON-escaped instead of pasting fragile raw shell
