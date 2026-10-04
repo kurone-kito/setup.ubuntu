@@ -2146,7 +2146,8 @@ only approval boundary.
   anchor), and the read-only `authoring-set-members` helper reports
   that this target is the only issue whose trusted `authoring-owner`
   marker carries that exact `set`
-  (`node scripts/authoring-set-members.mjs --set <id>`). A zero exit
+  (`npx --yes --package
+  <helperRuntime.packageSpec> idd-authoring-set-members --set <id>`). A zero exit
   whose JSON has `soleMember: true` and `issues` equal to that one
   target is the only passing result. The helper exits non-zero when
   enumeration does not finish, including a search response with
@@ -2239,7 +2240,8 @@ only approval boundary.
   removal in step (4): first, verify that this sole target really is
   the sole member of its authoring set -- it carries no
   `<marker-prefix>-roadmap-id` marker, and
-  `node scripts/authoring-set-members.mjs --set <id>` reports
+  `npx --yes --package
+  <helperRuntime.packageSpec> idd-authoring-set-members --set <id>` reports
   `soleMember: true` with `issues` equal to this one target; that
   helper is exactly the mechanical proof this fast path's own
   `|set|==1` premise rests on, so skipping it here would be a genuine
