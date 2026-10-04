@@ -82,15 +82,8 @@
 # `CI_RUNNER_LABEL` repository variable, matching the required
 # workflow. `defaults.run.shell` pins every `run:` step to `bash`.
 #
-# Profile resolution: mirrors post-merge-cleanup.yml's
-# helperRuntime.profile resolution and per-step `if:` gating. Unlike
-# the required idd-advisory-convergence.yml companion, an
-# `instructions-only` profile here simply skips the classify/rerun
-# steps -- this workflow is a best-effort refresh, not the merge-gate
-# verdict itself, so silently doing nothing on every review comment is
-# harmless. The same skip applies when `package-manager` resolves but
-# which package manager to use is ambiguous (see "Detect package
-# manager" below).
+# Runtime is pinned to the immutable ephemeral-npx package below.
+# No package-manager or vendored-helper fallback is present.
 #
 # Debounce (#1381, #2023, #2638): a burst of IDD-originated comments (30
 # in ~15 min on PR #2628) fired `rerun-advisory-convergence.mjs --apply`
@@ -178,6 +171,8 @@ defaults:
 jobs:
   refresh-if-idd-originated:
     runs-on: ${{ vars.CI_RUNNER_LABEL || 'ubuntu-slim' }}
+    env:
+      IDD_SKILL_PACKAGE_SPEC: https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d
     # 55, not the required gate's own 10 (Codex P1, kurone-kito/idd-skill#2855
     # review): a `pull_request_review` submission can land while the
     # required gate's own run is still mid-flight, and
@@ -209,139 +204,31 @@ jobs:
         with:
           ref: main
           persist-credentials: false
-      - name: Resolve helper-runtime profile
-        id: profile
-        run: |
-          # Fail-closed default, mirroring idd-doctor.mjs's
-          # resolveConfiguredHelperRuntime: an absent, unreadable, or
-          # invalid config -- or one that simply omits helperRuntime --
-          # resolves to instructions-only (no runnable command), never a
-          # guess at a runnable profile. Validates the WHOLE
-          # helperRuntime object -- object type, only "profile"/
-          # "packageSpec" keys, profile enum membership, packageSpec
-          # shell-safe-character allowlist -- against the same rules as
-          # policy-helpers.mts's inspectHelperRuntimeConfig, instead of
-          # only the "profile" field, so a malformed sibling field
-          # cannot silently activate a profile the canonical validator
-          # would reject.
-          PROFILE="instructions-only"
-          PACKAGE_SPEC=""
-          if ! command -v jq >/dev/null 2>&1; then
-            # Distinguish "jq is missing" from a genuine instructions-only
-            # config: without jq, no config file can be parsed at all, so
-            # this would otherwise silently masquerade as an intentional
-            # instructions-only choice. GitHub-hosted runner images ship
-            # jq by default; this only bites a jq-less self-hosted runner.
-            echo "::warning::jq is not available on this runner, so helperRuntime.profile cannot be resolved; treating as instructions-only. Install jq on this runner, or use a runner image that provides it."
-          else
-            for CANDIDATE in .github/idd/config.json idd-policy.json; do
-              if [ -f "$CANDIDATE" ]; then
-                if RESOLVED=$(jq -r '
-                  (.helperRuntime) as $hr
-                  | ($hr != null and ($hr|type) == "object") as $is_object
-                  | if $is_object then
-                      (($hr | keys) - ["profile","packageSpec"]) as $extra
-                      | ($hr.profile) as $profile
-                      | ($extra | length == 0) as $keys_ok
-                      | ($profile != null and ($profile|type) == "string" and ($profile|length) > 0 and (["vendored-node","package-manager","ephemeral-npx","instructions-only"] | index($profile)) != null) as $profile_ok
-                      | (if ($hr | has("packageSpec")) then
-                           ($hr.packageSpec) as $spec
-                           | ($spec != null and ($spec|type) == "string" and ($spec | test("\\A[A-Za-z0-9@:/_.+^#%-]+\\z")))
-                         else true end) as $spec_ok
-                      | if ($keys_ok and $profile_ok and $spec_ok) then
-                          "\($hr.profile)\t\($hr.packageSpec // "")"
-                        else empty end
-                    else empty end
-                ' "$CANDIDATE" 2>/dev/null) && [ -n "$RESOLVED" ]; then
-                  IFS=$'\t' read -r PROFILE PACKAGE_SPEC <<<"$RESOLVED"
-                fi
-                # First present candidate file wins outright, valid or not
-                # -- never fall through to the legacy idd-policy.json name
-                # once the canonical file has been evaluated.
-                break
-              fi
-            done
-          fi
-          echo "profile=$PROFILE" >> "$GITHUB_OUTPUT"
-          echo "package-spec=$PACKAGE_SPEC" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        if: steps.profile.outputs.profile != 'instructions-only'
+        id: node_setup
         with:
           node-version: 24.x
-      - name: Detect package manager
-        id: manager
-        if: steps.profile.outputs.profile == 'package-manager'
+      - name: Assert Node.js floor
+        id: node_floor
         run: |
-          # Same precedence as helper-runtime-manifest.mts's own
-          # collectHelperRuntimeEvidence for the "declared field" and
-          # "exactly one lockfile" cases: an explicit package.json
-          # "packageManager" field wins, then lockfile presence when
-          # exactly one supported lockfile exists. When more than one
-          # supported lockfile coexists with no declared field, this
-          # mirrors collectHelperRuntimeEvidence's own "do not guess an
-          # install path" stance (ambiguousPackageManager) instead of
-          # silently picking by a fixed pnpm/npm/yarn priority order,
-          # which could select a manager whose lockfile lacks the IDD
-          # helper dependency and fail with a confusing error. When
-          # there is no evidence at all (no declared field, no
-          # lockfile), this is a workflow-specific fallback to npm, NOT
-          # a mirror of collectHelperRuntimeEvidence (which leaves the
-          # manager unset in that case, cascading to instructions-only
-          # via recommendHelperRuntimeProfile) -- npm ships with every
-          # setup-node Node.js install, so defaulting to it here is
-          # safe even though the canonical onboarding recommender is
-          # more conservative about "no evidence" (idd-skill#2392).
-          MANAGER=$(node -e "
-            const fs = require('node:fs');
-            let declared = '';
-            try {
-              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-              declared = String(pkg.packageManager || '').split('@')[0];
-            } catch {
-              // No readable package.json: fall through to lockfile detection.
+          node -e '
+            const versionParts = process.versions.node.split(".");
+            const [major, minor, patch] = versionParts.map(Number);
+            const isPrerelease = versionParts.some((part) => part.includes("-"));
+            const ok =
+              !isPrerelease &&
+              ((major === 22 && (minor > 23 || (minor === 23 && patch >= 2))) ||
+                (major === 24 && minor >= 2) ||
+                major >= 26);
+            if (!ok) {
+              console.error(
+                "Node " + process.version + " does not satisfy the supported engines.node range (^22.23.2 || ^24.2.0 || >=26.0.0).",
+              );
+              process.exit(1);
             }
-            if (['npm', 'pnpm', 'yarn'].includes(declared)) {
-              console.log(declared);
-            } else {
-              const lockfiles = [
-                ['pnpm-lock.yaml', 'pnpm'],
-                ['package-lock.json', 'npm'],
-                ['yarn.lock', 'yarn'],
-              ].filter(([file]) => fs.existsSync(file));
-              if (lockfiles.length === 1) {
-                console.log(lockfiles[0][1]);
-              } else if (lockfiles.length === 0) {
-                console.log('npm');
-              } else {
-                console.log('ambiguous');
-              }
-            }
-          ")
-          if [ "$MANAGER" = "ambiguous" ]; then
-            echo "::warning::Multiple package-manager lockfiles were found with no declared \"packageManager\" field in package.json; refusing to guess which one to use. Add a \"packageManager\": \"<name>@<version>\" field to package.json, or remove the stale lockfile(s)."
-          fi
-          echo "manager=$MANAGER" >> "$GITHUB_OUTPUT"
-      - name: Install dependencies (package-manager profile)
-        if: steps.profile.outputs.profile == 'package-manager' && steps.manager.outputs.manager != 'ambiguous'
-        env:
-          MANAGER: ${{ steps.manager.outputs.manager }}
-        run: |
-          case "$MANAGER" in
-            pnpm)
-              corepack enable
-              pnpm install --frozen-lockfile
-              ;;
-            yarn)
-              corepack enable
-              yarn install --frozen-lockfile
-              ;;
-            *)
-              npm ci
-              ;;
-          esac
+          '
       - name: Classify review comment
         id: origin
-        if: steps.profile.outputs.profile != 'instructions-only' && steps.manager.outputs.manager != 'ambiguous'
         env:
           # A pull_request_review event carries its free-text summary at
           # github.event.review.body, not github.event.comment.body (no
@@ -353,32 +240,7 @@ jobs:
           # `pull_request_review` explicitly rather than relying on
           # content classification.
           COMMENT_BODY: ${{ github.event.review.body || github.event.comment.body }}
-          PROFILE: ${{ steps.profile.outputs.profile }}
-          PACKAGE_SPEC: ${{ steps.profile.outputs.package-spec }}
-          MANAGER: ${{ steps.manager.outputs.manager }}
-        run: |
-          case "$PROFILE" in
-            vendored-node)
-              node scripts/review-comment-origin.mjs
-              ;;
-            package-manager)
-              case "$MANAGER" in
-                pnpm)
-                  pnpm exec idd-review-comment-origin
-                  ;;
-                yarn)
-                  yarn idd-review-comment-origin
-                  ;;
-                *)
-                  npm exec idd-review-comment-origin --
-                  ;;
-              esac
-              ;;
-            ephemeral-npx)
-              SPEC="${PACKAGE_SPEC:-https://codeload.github.com/kurone-kito/idd-skill/tar.gz/refs/heads/main}"
-              npx --yes --package "$SPEC" idd-review-comment-origin
-              ;;
-          esac
+        run: npx --yes --package "$IDD_SKILL_PACKAGE_SPEC" idd-review-comment-origin
       - name: Check for newer qualifying event
         id: debounce
         # `pull_request_review` deliberately excluded -- see the Debounce
@@ -393,12 +255,8 @@ jobs:
         # a review -- and if this step's own live-data collection then
         # failed, the job would stop here (module header above), never
         # reaching "Rerun required HEAD check" at all for that review.
-        # Depending on `steps.origin.outputs.idd_originated` at all (never
-        # set under `instructions-only`/`ambiguous` -- "Classify review
-        # comment" above already gates on profile/manager) keeps this
-        # step's own `if:` correctly gated for the comment families it
-        # still serves, with no separate profile/manager check needed
-        # here.
+        # Only IDD-originated comment events reach this debounce step;
+        # review submissions use --refresh-latest and bypass it.
         if: steps.origin.outputs.idd_originated == 'true' && github.event_name != 'pull_request_review'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -425,63 +283,15 @@ jobs:
           # this is safe for the created-event case too (#2650 review,
           # Copilot).
           TRIGGERED_AT: ${{ github.event.comment.updated_at || github.event.comment.created_at }}
-          PROFILE: ${{ steps.profile.outputs.profile }}
-          PACKAGE_SPEC: ${{ steps.profile.outputs.package-spec }}
-          MANAGER: ${{ steps.manager.outputs.manager }}
-        run: |
-          case "$PROFILE" in
-            vendored-node)
-              node scripts/advisory-comment-debounce.mjs --pr "$PR_NUMBER" --triggered-at "$TRIGGERED_AT"
-              ;;
-            package-manager)
-              case "$MANAGER" in
-                pnpm)
-                  pnpm exec idd-advisory-comment-debounce --pr "$PR_NUMBER" --triggered-at "$TRIGGERED_AT"
-                  ;;
-                yarn)
-                  yarn idd-advisory-comment-debounce --pr "$PR_NUMBER" --triggered-at "$TRIGGERED_AT"
-                  ;;
-                *)
-                  npm exec idd-advisory-comment-debounce -- --pr "$PR_NUMBER" --triggered-at "$TRIGGERED_AT"
-                  ;;
-              esac
-              ;;
-            ephemeral-npx)
-              SPEC="${PACKAGE_SPEC:-https://codeload.github.com/kurone-kito/idd-skill/tar.gz/refs/heads/main}"
-              npx --yes --package "$SPEC" idd-advisory-comment-debounce --pr "$PR_NUMBER" --triggered-at "$TRIGGERED_AT"
-              ;;
-          esac
+        run: >-
+          npx --yes --package "$IDD_SKILL_PACKAGE_SPEC"
+          idd-advisory-comment-debounce --pr "$PR_NUMBER"
+          --triggered-at "$TRIGGERED_AT"
       - name: Rerun required HEAD check
-        # Profile/manager readiness guard (CodeRabbit review, PR #2855):
-        # required unconditionally, including for `pull_request_review`
-        # -- under `instructions-only`/`ambiguous` there is no helper
-        # runtime to execute this step's `run:` case statement with
-        # regardless of trigger family, so "always proceeds" below means
-        # only "bypasses debounce," never "bypasses readiness." A review
-        # submission always proceeds once readiness holds, ignoring the
-        # debounce step's output entirely (module header above) -- it is
-        # not consulted for `pull_request_review` at all (that step's own
-        # `if:` excludes it), so a review is never superseded by a later
-        # comment-triggered run that cannot provide the same
-        # `--refresh-latest` guarantee. The explicit `success() &&` on
-        # the comment-family branch is load-bearing, not redundant
-        # (Codex P1, kurone-kito/idd-skill#2855 review): GitHub Actions
-        # implicitly prepends `success()` to a step's own `if:` UNLESS
-        # the expression itself already calls one of success()/failure()/
-        # always() -- so without an explicit call here, a failure in
-        # "Classify review comment" above (its own `review-comment-
-        # origin.mjs` throwing, e.g. on a malformed review body) would
-        # implicitly skip this ENTIRE step, silently defeating the
-        # review branch's own "always proceeds" guarantee for the exact
-        # trigger that guarantee exists to protect. Calling success()
-        # explicitly here suppresses that implicit prepend and lets the
-        # `pull_request_review` disjunct genuinely short-circuit
-        # regardless of any earlier step's own outcome (profile/manager
-        # readiness still applies to both branches via the leading
-        # `&&`), while the comment-family branch still requires it,
-        # matching this step's pre-existing (implicit) behavior for
-        # that path unchanged.
-        if: steps.profile.outputs.profile != 'instructions-only' && steps.manager.outputs.manager != 'ambiguous' && (github.event_name == 'pull_request_review' || (success() && steps.origin.outputs.idd_originated == 'true' && steps.debounce.outputs.skip != 'true'))
+        # Review submissions still rerun when comment classification fails.
+        # Check Node setup explicitly because success() below opts out of
+        # Actions' implicit success guard for that review-event branch.
+        if: steps.node_setup.outcome == 'success' && steps.node_floor.outcome == 'success' && (github.event_name == 'pull_request_review' || (success() && steps.origin.outputs.idd_originated == 'true' && steps.debounce.outputs.skip != 'true'))
         env:
           GH_TOKEN: ${{ github.token }}
           GH_ENTERPRISE_TOKEN: ${{ github.token }}
@@ -489,9 +299,6 @@ jobs:
           # PR number at github.event.pull_request.number; issue_comment
           # (#2411) carries it at github.event.issue.number instead.
           PR_NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
-          PROFILE: ${{ steps.profile.outputs.profile }}
-          PACKAGE_SPEC: ${{ steps.profile.outputs.package-spec }}
-          MANAGER: ${{ steps.manager.outputs.manager }}
           # A review submission reruns unconditionally (module header
           # above) when this job itself runs, including when the gate is
           # already `pass` or its rerun-once budget is already spent --
@@ -512,35 +319,6 @@ jobs:
             echo "::error::PR_NUMBER is empty"
             exit 1
           fi
-          case "$PROFILE" in
-            vendored-node)
-              # shellcheck disable=SC2086 # REFRESH_FLAG is a single
-              # trusted word ("--refresh-latest" or empty); see env: above.
-              node scripts/rerun-advisory-convergence.mjs --pr "$PR_NUMBER" $REFRESH_FLAG --apply
-              ;;
-            package-manager)
-              case "$MANAGER" in
-                pnpm)
-                  # shellcheck disable=SC2086
-                  pnpm exec idd-rerun-advisory-convergence --pr "$PR_NUMBER" $REFRESH_FLAG --apply
-                  ;;
-                yarn)
-                  # shellcheck disable=SC2086
-                  yarn idd-rerun-advisory-convergence --pr "$PR_NUMBER" $REFRESH_FLAG --apply
-                  ;;
-                *)
-                  # shellcheck disable=SC2086
-                  npm exec idd-rerun-advisory-convergence -- --pr "$PR_NUMBER" $REFRESH_FLAG --apply
-                  ;;
-              esac
-              ;;
-            ephemeral-npx)
-              SPEC="${PACKAGE_SPEC:-https://codeload.github.com/kurone-kito/idd-skill/tar.gz/refs/heads/main}"
-              # shellcheck disable=SC2086
-              npx --yes --package "$SPEC" idd-rerun-advisory-convergence --pr "$PR_NUMBER" $REFRESH_FLAG --apply
-              ;;
-            *)
-              echo "::error::unrecognized helper-runtime profile \"$PROFILE\""
-              exit 1
-              ;;
-          esac
+          # REFRESH_FLAG is either one trusted option or empty.
+          # shellcheck disable=SC2086
+          npx --yes --package "$IDD_SKILL_PACKAGE_SPEC" idd-rerun-advisory-convergence --pr "$PR_NUMBER" $REFRESH_FLAG --apply
