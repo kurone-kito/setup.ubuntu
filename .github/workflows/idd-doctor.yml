@@ -21,5 +21,5 @@ jobs:
       - name: Run idd-doctor
         run: >-
           npx --yes --package
-          https://codeload.github.com/kurone-kito/idd-skill/tar.gz/11105d705820e50be0a14fcc174587abbaf62b30
+          https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d
           idd-doctor

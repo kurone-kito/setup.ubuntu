@@ -34,7 +34,7 @@
       "Bash(gh search*)",
       "Bash(gh repo view*)",
       "Bash(gh auth status)",
-      "Bash(npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/11105d705820e50be0a14fcc174587abbaf62b30 idd-*)"
+      "Bash(npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-*)"
     ],
     "deny": [
       "Bash(git push --force*)",
