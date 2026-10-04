@@ -399,9 +399,14 @@ approval boundary that hands off to IDD execution.
   immediately before the first label removal below, whether that
   removal is a non-anchor target's or the anchor's own -- that the
   marked target is the sole member of its authoring set: it carries no
-  `<marker-prefix>-roadmap-id` marker (never a roadmap anchor), and
-  `npx --yes --package
-  <helperRuntime.packageSpec> idd-authoring-set-members --set <id>` reports
+  `<marker-prefix>-roadmap-id` marker (never a roadmap anchor). In
+  this repository's `ephemeral-npx` profile, run:
+
+  ```sh
+  npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-authoring-set-members --set <id>
+  ```
+
+  It reports
   `soleMember: true` with `issues` equal to that one target. The
   helper exits non-zero when enumeration does not finish, including a
   search response with `incomplete_results` or an index-lag window
