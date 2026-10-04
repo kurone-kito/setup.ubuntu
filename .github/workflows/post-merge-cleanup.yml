@@ -1,97 +1,8 @@
-# Trust model: this workflow triggers on `pull_request_target`, which runs
-# with base-repository permissions and secrets even for pull requests from
-# forks. That is safe here only because all of the following hold, and any
-# future edit to this file must preserve them:
-#   - No unreviewed PR-head content is ever checked out. On
-#     `pull_request_target`, the sole `actions/checkout` step below
-#     carries no `ref:` override for that trigger -- it resolves to
-#     `github.sha`, which for this trigger is the base branch's tip at
-#     event time. Because the job only proceeds when `merged == true`,
-#     that tip already includes this PR's own merge (a repository that
-#     merges via merge commits typically sees that merge commit itself)
-#     -- it is never the PR's own head SHA, and never content that has
-#     not already passed through the merge decision. On
-#     `workflow_dispatch`, there is no equivalent trusted default -- the
-#     event resolves to whatever ref the dispatch was run against -- so
-#     that path pins `ref:` explicitly to
-#     `github.event.repository.default_branch` instead (#2979). This pin
-#     is defense-in-depth, not a full equivalent to the
-#     `pull_request_target` guarantee above: a `workflow_dispatch` run
-#     always executes this workflow's own YAML from whatever ref it was
-#     dispatched against, before the pinned checkout below even runs, so
-#     the pin only keeps the checked-out helper-runtime content
-#     trustworthy, not this file's own step definitions. Dispatching
-#     this workflow already requires the same repository write access
-#     that could edit this file directly, so the pin narrows the
-#     execution surface rather than adding a new trust boundary.
-#   - On `pull_request_target`, no PR-head code, workflow, or action is
-#     ever executed; nothing from the PR diff ever runs
-#     (`workflow_dispatch`'s own, narrower "no PR-head content" story is
-#     the defense-in-depth pin above, not this stronger guarantee). Under
-#     `vendored-node` and `package-manager`,
-#     the cleanup-audit invocation names only a script or package this
-#     base branch already tracks or has already declared as a
-#     dependency. Under `package-manager` specifically, that base-branch
-#     content includes the repository's own declared install lifecycle
-#     (its lockfile-driven `npm ci` / `pnpm install --frozen-lockfile` /
-#     `yarn install --frozen-lockfile`) -- that is the adopter's own
-#     already-reviewed, already-merged dependency tree, not PR-head
-#     content, but it is a wider execution surface than this source
-#     repository's own dogfooded copy (which only ever runs its single
-#     tracked `scripts/audit-pr-cleanup.mjs`), so it is called out here
-#     explicitly. Under `ephemeral-npx` specifically, when the repository
-#     has not configured `helperRuntime.packageSpec`, the invocation
-#     falls back to fetching a **mutable** default archive URL
-#     (`https://codeload.github.com/kurone-kito/idd-skill/tar.gz/refs/heads/main`)
-#     over the network at run time -- not base-branch-tracked content and
-#     not a declared dependency either. This is a real, wider execution
-#     surface than the other profiles; adopters on `ephemeral-npx` should
-#     pin `helperRuntime.packageSpec` to a reviewed tarball or mirror URL
-#     (see docs/idd-helper-scripts.md's "Profile Wiring Surface" section)
-#     to close this gap.
-#   - The `pr_number` value (a `workflow_dispatch` number input, not
-#     strictly enforced as numeric for direct API dispatches) is passed
-#     through `env:` and referenced as a quoted shell variable, never
-#     interpolated directly into a `run:` script.
-#   - The `cleanup` job only runs against an already-merged pull request.
-#     For `pull_request_target`, that guarantee comes from the job-level
-#     `if:` below (`github.event.pull_request.merged == true`). For
-#     `workflow_dispatch`, the job `if:` alone cannot express the same
-#     guarantee -- the dispatched `pr_number` is arbitrary operator
-#     input -- so a dedicated "Require a merged PR for workflow_dispatch"
-#     step looks the PR up via `gh pr view --json state` and fails the
-#     job, before the cleanup-audit invocation runs, when that PR does
-#     not exist or is not merged (#2979). This closes a defense-in-depth
-#     gap: the cleanup-audit helper already independently guards nearly
-#     every mutating check on its own `pr.merged` read, so an
-#     unmerged-PR dispatch was already a near-total no-op rather than an
-#     active exposure, but the job itself had no equivalent guarantee of
-#     its own.
-#   - `permissions:` stays least-privilege: `contents: read`,
-#     `issues: write`, `pull-requests: write` -- no `contents: write` and
-#     no elevated or secret-bearing scopes.
-# If a future change routes an untrusted ref through the checkout step,
-# drops the `workflow_dispatch` ref pin or its merged-PR guard step,
-# downloads or executes PR-head content, or widens `permissions:`,
-# re-review this trust model before merging that change.
-#
-# Profile resolution: unlike this source repository's own dogfooded copy
-# (kurone-kito/idd-skill's own `.github/workflows/post-merge-cleanup.yml`),
-# which always invokes the vendored-node `scripts/audit-pr-cleanup.mjs`
-# directly, this template copy resolves the cleanup-audit invocation
-# through the repository's configured `helperRuntime.profile`
-# (`.github/idd/config.json`, falling back to the legacy top-level
-# `idd-policy.json` filename with the same first-present-file precedence
-# idd-doctor.mjs's own resolver uses) -- see docs/idd-helper-scripts.md's
-# "Helper Runtime Profiles" section. Under `instructions-only` (no runnable
-# helper command exists for any profile), when no profile can be resolved
-# at all, or when `package-manager` resolves but which package manager to
-# use is ambiguous (more than one supported lockfile with no declared
-# `package.json` "packageManager" field -- see "Detect package manager"
-# below), the audit and evidence-comment steps are skipped entirely and
-# nothing is posted: the agent's own F4 cleanup step in
-# idd-merge.instructions.md remains the canonical, mandatory contract in
-# every profile, including this one.
+# Adapted from idd-skill v0.14.0 idd-template at ae16f497434a5023dfaa28f965fc2af92ebf055d.
+# Trust model: only merged-PR metadata is acted on; no PR-head content is checked out or executed.
+# Dispatch validates the PR number and merged state before cleanup. Checkout uses the trusted
+# default branch for workflow_dispatch and github.sha for pull_request_target. Helpers use only
+# the immutable ephemeral-npx package pin. Keep the least-privilege permission block below.
 name: Post-merge cleanup
 on:
   pull_request_target:
@@ -123,6 +34,8 @@ jobs:
   cleanup:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-slim
+    env:
+      IDD_SKILL_PACKAGE_SPEC: https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -181,131 +94,31 @@ jobs:
             echo "::error::PR #$PR_NUMBER is not merged (state=$STATE); this workflow only cleans up already-merged pull requests."
             exit 1
           fi
-      - name: Resolve helper-runtime profile
-        id: profile
-        run: |
-          # Fail-closed default, mirroring idd-doctor.mjs's
-          # resolveConfiguredHelperRuntime: an absent, unreadable, or
-          # invalid config -- or one that simply omits helperRuntime --
-          # resolves to instructions-only (no runnable command), never a
-          # guess at a runnable profile. Validates the WHOLE
-          # helperRuntime object -- object type, only "profile"/
-          # "packageSpec" keys, profile enum membership, packageSpec
-          # shell-safe-character allowlist -- against the same rules as
-          # policy-helpers.mts's inspectHelperRuntimeConfig, instead of
-          # only the "profile" field, so a malformed sibling field
-          # cannot silently activate a profile the canonical validator
-          # would reject.
-          PROFILE="instructions-only"
-          PACKAGE_SPEC=""
-          for CANDIDATE in .github/idd/config.json idd-policy.json; do
-            if [ -f "$CANDIDATE" ]; then
-              if RESOLVED=$(jq -r '
-                (.helperRuntime) as $hr
-                | ($hr != null and ($hr|type) == "object") as $is_object
-                | if $is_object then
-                    (($hr | keys) - ["profile","packageSpec"]) as $extra
-                    | ($hr.profile) as $profile
-                    | ($extra | length == 0) as $keys_ok
-                    | ($profile != null and ($profile|type) == "string" and ($profile|length) > 0 and (["vendored-node","package-manager","ephemeral-npx","instructions-only"] | index($profile)) != null) as $profile_ok
-                    | (if ($hr | has("packageSpec")) then
-                         ($hr.packageSpec) as $spec
-                         | ($spec != null and ($spec|type) == "string" and ($spec | test("\\A[A-Za-z0-9@:/_.+^#%-]+\\z")))
-                       else true end) as $spec_ok
-                    | if ($keys_ok and $profile_ok and $spec_ok) then
-                        "\($hr.profile)\t\($hr.packageSpec // "")"
-                      else empty end
-                  else empty end
-              ' "$CANDIDATE" 2>/dev/null) && [ -n "$RESOLVED" ]; then
-                IFS=$'\t' read -r PROFILE PACKAGE_SPEC <<<"$RESOLVED"
-              fi
-              # First present candidate file wins outright, valid or not
-              # -- never fall through to the legacy idd-policy.json name
-              # once the canonical file has been evaluated.
-              break
-            fi
-          done
-          echo "profile=$PROFILE" >> "$GITHUB_OUTPUT"
-          echo "package-spec=$PACKAGE_SPEC" >> "$GITHUB_OUTPUT"
-      - name: Setup Node.js
-        if: steps.profile.outputs.profile != 'instructions-only'
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        id: node_setup
         with:
           node-version: 24.x
-      - name: Detect package manager
-        id: manager
-        if: steps.profile.outputs.profile == 'package-manager'
+      - name: Assert Node.js floor
+        id: node_floor
         run: |
-          # Same precedence as helper-runtime-manifest.mts's own
-          # collectHelperRuntimeEvidence for the "declared field" and
-          # "exactly one lockfile" cases: an explicit package.json
-          # "packageManager" field wins, then lockfile presence when
-          # exactly one supported lockfile exists. When more than one
-          # supported lockfile coexists with no declared field, this
-          # mirrors collectHelperRuntimeEvidence's own "do not guess an
-          # install path" stance (ambiguousPackageManager) instead of
-          # silently picking by a fixed pnpm/npm/yarn priority order,
-          # which could select a manager whose lockfile lacks the IDD
-          # helper dependency and fail with a confusing error. When
-          # there is no evidence at all (no declared field, no
-          # lockfile), this is a workflow-specific fallback to npm, NOT
-          # a mirror of collectHelperRuntimeEvidence (which leaves the
-          # manager unset in that case, cascading to instructions-only
-          # via recommendHelperRuntimeProfile) -- npm ships with every
-          # setup-node Node.js install, so defaulting to it here is
-          # safe even though the canonical onboarding recommender is
-          # more conservative about "no evidence" (idd-skill#2392).
-          MANAGER=$(node -e "
-            const fs = require('node:fs');
-            let declared = '';
-            try {
-              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-              declared = String(pkg.packageManager || '').split('@')[0];
-            } catch {
-              // No readable package.json: fall through to lockfile detection.
+          node -e '
+            const versionParts = process.versions.node.split(".");
+            const [major, minor, patch] = versionParts.map(Number);
+            const isPrerelease = versionParts.some((part) => part.includes("-"));
+            const ok =
+              !isPrerelease &&
+              ((major === 22 && (minor > 23 || (minor === 23 && patch >= 2))) ||
+                (major === 24 && minor >= 2) ||
+                major >= 26);
+            if (!ok) {
+              console.error(
+                "Node " + process.version + " does not satisfy the supported engines.node range (^22.23.2 || ^24.2.0 || >=26.0.0).",
+              );
+              process.exit(1);
             }
-            if (['npm', 'pnpm', 'yarn'].includes(declared)) {
-              console.log(declared);
-            } else {
-              const lockfiles = [
-                ['pnpm-lock.yaml', 'pnpm'],
-                ['package-lock.json', 'npm'],
-                ['yarn.lock', 'yarn'],
-              ].filter(([file]) => fs.existsSync(file));
-              if (lockfiles.length === 1) {
-                console.log(lockfiles[0][1]);
-              } else if (lockfiles.length === 0) {
-                console.log('npm');
-              } else {
-                console.log('ambiguous');
-              }
-            }
-          ")
-          if [ "$MANAGER" = "ambiguous" ]; then
-            echo "::warning::Multiple package-manager lockfiles were found with no declared \"packageManager\" field in package.json; refusing to guess which one to use. Add a \"packageManager\": \"<name>@<version>\" field to package.json, or remove the stale lockfile(s)."
-          fi
-          echo "manager=$MANAGER" >> "$GITHUB_OUTPUT"
-      - name: Install dependencies (package-manager profile)
-        if: steps.profile.outputs.profile == 'package-manager' && steps.manager.outputs.manager != 'ambiguous'
-        env:
-          MANAGER: ${{ steps.manager.outputs.manager }}
-        run: |
-          case "$MANAGER" in
-            pnpm)
-              corepack enable
-              pnpm install --frozen-lockfile
-              ;;
-            yarn)
-              corepack enable
-              yarn install --frozen-lockfile
-              ;;
-            *)
-              npm ci
-              ;;
-          esac
+          '
       - name: Run F4 cleanup (server-side fallback)
         id: cleanup
-        if: steps.profile.outputs.profile != 'instructions-only' && steps.manager.outputs.manager != 'ambiguous'
         env:
           GH_TOKEN: ${{ github.token }}
           # gh reads whichever of these two matches its resolved host
@@ -319,9 +132,6 @@ jobs:
           # quoted shell variable rather than interpolating the `${{ }}`
           # expression directly into the run: script.
           PR_NUMBER: ${{ github.event.pull_request.number || github.event.inputs.pr_number }}
-          PROFILE: ${{ steps.profile.outputs.profile }}
-          PACKAGE_SPEC: ${{ steps.profile.outputs.package-spec }}
-          MANAGER: ${{ steps.manager.outputs.manager }}
         run: |
           set +e
           if [ -z "$PR_NUMBER" ]; then
@@ -335,36 +145,10 @@ jobs:
           # and is always passed as its own separately quoted argument,
           # never folded into a word-split string, so a crafted value
           # cannot inject extra flags/args into the helper invocation.
-          FLAGS="--apply --skip-claim-check --format json"
-          case "$PROFILE" in
-            vendored-node)
-              # shellcheck disable=SC2086
-              JSON=$(node scripts/audit-pr-cleanup.mjs --pr "$PR_NUMBER" $FLAGS 2>cleanup-stderr.log)
-              ;;
-            package-manager)
-              case "$MANAGER" in
-                pnpm)
-                  # shellcheck disable=SC2086
-                  JSON=$(pnpm exec idd-audit-pr-cleanup --pr "$PR_NUMBER" $FLAGS 2>cleanup-stderr.log)
-                  ;;
-                yarn)
-                  # shellcheck disable=SC2086
-                  JSON=$(yarn idd-audit-pr-cleanup --pr "$PR_NUMBER" $FLAGS 2>cleanup-stderr.log)
-                  ;;
-                *)
-                  # npm requires a literal `--` before forwarded flags;
-                  # pnpm/yarn above do not.
-                  # shellcheck disable=SC2086
-                  JSON=$(npm exec idd-audit-pr-cleanup -- --pr "$PR_NUMBER" $FLAGS 2>cleanup-stderr.log)
-                  ;;
-              esac
-              ;;
-            ephemeral-npx)
-              SPEC="${PACKAGE_SPEC:-https://codeload.github.com/kurone-kito/idd-skill/tar.gz/refs/heads/main}"
-              # shellcheck disable=SC2086
-              JSON=$(npx --yes --package "$SPEC" idd-audit-pr-cleanup --pr "$PR_NUMBER" $FLAGS 2>cleanup-stderr.log)
-              ;;
-          esac
+          FLAGS="--apply --skip-claim-check --format json --time-budget-seconds 360"
+          # FLAGS contains fixed literal tokens; PR_NUMBER remains quoted separately.
+          # shellcheck disable=SC2086
+          JSON=$(npx --yes --package "$IDD_SKILL_PACKAGE_SPEC" idd-audit-pr-cleanup --pr "$PR_NUMBER" $FLAGS 2>cleanup-stderr.log)
           HELPER_EXIT=$?
           set -e
           # Prefer the helper's JSON report when it is parseable, even on
@@ -407,7 +191,7 @@ jobs:
             echo "retry_bound_exhausted=$RETRY_BOUND_EXHAUSTED"
           } >> "$GITHUB_OUTPUT"
       - name: Post cleanup evidence comment
-        if: steps.profile.outputs.profile != 'instructions-only' && steps.manager.outputs.manager != 'ambiguous'
+        if: always() && steps.cleanup.outcome != 'skipped'
         env:
           GH_TOKEN: ${{ github.token }}
           # gh reads whichever of these two matches its resolved host

@@ -5,25 +5,9 @@ name: IDD advisory-convergence gate
 # the required-check Ruleset registration decision and the
 # waiver-after-deadline escape path).
 #
-# This repository adapts the upstream idd-template/ copy of this file to
-# its own ephemeral-npx helper-runtime profile (.github/idd/config.json
-# helperRuntime.profile): the checkout step and the verdict invocation
-# stay on this repo's existing pinned-checkout / npx form (matching
-# idd-doctor.yml) rather than upstream's generic actions/setup-node +
-# `node scripts/advisory-convergence.mjs` form, which assumes a vendored
-# scripts/ directory this repository does not have. `runs-on` follows
-# upstream's runner-override chain (the `runner` input / `CI_RUNNER_LABEL`
-# variable), defaulting to `ubuntu-slim` to match this repo's own
-# convention. See docs/idd-policy.md's "Helper runtime (ephemeral-npx)"
-# section for the pinned-SHA sync obligation this file participates in.
-#
-# The self-waiver job below applies the same ephemeral-npx-only
-# adaptation: this repository has no `scripts/` directory and no
-# `package.json`/lockfile (see docs/idd-policy.md), so the upstream
-# job's `vendored-node`/`package-manager` branches, its profile-resolution
-# scaffolding, and its `instructions-only` fail-open notice are all dead
-# code here and are omitted; the job runs the single ephemeral-npx
-# invocation directly, mirroring the verdict job above.
+# Adapted from the v0.14.0 idd-template with this repo's ephemeral-npx package pin,
+# pinned actions, runner overrides, and transition trigger preserved. Node 24 is
+# selected explicitly for the helper's supported engine range.
 concurrency:
   cancel-in-progress: true
   # Grouped by PR number, not github.ref: pull_request_target resolves
@@ -141,6 +125,29 @@ jobs:
           # what's checked out locally.
           ref: main
           persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        id: node_setup
+        with:
+          node-version: 24.x
+      - name: Assert Node.js floor
+        id: node_floor
+        run: |
+          node -e '
+            const versionParts = process.versions.node.split(".");
+            const [major, minor, patch] = versionParts.map(Number);
+            const isPrerelease = versionParts.some((part) => part.includes("-"));
+            const ok =
+              !isPrerelease &&
+              ((major === 22 && (minor > 23 || (minor === 23 && patch >= 2))) ||
+                (major === 24 && minor >= 2) ||
+                major >= 26);
+            if (!ok) {
+              console.error(
+                "Node " + process.version + " does not satisfy the supported engines.node range (^22.23.2 || ^24.2.0 || >=26.0.0).",
+              );
+              process.exit(1);
+            }
+          '
       - name: Run advisory-convergence verdict (--assert)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -157,7 +164,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
         run: >-
           npx --yes --package
-          https://codeload.github.com/kurone-kito/idd-skill/tar.gz/11105d705820e50be0a14fcc174587abbaf62b30
+          https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d
           idd-advisory-convergence
           --pr "$PR_NUMBER"
           --assert
@@ -182,13 +189,9 @@ jobs:
   # instance anyway, but gating the job itself here avoids granting
   # `issues: write` under an untrusted-YAML trigger in the first place.
   #
-  # Adapted for ephemeral-npx the same way the verdict job above is: no
-  # profile-resolution scaffolding, no vendored-node/package-manager
-  # branches, no setup-node step -- this repository has neither a
-  # scripts/ directory nor a package.json/lockfile (docs/idd-policy.md's
-  # "Helper runtime (ephemeral-npx)" section), so ephemeral-npx is the
-  # only reachable profile and the single hardcoded npx invocation below
-  # is unconditional.
+  # This repo runs only the pinned ephemeral-npx helper package. Node setup
+  # is pinned too; no profile detection or package-manager fallback runs
+  # in this privileged self-waiver job.
   idd-advisory-convergence-self-waiver:
     if: github.event_name == 'pull_request_target'
     runs-on: ${{ inputs.runner || vars.CI_RUNNER_LABEL || 'ubuntu-slim' }}
@@ -221,6 +224,29 @@ jobs:
           # differently-shaped marker or waive an unrelated check.
           ref: main
           persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        id: node_setup
+        with:
+          node-version: 24.x
+      - name: Assert Node.js floor
+        id: node_floor
+        run: |
+          node -e '
+            const versionParts = process.versions.node.split(".");
+            const [major, minor, patch] = versionParts.map(Number);
+            const isPrerelease = versionParts.some((part) => part.includes("-"));
+            const ok =
+              !isPrerelease &&
+              ((major === 22 && (minor > 23 || (minor === 23 && patch >= 2))) ||
+                (major === 24 && minor >= 2) ||
+                major >= 26);
+            if (!ok) {
+              console.error(
+                "Node " + process.version + " does not satisfy the supported engines.node range (^22.23.2 || ^24.2.0 || >=26.0.0).",
+              );
+              process.exit(1);
+            }
+          '
       - name: Detect self-referential trigger-file allowlist touch
         id: allowlist
         env:
@@ -289,7 +315,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           npx --yes --package \
-            https://codeload.github.com/kurone-kito/idd-skill/tar.gz/11105d705820e50be0a14fcc174587abbaf62b30 \
+            https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d \
             idd-external-check-waiver --pr "$PR_NUMBER" --check idd-advisory-convergence \
             --reason self-referential-bootstrap-auto --run-id "$GITHUB_RUN_ID" \
             --auto-bootstrap --apply --yes | tee /tmp/idd-waiver-report.json
