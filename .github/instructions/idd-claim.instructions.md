@@ -604,6 +604,13 @@ no inherited open PR. When it did, continue at
 To determine the current active claim, read issue comments
 chronologically and apply these rules:
 
+**Marker edit-state check:** Before applying these rules, fetch GraphQL
+`IssueComment.lastEditedAt` for every relevant `claimed-by`,
+`unclaimed-by`, `activation-nonce`, and `forced-handoff` marker.
+Only an explicit `null` is valid; ignore a marker with an edit timestamp
+or unavailable edit state. Do not substitute `updatedAt`. This applies
+to legacy and new-format claim markers.
+
 1. Start with **no active claim**.
 2. Ignore any `claimed-by` or `unclaimed-by` marker whose GitHub comment
    author is not a trusted marker actor.

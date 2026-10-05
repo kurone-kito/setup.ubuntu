@@ -19,8 +19,8 @@ Collect all signals before routing. Use GitHub server timestamps only.
 
 | Signal                   | What to collect                                                                                                                                                                 |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Claim state              | Active `{claim-id}`, agent-id, branch, latest valid `claimed-by` `created_at`; `none` if unclaimed. Record suspicious marker-shaped comments from untrusted authors separately. |
-| Forced-handoff evidence  | Approving human, displaced `{claim-id}`, branch, linked PR, evidence URL (`forced-handoff: human-gated` only); an open PR requires issue-plus-PR approval naming it.            |
+| Claim state              | Active claim tuple and latest valid `claimed-by` `created_at`; `none` if unclaimed. Require `lastEditedAt: null` on every claim-family marker. Record suspicious marker-shaped comments separately. |
+| Forced-handoff evidence  | Approving human, displaced claim, branch, linked PR, evidence URL; require an unedited marker. An open PR requires issue-plus-PR approval naming it. |
 | Open PR and current HEAD | PR number + current HEAD SHA; or `none`.                                                                                                                                        |
 | Activity recency         | Latest `updatedAt` across issue comments, review threads, review bodies, PR comments. Include PR `createdAt`/`updatedAt` when a PR exists.                                      |
 | PR HEAD movement         | Baseline: latest trusted watermark/baseline marker SHA if present, else current PR HEAD. Then confirm whether commits were added after that baseline.                           |
@@ -31,6 +31,11 @@ Collect all signals before routing. Use GitHub server timestamps only.
 | Unpushed commits         | `git log @{u}..HEAD` in worktree. Treat all commits as unpushed if no upstream is configured.                                                                                   |
 | Local HEAD SHA           | `git rev-parse HEAD` in worktree.                                                                                                                                               |
 | Live digest state        | Count of `<!-- idd-live-status: current -->` comments on issue/PR. Do not use digest text to route resume.                                                                      |
+
+For claim, activation-nonce, and forced-handoff markers, fetch the
+GraphQL `IssueComment.lastEditedAt` field before using a marker as
+authority. Only an explicit `null` is valid; ignore an edit timestamp or
+unavailable edit state. `updatedAt` is not a substitute.
 
 ## Step 0 — Route classifier
 

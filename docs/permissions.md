@@ -449,7 +449,8 @@ Keep approval labels and operational marker trust as separate controls:
 An edited comment is not evidence for any trust-bearing marker or IDD
 disposition either, generalizing the external-check-waiver rule above
 (kurone-kito/idd-skill#3249, extending #3246's original waiver-only
-scope): `review-watermark`/`review-baseline`, `advisory-wait`/
+scope): `claimed-by`/`unclaimed-by`, `activation-nonce`,
+`forced-handoff`, `review-watermark`/`review-baseline`, `advisory-wait`/
 `advisory-wait-recovery`, `review-ack`, `idd-provider-outage-declaration`/
 `idd-provider-outage-advanced`, `idd-local-validation-evidence`, and an
 `**Accepted**`/`**Rejected**`/`**Awaiting maintainer decision**`
