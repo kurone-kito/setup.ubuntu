@@ -226,7 +226,8 @@ the same arguments after `incomplete.recovery.notBefore` (null: see
 ## A1 — Find the roadmap
 
 Use GH CLI or GH MCP to find the roadmap among open issues, identified
-by its `setup-ubuntu-roadmap-id` marker. Under `roadmap` or
+by its configured `roadmap` label, `setup-ubuntu-roadmap-id` marker, or
+configured `discover.legacyRoots` issue number. Under `roadmap` or
 `orphan-first` scope, report and abort if no roadmap issue exists. Under
 `roadmap-first` scope, this is **trigger (c)**: fall back to **A0-O**
 instead.
@@ -241,10 +242,12 @@ only to true orphans, since cross-roadmap leaves come from a parent
 roadmap's task list and never carry their own
 `setup-ubuntu-roadmap-id` marker.
 
-**Legacy roots**: `--all-roadmaps` finds roots only by
-`setup-ubuntu-roadmap-id` marker. Add the marker to a legacy
-umbrella, or configure **`discover.legacyRoots`** (issue numbers,
-deduped against marker roots; invalid fails safe to none). See
+**Legacy roots**: `--all-roadmaps` discovers open roots carrying the
+configured `roadmap` label or `setup-ubuntu-roadmap-id` marker, plus
+configured **`discover.legacyRoots`** issue numbers (deduped against
+label and marker roots; invalid configuration fails safe to none). A
+legacy umbrella without either signal is not discovered by default; add
+the label or marker, or configure its issue number. See
 `docs/idd-helper-scripts.md`.
 
 ## A1.5 — Audit completed roadmaps
