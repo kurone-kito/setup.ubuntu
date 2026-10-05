@@ -16,8 +16,17 @@ on resume) without a fresh B1 pass.
 
 If the branch has not been pushed yet, sync it onto `{development-branch}`
 before the first push — the routine pre-publication history cleanup step.
-First fetch the configured branch into its remote-tracking ref:
-`git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`.
+First refresh the configured branch's remote-tracking ref under the
+clone-scoped lock (see
+[`idd-helper-scripts.md`](../../docs/idd-helper-scripts.md#clone-scoped-lock)),
+because workers share this clone:
+
+```sh
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
+  --exec --agent-id {agent-id} --repo . -- git fetch origin \
+  +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
+```
+
 If fetch fails, stop; do not use an existing remote-tracking ref, which may
 be stale, for the comparison below. Then check whether the branch is
 **already current** with `origin/{development-branch}`: if

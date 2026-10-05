@@ -384,15 +384,22 @@ login).
      polling, using the profile-selected `post-idd-marker --type
      advisory` helper described in
      [the helper documentation](../../docs/idd-helper-scripts.md). For
-     `ephemeral-npx`, resolve the package spec from the trusted common
-     base of the configured `{development-branch}` as described in the
-     helper documentation, then run:
+     this repository's `ephemeral-npx` profile, use the pinned
+     `packageSpec` from `.github/idd/config.json`. Derive `SERVER_NOW`
+     from the GitHub API `Date` header as described in
+     [`idd-resume-stall.instructions.md`](idd-resume-stall.instructions.md#deriving-a-server-anchored-now);
+     the marker timestamp feeds settled/stall decisions, so do not use
+     the executor's local clock:
 
      ```sh
-     npx --yes --package <helper-package-spec> \
-       idd-post-idd-marker --type advisory --target pr {pr-number} \
-       --agent-id {agent-id} --head-sha "$PR_HEAD_SHA" \
-       --timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --apply
+     SERVER_DATE=$(gh api repos/<owner>/<repo>/pulls/{pr-number} --include \
+       | grep -i '^date:' | head -1 | sed 's/^[Dd]ate: *//' | tr -d '\r') || exit 1
+     [ -n "$SERVER_DATE" ] || exit 1
+     SERVER_NOW=$(node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\\.\\d{3}Z$/, 'Z'))" \
+       "$SERVER_DATE") || exit 1
+     npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-post-idd-marker \
+       --type advisory --target pr {pr-number} --agent-id {agent-id} \
+       --head-sha "$PR_HEAD_SHA" --timestamp "$SERVER_NOW" --apply
      ```
 
      Re-read and verify the trusted same-head marker before entering

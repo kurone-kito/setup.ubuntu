@@ -101,9 +101,8 @@ valid config has no `developmentBranch` field:
 DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef \
   --jq .defaultBranchRef.name) || exit 1
 git check-ref-format --branch "$DEFAULT_BRANCH" >/dev/null || exit 1
-# When workers share this clone, serialize this ref refresh with the
-# clone-scoped lock described in docs/idd-helper-scripts.md.
-git fetch origin \
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
+  --exec --agent-id {agent-id} --repo . -- git fetch origin \
   "+refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}" || exit 1
 DEFAULT_CONFIG=$(git show \
   "refs/remotes/origin/${DEFAULT_BRANCH}:.github/idd/config.json") || exit 1
@@ -156,8 +155,16 @@ and use it for every ref below; see
        `"force-push-exception"`, `"hold-unknown"`, or the helper is
        unavailable, fails, or disagrees with live GitHub state): stop
        per the condition above (out of this file's scope).
-2. Fetch the configured branch into its remote-tracking ref:
-   `git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`.
+2. Refresh the configured branch's remote-tracking ref under the
+   [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock),
+   because workers share this clone:
+
+   ```sh
+   npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
+     --exec --agent-id {agent-id} --repo . -- git fetch origin \
+     +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
+   ```
+
    If fetch fails, stop; do not use an existing remote-tracking ref, which may
    be stale, for the comparison below.
 3. If `git merge-base HEAD origin/{development-branch}` equals

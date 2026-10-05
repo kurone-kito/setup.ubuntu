@@ -551,17 +551,14 @@ ascending issue-number order:
   `provider-outage-park --parked-issues` helper documented in
   [the helper documentation](../../docs/idd-helper-scripts.md). Under
   `ephemeral-npx`, invoke the published `idd-provider-outage-park` bin
-  with the trusted package spec:
+  with the pinned `packageSpec` from `.github/idd/config.json`:
 
   ```sh
-  npx --yes --package <helper-package-spec> \
-    idd-provider-outage-park --parked-issues
+  npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-provider-outage-park --parked-issues
   ```
 
-  Resolve `<helper-package-spec>` from the trusted common base of the
-  configured `{development-branch}` as described in the helper
-  documentation; do not
-  assume `scripts/provider-outage-park.mjs` is present in this
+  Keep the literal package spec aligned with that trusted common base;
+  do not assume `scripts/provider-outage-park.mjs` is present in this
   checkout. A candidate in its `parkedIssues` is **ineligible**, as a
   live claim is. A failed or malformed read is Step 1.5 exhaustion
   (report it; last bullet's routing). `parkedIssuesComplete: false`

@@ -300,9 +300,17 @@ actor, or check.
 
 **Stale workflow definition on the PR branch.** Reuse
 `{development-branch}` resolved in B1 from the primary worktree. On a
-resumed phase without that value, resolve it from the primary worktree's
-`.github/idd/config.json` (or the GitHub default branch when absent),
-never from the issue branch. `gh run rerun`
+resumed phase without that value, resolve it using the
+[B1 trusted configuration procedure](idd-work.instructions.md#b1--create-worktree-with-branch):
+read `.github/idd/config.json` from the freshly
+fetched GitHub default-branch ref, and use the default branch only when
+the valid config has no `developmentBranch` field. Refresh that ref under
+the clone-scoped lock when workers share the clone; never rely on the
+primary worktree's possibly stale config or the issue branch. Before
+recommending a branch-sync for an existing PR, read its live
+`baseRefName` and require it to equal the resolved
+`{development-branch}`; otherwise stop and route the base mismatch for
+maintainer correction. `gh run rerun`
 re-resolves the failing check against the workflow **definition
 file** as it exists on the PR branch, not on the configured development
 branch — a sibling
@@ -313,7 +321,8 @@ workflow file changed recently on `{development-branch}`, diff the PR
 branch's copy against `{development-branch}`'s; a mismatch means a
 branch-sync merge (merge `{development-branch}`
 in, never rebase — see the E-phase branch-sync check in
-`idd-review-triage.instructions.md`) is the diagnostic recovery step.
+`idd-review-triage.instructions.md`) is the diagnostic recovery step,
+provided the live PR base matches `{development-branch}`.
 Treat this as reachable at D4/pre-review, not only after E8 — the
 ordering dependency a shared check-definition change creates is
 invisible to disjoint-file-set track planning.
