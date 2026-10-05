@@ -35,7 +35,7 @@ The agent that imports or runs IDD needs access to:
 Open an agent session in the target repository and ask it to import the
 IDD template from the idd-skill source repository. If the template has
 already been copied, start from the pinned
-[`idd-template/ONBOARDING.md`](https://github.com/kurone-kito/idd-skill/blob/v0.14.0/idd-template/ONBOARDING.md)
+[`idd-template/ONBOARDING.md`](https://github.com/kurone-kito/idd-skill/blob/ae16f497434a5023dfaa28f965fc2af92ebf055d/idd-template/ONBOARDING.md)
 in the source repository.
 
 The onboarding guide is a thin orchestrator: it copies the portable
