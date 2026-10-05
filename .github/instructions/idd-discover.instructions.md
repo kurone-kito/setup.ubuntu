@@ -560,7 +560,7 @@ ascending issue-number order:
 
   ```sh
   [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
-  npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-provider-outage-park --parked-issues
+  npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-provider-outage-park --parked-issues
   ```
 
   Do not assume `scripts/provider-outage-park.mjs` is present in this

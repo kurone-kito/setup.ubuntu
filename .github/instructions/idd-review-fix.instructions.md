@@ -405,7 +405,7 @@ login).
      [ -n "$SERVER_DATE" ] || exit 1
      SERVER_NOW=$(node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\\.\\d{3}Z$/, 'Z'))" \
        "$SERVER_DATE") || exit 1
-     npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-post-idd-marker \
+     npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-post-idd-marker \
        --type advisory --target pr {pr-number} --agent-id {agent-id} \
        --head-sha "$PR_HEAD_SHA" --timestamp "$SERVER_NOW" --apply
      ```

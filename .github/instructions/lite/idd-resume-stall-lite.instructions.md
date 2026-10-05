@@ -53,7 +53,7 @@ differs, stop:
 
 ```sh
 [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
-npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue <N>
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing --issue <N>
 ```
 
 Derive server-anchored `now` for the quiet window (only if permission
@@ -91,7 +91,8 @@ node scripts/stalled-session-quiet-check.mjs \
 against the trusted common base before invoking.
 
 ```sh
-npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-stalled-session-quiet-check \
+[ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-stalled-session-quiet-check \
   --pr <pr-number> --now "$NOW" \
   --claim-created-at <latest-valid-claimed-by-created_at>
 ```

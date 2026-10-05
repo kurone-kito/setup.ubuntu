@@ -29,7 +29,7 @@ differs, stop:
 
 ```sh
 [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
-npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-clone-lock \
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
   --exec --agent-id {agent-id} --repo . -- git fetch origin \
   +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
 ```

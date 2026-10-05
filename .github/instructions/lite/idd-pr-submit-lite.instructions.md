@@ -109,7 +109,7 @@ DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef \
   --jq .defaultBranchRef.name) || exit 1
 git check-ref-format --branch "$DEFAULT_BRANCH" >/dev/null || exit 1
 [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
-npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-clone-lock \
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
   --exec --agent-id {agent-id} --repo . -- git fetch origin \
   "+refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}" || exit 1
 DEFAULT_CONFIG=$(git show \
@@ -169,7 +169,7 @@ and use it for every ref below; see
 
    ```sh
    [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
-   npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-clone-lock \
+   npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
      --exec --agent-id {agent-id} --repo . -- git fetch origin \
      +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
    ```
