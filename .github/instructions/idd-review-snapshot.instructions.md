@@ -331,7 +331,8 @@ unconditionally, in the **same surviving claimed worktree**:
 2. `git merge-base --is-ancestor "$PR_HEAD" HEAD` -- a failure
    (external rewrite, diverged worktree) stops for reconciliation;
    never fall through to edge case 1's rule instead, which
-   risks F2 discarding real local work.
+   could misclassify an unpushed fix as already reviewed. F2's
+   exact-HEAD check then stops before merge.
 3. `git status --porcelain` must report clean -- a dirty worktree
    can't prove which uncommitted lines belong to which item. Treat it
    as unverified input (never trust or discard): stop for
