@@ -384,8 +384,9 @@ login).
      polling, using the profile-selected `post-idd-marker --type
      advisory` helper described in
      [the helper documentation](../../docs/idd-helper-scripts.md). For
-     `ephemeral-npx`, resolve the package spec from trusted
-     default-branch configuration, then run:
+     `ephemeral-npx`, resolve the package spec from the trusted common
+     base of the configured `{development-branch}` as described in the
+     helper documentation, then run:
 
      ```sh
      npx --yes --package <helper-package-spec> \

@@ -558,8 +558,9 @@ ascending issue-number order:
     idd-provider-outage-park --parked-issues
   ```
 
-  Resolve `<helper-package-spec>` from trusted default-branch
-  configuration as described in the helper documentation; do not
+  Resolve `<helper-package-spec>` from the trusted common base of the
+  configured `{development-branch}` as described in the helper
+  documentation; do not
   assume `scripts/provider-outage-park.mjs` is present in this
   checkout. A candidate in its `parkedIssues` is **ineligible**, as a
   live claim is. A failed or malformed read is Step 1.5 exhaustion
