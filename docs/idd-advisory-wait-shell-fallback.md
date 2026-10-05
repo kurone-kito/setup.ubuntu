@@ -101,10 +101,39 @@ COPILOT_PENDING_COVERS_HEAD=$(
 ## AW2
 
 ```sh
+# REST issue comments omit IssueComment.lastEditedAt. Fetch the GraphQL
+# edit state for every comment before any marker body or createdAt is used;
+# an API, schema, or edit-state error stops this fallback.
+ADVISORY_COMMENT_PAGES=$(
+  gh api graphql --paginate --slurp \
+    -F owner="${OWNER}" -F repo="${REPO}" -F number={pr-number} \
+    -f query='query($owner:String!,$repo:String!,$number:Int!,$endCursor:String){repository(owner:$owner,name:$repo){pullRequest(number:$number){comments(first:100,after:$endCursor){pageInfo{hasNextPage endCursor} nodes{id databaseId body createdAt lastEditedAt author{login}}}}}}'
+) || exit 2
 ADVISORY_COMMENTS_JSON=$(
-  gh api "repos/${OWNER}/${REPO}/issues/{pr-number}/comments" --paginate \
-    | jq -s 'add // []'
-)
+  printf '%s\n' "$ADVISORY_COMMENT_PAGES" \
+    | jq -cer '
+        if (type != "array") or (length == 0) or any(.[];
+          ((.errors // []) | length) > 0
+          or (.data.repository.pullRequest.comments.nodes | type) != "array"
+          or any(.data.repository.pullRequest.comments.nodes[];
+            (has("lastEditedAt") | not)
+            or ((.databaseId | type) != "number")
+            or ((.id | type) != "string")
+            or ((.createdAt | type) != "string")
+            or ((.author.login | type) != "string")
+          )
+        ) then error("comment edit-state evidence is missing or unreadable")
+        else [.[].data.repository.pullRequest.comments.nodes[] | {
+          id: .databaseId,
+          node_id: .id,
+          created_at: .createdAt,
+          last_edited_at: .lastEditedAt,
+          user: {login: .author.login},
+          body: .body
+        }]
+        end
+      '
+) || exit 2
 CURRENT_MARKER_ACTOR=$(gh api user --jq '.login' 2>/dev/null || true)
 TRUSTED_MARKER_ACTORS="${IDD_TRUSTED_MARKER_ACTORS:-}"
 TRUST_COLLABORATOR_MARKERS="${IDD_TRUST_COLLABORATOR_MARKERS:-}"
@@ -141,8 +170,11 @@ EARLIEST_SAME_HEAD_AT=$(
           marker_login as $login
           | ($login | length > 0)
           and (($trusted_marker_logins | index($login)) != null);
+        def unedited_marker:
+          has("last_edited_at") and .last_edited_at == null;
         [.[] | select(
           trusted_marker_actor
+          and unedited_marker
           and (
             ((.body // "") | test("^advisory-wait:\\s+\\S+\\s+" + $sha + "\\s+\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z\\s*$")) or
             ((.body // "") | test("^advisory-wait-recovery:\\s+\\S+\\s+" + $sha + "\\s+\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z(?:\\s+claim:\\S+\\s+attempt:[1-9]\\d*)?\\s*$")) or
@@ -162,8 +194,11 @@ REQUEST_MARKER_COUNT=$(
           marker_login as $login
           | ($login | length > 0)
           and (($trusted_marker_logins | index($login)) != null);
+        def unedited_marker:
+          has("last_edited_at") and .last_edited_at == null;
         [.[] | select(
           trusted_marker_actor
+          and unedited_marker
           and ((.body // "") | test("^advisory-wait:|^<!--\\s*advisory-wait:"))
         )]
         | length
@@ -183,8 +218,11 @@ SAME_HEAD_REQUEST_MARKER_PRESENT=$(
           marker_login as $login
           | ($login | length > 0)
           and (($trusted_marker_logins | index($login)) != null);
+        def unedited_marker:
+          has("last_edited_at") and .last_edited_at == null;
         [.[] | select(
           trusted_marker_actor
+          and unedited_marker
           and (
             ((.body // "") | test("^advisory-wait:\\s+\\S+\\s+" + $sha + "\\s+\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z\\s*$")) or
             ((.body // "") | test("^<!--\\s*advisory-wait:\\s+\\S+\\s+" + $sha + "\\s+\\S+\\s*-->\\s*$"))
