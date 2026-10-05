@@ -467,7 +467,9 @@ record still excludes its candidate when edited.
 Resolve the field from the concrete comment type: regular issue/PR
 comments use `IssueComment.lastEditedAt`; replies in review threads use
 `PullRequestReviewComment.lastEditedAt`. This type distinction applies
-to disposition replies as well as operational markers.
+to disposition replies as well as operational markers. The instructions-only
+F2 shell fallback applies this contract to both comment types; see the
+[F2 shell fallback](idd-advisory-wait-shell-fallback.md#f2).
 
 ## Claude Code Permission Baseline
 
