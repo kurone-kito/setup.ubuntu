@@ -125,8 +125,9 @@ the same as a commit or push:
      either is missing, post a hold and keep the claim. If this session
      is the designated actor, keep the claim and stop for a
      merge-capable session to resume the standard merge phase. If a
-     different actor is designated, post the handoff summary and release
-     the claim:
+     different actor is designated, reuse the handoff comment posted in
+     step 3 and release the claim after the required guard; do not post a
+     second summary:
      1. Repeat the pre-mutation guard in full (checks 1-4: the active
         claim still uses this session's `{claim-id}`; the activation
         nonce, if posted, still wins; the worktree is still the one
