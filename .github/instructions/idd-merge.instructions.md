@@ -173,16 +173,41 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
      been re-run against `${PR_HEAD_SHA_F3}` (#2749) — covers commits
      that landed between F2 and this final gate, for example a
      required `{development-branch}` sync. `closing-set` (readiness)
-     evidences steps 6-7 here; D3.7 stays local. Before running them,
-     confirm the local worktree is checked out at `${PR_HEAD_SHA_F3}`
-     exactly (after fetch, the claim gate must confirm
-     `git branch --show-current` is `{branch-name}`; else hold).
-     Require empty `git status --porcelain` and
-     `git merge-base --is-ancestor HEAD "${PR_HEAD_SHA_F3}"`;
-     else hold. Run F2's
-     shadow-path check against `${PR_HEAD_SHA_F3}`; any output or failure
-     holds. Use `git switch {branch-name}` (not
-     detached), recheck; reset on pass) — D3.5/D3.7 read local state, not
+     evidences steps 6-7 here; D3.7 stays local. Fetch the PR's exact
+     head ref into the worktree and verify it matches
+     `${PR_HEAD_SHA_F3}`. When concurrent workers share this clone,
+     serialize the fetch behind the
+     [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock).
+     It can run directly when one worker owns the clone:
+
+     ```sh
+     if ! git fetch origin +refs/pull/{pr-number}/head:refs/remotes/origin/pull/{pr-number}/head; then
+       echo "Failed to fetch PR head; return to E1." >&2
+       exit 1
+     fi
+     FETCHED_PR_HEAD=$(git rev-parse refs/remotes/origin/pull/{pr-number}/head) || {
+       echo "Cannot read fetched PR head; return to E1." >&2
+       exit 1
+     }
+     if [ "$FETCHED_PR_HEAD" != "$PR_HEAD_SHA_F3" ]; then
+       echo "PR head moved; return to E1." >&2
+       exit 1
+     fi
+     ```
+
+     If fetch fails or the fetched SHA differs from
+     `${PR_HEAD_SHA_F3}`, return to E1. Apply the claim gate and require
+     `git branch --show-current` to equal `{branch-name}`; otherwise
+     hold. Require empty `git status --porcelain` and
+     `git merge-base --is-ancestor HEAD "${PR_HEAD_SHA_F3}"`; otherwise
+     hold. Run F2's shadow-path check against `${PR_HEAD_SHA_F3}`; any
+     output or failure holds. These checks prove that advancing the clean
+     local branch to the validated PR head is a fast-forward and does not
+     introduce a shadowed path. Re-validate the claim, then run
+     `git merge --ff-only "${PR_HEAD_SHA_F3}"` from the claimed worktree.
+     Require the command to succeed, the branch to remain
+     `{branch-name}`, and `git rev-parse HEAD` to equal
+     `${PR_HEAD_SHA_F3}`; otherwise hold. D3.5/D3.7 read local state, not
      the remote PR. Skip
      D3.5 steps 6-7 under the
      same non-default-`{development-branch}` exemption D3.5 itself
@@ -519,8 +544,11 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
    - `Not possible to fast-forward, aborting.` → hold as
      `development-branch-diverged`; don't reset/rebase.
 
-   Off-default `{development-branch}`: `git switch <default-branch>`
-   once F4 completes/holds, for B1's checkout.
+   Leave the primary worktree on `{development-branch}` after the
+   fast-forward. B1 requires the primary worktree to be on that branch
+   before it fetches or creates the next issue worktree. If F4 holds
+   before this step, keep the primary worktree's current branch; do not
+   switch it as part of the hold.
 5. Run from the **primary worktree**, not one being removed.
    Removal discards ignored submodule data. Scope
    to `<path>`. Inspect leftovers under `-` (not a repo).
