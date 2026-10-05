@@ -288,8 +288,9 @@ included) — E9 skipped, E13 still cites it. No match: never coverage,
 normal handling applies.
 
 **Edge case 2 — an E9 fix committed but not pushed.** GitHub can't see
-this; an empty E3 alone isn't proof nothing needs recovery (F2
-resets the worktree before merge). Run unconditionally in the same
+this; an empty E3 alone isn't proof nothing needs recovery (F2 requires
+a clean worktree at the PR's exact remote HEAD and stops if a local fix
+is unpushed; it does not reset the worktree). Run unconditionally in the same
 surviving claimed worktree:
 
 1. `PR_HEAD` = Step 1's stored `{head-SHA}` — never re-fetch (races an
