@@ -4969,7 +4969,11 @@ SERVER_DATE=$(printf '%s\n' "$HTTP_HEADERS" | awk '
   }
   END { if (count != 1) exit 1 }
 ') || exit 2
-SERVER_EPOCH=$(date -u -d "$SERVER_DATE" +%s) || exit 2
+SERVER_EPOCH=$(node -e '
+  const epochMs = Date.parse(process.argv[1]);
+  if (!Number.isFinite(epochMs)) process.exit(1);
+  process.stdout.write(String(Math.floor(epochMs / 1000)) + "\n");
+' "$SERVER_DATE") || exit 2
 ```
 
 Replace `{pr-number}` with the live PR number. Require exactly one
