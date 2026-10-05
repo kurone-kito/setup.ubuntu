@@ -310,10 +310,14 @@ with better evidence, never a mechanical removal.
 
 ## §W1 — PR exists (1 match), no worktree
 
-Run `git fetch origin` from the primary worktree (this is a
-HEAD-preserving command and is safe there). If a local branch named
-`{branch}` exists, check for unpushed commits:
-`git log origin/{branch}..{branch} --oneline`.
+From the primary worktree (this is a HEAD-preserving command and is safe
+there), fetch the exact remote branch:
+`git fetch origin +refs/heads/{branch}:refs/remotes/origin/{branch}`.
+If the fetch fails, stop; do not use a pre-existing `origin/{branch}`
+ref, which may be stale. If a local branch named `{branch}` exists, check
+for unpushed commits with
+`git log origin/{branch}..{branch} --oneline`. If that command fails, stop
+instead of treating the result as an empty log.
 
 - **Commits appear**: create the sibling worktree from the existing
   local branch using the B1 naming convention:
@@ -393,6 +397,9 @@ From the primary worktree (HEAD stays on `main`):
    git fetch origin +refs/heads/{branch}:refs/remotes/origin/{branch}
    ```
 
+   If the fetch fails, stop before creating the local branch or worktree;
+   do not use a pre-existing `origin/{branch}` ref, which may be stale.
+
 2. `git branch {branch} origin/{branch}` — create the local branch
    without moving primary HEAD.
 3. `git worktree add <sibling-worktree-path> {branch}` — create the
@@ -447,9 +454,12 @@ example, on resume) without a fresh B1 pass, the same caveat
 example:
 
 ```sh
-git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
-git diff origin/{development-branch}...{branch}
+git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch} && \
+  git diff origin/{development-branch}...{branch}
 ```
+
+If the fetch fails, stop; do not run the audit against a pre-existing
+remote-tracking ref, which may be stale.
 
 **Audit**: diff that range against the issue's own `## Proposed
 change`, `## Acceptance criteria`, and `## Candidate files` sections.

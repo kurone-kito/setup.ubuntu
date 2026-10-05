@@ -489,10 +489,14 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
    [B1 Worktree creation Step 2](idd-work.instructions.md#b1--create-worktree-with-branch))
    and fast-forward it:
 
+   Fetch the exact target branch first; if the fetch fails, stop before
+   switching or merging. Do not use a pre-existing remote-tracking ref,
+   which may be stale.
+
    ```sh
-   git fetch origin
-   git switch {development-branch} || git switch -c {development-branch} --track origin/{development-branch} \
-     && git merge --ff-only origin/{development-branch}
+   git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch} &&
+     (git switch {development-branch} || git switch -c {development-branch} --track origin/{development-branch}) &&
+     git merge --ff-only origin/{development-branch}
    ```
 
    The switch falls back to a local tracking branch if the primary

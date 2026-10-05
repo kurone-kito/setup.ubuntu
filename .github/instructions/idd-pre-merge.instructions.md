@@ -32,10 +32,14 @@ Otherwise read the state directly:
 
 ```sh
 gh pr view {pr-number} --json mergeable,mergeStateStatus,headRefOid,baseRefName
-git fetch --no-tags origin {base-branch}
-git merge-base {pr-head-sha} FETCH_HEAD
-# vs: git rev-parse FETCH_HEAD; mismatch/unresolvable = baseAdvancedSinceMergeBase: true below (best-effort)
+git fetch --no-tags origin +refs/heads/{base-branch}:refs/remotes/origin/{base-branch} && \
+  git merge-base {pr-head-sha} origin/{base-branch}
+# vs: git rev-parse origin/{base-branch}; mismatch/unresolvable = baseAdvancedSinceMergeBase: true below (best-effort)
 ```
+
+If the fetch fails or the comparison cannot resolve, treat the result as
+unknown and fail closed; do not classify the base as unchanged from a
+pre-existing ref.
 
 This check is read-only — F1 does not rebase, merge, or push.
 

@@ -589,7 +589,10 @@ the GitHub default branch by default.
 
 Reconcile it by hand against that confirmed base branch:
 
-1. Fetch it (`git fetch origin` plus that branch name).
+1. Fetch the exact confirmed base branch into its remote-tracking ref:
+   `git fetch origin +refs/heads/<base>:refs/remotes/origin/<base>`. If
+   the fetch fails, stop; do not compare or rebase/merge against a
+   pre-existing `origin/<base>` ref, which may be stale.
 2. If the bootstrap branch has not been pushed yet, rebase onto that
    tip **unless** `git merge-base HEAD origin/<base>` already equals
    `origin/<base>` — then skip the rebase (a no-op rebase can detach
