@@ -439,8 +439,9 @@ never clears by polling: follow its `detail`.
   (cd "$(git rev-parse --show-toplevel)" &&
   GIT_LITERAL_PATHSPECS=1 xargs -0 git ls-files -z -o --exclude-standard --)`
   and again with `-o -i`; any output or failure holds. Use
-  `git switch {branch-name}` (not
-  detached), recheck; reset on pass)
+  `git switch {branch-name}` (not detached), then re-check the branch,
+  clean status, and exact HEAD. Do not run any `git reset` command in
+  this validation.
   — D3.5/D3.7 read local state, not the remote PR. Then re-run
   `idd-pr-submit.instructions.md`'s D3.5 steps
   6-7 (the `closingIssuesReferences` set comparison and the
