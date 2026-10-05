@@ -121,7 +121,7 @@ CI-polling shared helper file), never this one. Read
    poll that observes that condition. The `ci-wait-state` helper does
    not currently expose that header or `serverTime`; when direct API
    reads are permitted, use the read-only command and extraction
-   procedure in [`ci-wait-state`'s server-clock guidance](../../../docs/idd-helper-scripts.md#server-clock-for-ci-generation-timeouts).
+   procedure in [`ci-wait-state`'s server-clock guidance](../../../docs/idd-helper-scripts.md#server-clock-for-idd-evidence-windows).
    Repeat that read on each later poll while the condition persists
    and compare server-derived timestamps. If direct API access is
    prohibited, or the response has no single parseable `Date` header,
