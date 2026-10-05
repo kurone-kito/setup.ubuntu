@@ -72,12 +72,18 @@ mandatory regardless of this deferral.
 
 ## B1 — Create worktree
 
-Resolve `{development-branch}` before Step 1: read `developmentBranch`
-from `.github/idd/config.json`; if absent, use
-`gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
-Validate it using
+Resolve `{development-branch}` before Step 1 from trusted
+configuration: identify the repository's default branch with
+`gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`,
+refresh its exact `origin` ref under the clone-scoped lock, and read
+`.github/idd/config.json` from that default-branch ref (see
+[the trusted common-base procedure](../../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers)).
+Never read this setting from the current issue/PR checkout. Use the
+default branch only when `developmentBranch` is absent; malformed
+configuration, an empty or invalid value, or an unavailable trusted ref
+is a stop. Validate the selected branch using
 [branch synchronization defaults](../../../docs/policy-constants.md#branch-synchronization-defaults)
-and fail closed if it is invalid or absent on `origin`.
+and fail closed if it is absent on `origin`.
 
 Concurrent workers sharing one clone: serialize every `fetch`/`merge
 --ff-only`/worktree add/remove call below (and F4 cleanup's own
