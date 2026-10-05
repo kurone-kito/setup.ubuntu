@@ -537,12 +537,21 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
    Discard only reproducible configured-command output; preserve all else.
    Copy secrets (`.env`) outside `<path>` — never commit or push them.
    Preserve work in backup ref or external path. Before removal, `cd`
-   to primary; stay; revalidate:
+   to primary; stay; revalidate with the profile-selected
+   `resume-claim-routing` helper. For this repository's `ephemeral-npx`
+   profile, read `helperRuntime.packageSpec` from
+   `.github/idd/config.json` as `IDD_HELPER_PACKAGE_SPEC` first; under
+   `instructions-only`, manually re-read the issue and apply the claim,
+   nonce, worktree-lock, and generated-token checks in
+   `idd-claim.instructions.md`. Any unreadable or mismatched evidence
+   stops cleanup.
 
    ```sh
-   node scripts/resume-claim-routing.mjs --issue <issue-number> \
+   IDD_HELPER_PACKAGE_SPEC=$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(".github/idd/config.json", "utf8")).helperRuntime.packageSpec)')
+   npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing \
+     --issue <issue-number> \
      --claim-id <claim-id> --nonce <nonce> \
-     --worktree <issue-worktree-path>
+     --worktree <issue-worktree-path> --assert
    ```
 
    `keep` / `already_owned` plus a matching lock means ours. Omitting

@@ -171,16 +171,23 @@ treat a missed heartbeat as shortening the wait or as quiet-window
 evidence.
 
 Before continuing to S4, apply the local-worktree safety gate. With helpers,
-run `node scripts/resume-claim-routing.mjs --issue <N>` against a fresh
-snapshot and continue only when it still reports `state: stale` with
+run the following against a fresh snapshot; continue only when it reports
+`state: stale` with
 `action: takeover` and `evidence.local_worktree.status: absent` for the
 claimed branch. `local_worktree_occupied` / `stop` (including `occupied`,
 `unreadable`, or unknown worktree evidence), missing evidence, or contradictory
 state requires **hold and stop**. Do not treat quiet-window or stale-age
 evidence as proof that the worktree is absent (#3141, Round 21 report).
-Without helpers, perform the porcelain worktree scan from `idd-claim`'s A5
-pre-check (a missing, malformed, or unreadable result is fail-closed); only a
-proven absent matching worktree permits S4.
+
+```sh
+IDD_HELPER_PACKAGE_SPEC=$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(".github/idd/config.json", "utf8")).helperRuntime.packageSpec)')
+npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue <N>
+```
+
+Without helpers, manually re-read the claim and perform the claim-state and
+porcelain worktree checks from `idd-claim`'s A5 pre-check (a missing,
+malformed, or unreadable result is fail-closed); only a proven absent matching
+worktree permits S4.
 
 ### S4 — Race-safe takeover recheck
 

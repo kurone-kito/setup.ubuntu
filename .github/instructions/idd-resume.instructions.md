@@ -128,11 +128,16 @@ only; this path's own already-announced pause waits on neither.
 
 ## Step 1 — Identify claim state
 
-When helper runtime is enabled, you may collect Step 1 evidence with:
+When helper runtime is enabled, collect Step 1 evidence with the
+profile-selected command. For this repository's `ephemeral-npx` profile:
 
 ```sh
-node scripts/resume-claim-routing.mjs --issue {issue-number} [--claim-id {claim-id}] [--nonce {nonce}] [--worktree {path}]
+IDD_HELPER_PACKAGE_SPEC=$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(".github/idd/config.json", "utf8")).helperRuntime.packageSpec)')
+npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue {issue-number} [--claim-id {claim-id}] [--nonce {nonce}] [--worktree {path}]
 ```
+
+For other profiles, use the corresponding invocation in
+`docs/idd-helper-scripts.md`.
 
 Pass `--claim-id` once this session recorded and verified one,
 `--nonce {nonce}` when this session recorded one for that same

@@ -77,7 +77,15 @@ canonical A5(c) evidence collector:
 ```sh
 # source repo / vendored-node
 node scripts/resume-claim-routing.mjs --issue <number> --fresh-claim-gate
+
+# this repository's ephemeral-npx profile
+IDD_HELPER_PACKAGE_SPEC=$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(".github/idd/config.json", "utf8")).helperRuntime.packageSpec)')
+npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing \
+  --issue <number> --fresh-claim-gate
 ```
+
+Under `package-manager`, use the configured `idd:resume-claim-routing`
+script; see `docs/idd-helper-scripts.md` for the profile-selected command.
 
 It reuses the shared `resolveActiveClaim` / `evaluateResumeClaimRouting`
 resolver and returns a `fresh_claim_gate.verdict` of `claimable |
