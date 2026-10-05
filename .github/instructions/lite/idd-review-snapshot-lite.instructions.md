@@ -317,8 +317,18 @@ discard the pass and return to E1; otherwise post a baseline pinned to
 the captured SHA: `node
 scripts/post-idd-marker.mjs --type baseline --target pr {pr-number}
 --agent-id <id> --claim-id <id> --sha {e2-review-head-SHA} --apply`, or
-the package-manager equivalent. Never record a newer SHA; reread HEAD
-after posting and return to E1 if it changed. Rendered body:
+the package-manager equivalent. Under this repository's `ephemeral-npx`
+profile, resolve the immutable package pin from the trusted common base
+and verify it before invoking the helper:
+
+```sh
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-post-idd-marker \
+  --type baseline --target pr {pr-number} --agent-id <id> --claim-id <id> \
+  --sha {e2-review-head-SHA} --apply
+```
+
+Never record a newer SHA; reread HEAD after posting and return to E1 if it
+changed. Rendered body:
 
 ```markdown
 <!-- review-baseline: {agent-id} {claim-id} {SHA} -->
