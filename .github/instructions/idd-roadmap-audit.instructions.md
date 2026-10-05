@@ -259,13 +259,17 @@ Apply one outcome:
      rules — never a bare `gh issue create` outside that flow
      (`idd-pr-submit.instructions.md`'s D3 direct-creation rule).
      Before creating or linking, inspect the installed CLI's
-     `gh issue create --help` and `gh issue edit --help` output. When
-     `--parent` is supported, pass it to `gh issue create`. Otherwise,
-     create through the issue-authoring flow and link with
-     `gh issue edit <number> --add-sub-issue <n>` when supported. If
-     neither flag is available, use the REST fallback below only when
-     the current agent surface's permission policy allows direct
-     `gh api`. This repository's Claude Code baseline deliberately
+     `gh issue create --help` and `gh issue edit --help` output. Use
+     `gh issue create --parent <roadmap-number>` only when creating a new
+     issue and that flag is supported. For a reused existing issue, always
+     link it with `gh issue edit <roadmap-number> --add-sub-issue
+     <existing-issue-number>`, regardless of `--parent` support. When
+     creating a new issue without `--parent`, create through the
+     issue-authoring flow and link it with
+     `gh issue edit <roadmap-number> --add-sub-issue <new-issue-number>`
+     when supported. If neither linking flag is available, use the REST
+     fallback below only when the current agent surface's permission
+     policy allows direct `gh api`. This repository's Claude Code baseline deliberately
      disallows direct `gh api`; there, stop before creating a new issue
      or attempting the link and ask a maintainer to upgrade the CLI or
      perform the link. Do not broaden `.claude/settings.json`.
