@@ -320,8 +320,9 @@ reported `baseRefName` to match; otherwise stop and report the mismatch.
    stop and ask — do not fall back to a manual per-field fetch.
 4. Read the helper's `outcome` field and apply this decision table, top
    to bottom, first match wins:
-   - Off-head `SATISFIED` with `staleRequestRecovery.action ==
-     "attempt"` → hand off for AW3-S; never E15.
+   - Off-head `SATISFIED`, `copilotPending` `true`, with
+     `staleRequestRecovery.action == "attempt"` → hand off for AW3-S;
+     never E15 on this result.
    - Off-head `SATISFIED` with recovery `cap-exhausted` → follow
      `capExhaustedRoute`: `phase-specific` → E15; `hold` → stop/ask.
    - `SATISFIED`, `copilotPending` `false`,
