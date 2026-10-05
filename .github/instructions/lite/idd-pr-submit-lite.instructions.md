@@ -89,7 +89,14 @@ following:
 ## D1 — Sync the configured development branch before first push
 
 This section's rebase only applies **before the branch's first push**.
-Reuse `{development-branch}` resolved in B1 from the primary worktree.
+Reuse `{development-branch}` resolved in B1. Carry
+`IDD_HELPER_PACKAGE_SPEC` from B1's trusted common-base resolution. If
+resuming without the helper package spec, resolve it from the trusted
+primary worktree or trusted default branch as described in the [helper
+documentation](../../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
+never read it from this issue/PR checkout. Require it to equal the
+immutable pin below; if its trusted value cannot be established or
+differs, stop.
 On a resumed D1 without that value, resolve it from a freshly fetched
 GitHub default-branch ref, never from the primary worktree's checked-out
 config or this issue branch. Read the default branch and its config as
@@ -101,7 +108,8 @@ valid config has no `developmentBranch` field:
 DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef \
   --jq .defaultBranchRef.name) || exit 1
 git check-ref-format --branch "$DEFAULT_BRANCH" >/dev/null || exit 1
-npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
+[ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
+npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-clone-lock \
   --exec --agent-id {agent-id} --repo . -- git fetch origin \
   "+refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}" || exit 1
 DEFAULT_CONFIG=$(git show \
@@ -156,11 +164,12 @@ and use it for every ref below; see
        unavailable, fails, or disagrees with live GitHub state): stop
        per the condition above (out of this file's scope).
 2. Refresh the configured branch's remote-tracking ref under the
-   [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock),
+   [clone-scoped lock](../../../docs/idd-helper-scripts.md#clone-scoped-lock),
    because workers share this clone:
 
    ```sh
-   npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
+   [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
+   npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-clone-lock \
      --exec --agent-id {agent-id} --repo . -- git fetch origin \
      +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
    ```

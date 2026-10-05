@@ -19,10 +19,17 @@ before the first push — the routine pre-publication history cleanup step.
 First refresh the configured branch's remote-tracking ref under the
 clone-scoped lock (see
 [`idd-helper-scripts.md`](../../docs/idd-helper-scripts.md#clone-scoped-lock)),
-because workers share this clone:
+because workers share this clone. Carry `IDD_HELPER_PACKAGE_SPEC` from
+B1's trusted common-base resolution. If entering D1 directly or resuming
+without it, resolve it from the trusted primary worktree or trusted
+default branch as described in the [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
+never read it from this issue/PR checkout. Require it to equal the
+immutable pin below; if its trusted value cannot be established or
+differs, stop:
 
 ```sh
-npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
+[ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
+npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-clone-lock \
   --exec --agent-id {agent-id} --repo . -- git fetch origin \
   +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
 ```

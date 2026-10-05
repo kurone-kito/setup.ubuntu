@@ -41,21 +41,30 @@ node scripts/resume-claim-routing.mjs --issue <N>
 <profile-selected-resume-claim-routing-command> --issue <N>
 ```
 
-**This repository's ephemeral-npx profile:** resolve `packageSpec` from
-the trusted common base and require it to equal this immutable pin before
-invoking (the literal spelling matches `.claude/settings.json`):
+**This repository's ephemeral-npx profile:** carry
+`IDD_HELPER_PACKAGE_SPEC` from B1's trusted common-base resolution. If
+this procedure is entered directly or resumed without that value,
+resolve it from the trusted primary worktree or trusted default branch
+as described in the [helper documentation](../../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
+never read it from this issue/PR checkout. Require it to equal this
+immutable pin before invoking (the literal spelling matches
+`.claude/settings.json`); if the trusted value cannot be established or
+differs, stop:
 
 ```sh
-npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing --issue <N>
+[ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
+npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue <N>
 ```
 
 Derive server-anchored `now` for the quiet window (only if permission
 permits):
 
 ```sh
+set -o pipefail
 SERVER_NOW=$(gh api repos/<owner>/<repo>/issues/<N> --include \
-  | grep -i '^date:' | head -1 | sed 's/^[Dd]ate: *//' | tr -d '\r')
-NOW=$(node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\.\d{3}Z$/, 'Z'))" "$SERVER_NOW")
+  | grep -i '^date:' | tail -1 | sed 's/^[Dd]ate: *//' | tr -d '\r') || exit 1
+[ -n "$SERVER_NOW" ] || exit 1
+NOW=$(node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\.\d{3}Z$/, 'Z'))" "$SERVER_NOW") || exit 1
 ```
 
 When a PR exists, run exactly one quiet-window command for that profile.
@@ -82,7 +91,7 @@ node scripts/stalled-session-quiet-check.mjs \
 against the trusted common base before invoking.
 
 ```sh
-npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-stalled-session-quiet-check \
+npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-stalled-session-quiet-check \
   --pr <pr-number> --now "$NOW" \
   --claim-created-at <latest-valid-claimed-by-created_at>
 ```

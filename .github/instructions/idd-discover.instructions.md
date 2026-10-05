@@ -550,15 +550,20 @@ ascending issue-number order:
 - **Parked-issue check (once per pass).** Run the profile-selected
   `provider-outage-park --parked-issues` helper documented in
   [the helper documentation](../../docs/idd-helper-scripts.md). Under
-  `ephemeral-npx`, invoke the published `idd-provider-outage-park` bin
-  with the pinned `packageSpec` from `.github/idd/config.json`:
+  `ephemeral-npx`, resolve `IDD_HELPER_PACKAGE_SPEC` from the trusted
+  common base before invoking it. When Discover starts before B1, use the
+  trusted primary worktree or trusted default branch as described in the
+  [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
+  never read the value from this issue checkout. Require it to equal the
+  immutable pin below; if the trusted value cannot be established or
+  differs, stop:
 
   ```sh
-  npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-provider-outage-park --parked-issues
+  [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
+  npx --yes --package "$IDD_HELPER_PACKAGE_SPEC" idd-provider-outage-park --parked-issues
   ```
 
-  Keep the literal package spec aligned with that trusted common base;
-  do not assume `scripts/provider-outage-park.mjs` is present in this
+  Do not assume `scripts/provider-outage-park.mjs` is present in this
   checkout. A candidate in its `parkedIssues` is **ineligible**, as a
   live claim is. A failed or malformed read is Step 1.5 exhaustion
   (report it; last bullet's routing). `parkedIssuesComplete: false`
