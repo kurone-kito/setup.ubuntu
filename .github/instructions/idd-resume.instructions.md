@@ -132,13 +132,20 @@ When helper runtime is enabled, collect Step 1 evidence with the
 profile-selected command. For this repository's `ephemeral-npx` profile:
 
 ```sh
-IDD_HELPER_PACKAGE_SPEC=$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(".github/idd/config.json", "utf8")).helperRuntime.packageSpec)')
-if [ -z "$IDD_HELPER_PACKAGE_SPEC" ]; then
-  echo "helperRuntime.packageSpec is empty; stop before running the helper." >&2
+TRUSTED_BASE=$(git merge-base HEAD refs/remotes/origin/main) || {
+  echo "Cannot identify a trusted common base with origin/main; stop before running the helper." >&2
   exit 1
-fi
+}
+IDD_HELPER_PACKAGE_SPEC=$(git show "${TRUSTED_BASE}:.github/idd/config.json" | \
+  jq -er '.helperRuntime.packageSpec | strings | select(length > 0)') || {
+  echo "Cannot resolve helperRuntime.packageSpec from the trusted base; stop before running the helper." >&2
+  exit 1
+}
 npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue {issue-number} [--claim-id {claim-id}] [--nonce {nonce}] [--worktree {path}]
 ```
+
+Never resolve the package spec from the checked-out worktree. This helper
+runs before the claim gate, while the branch may be unreviewed.
 
 For other profiles, use the corresponding invocation in
 `docs/idd-helper-scripts.md`.

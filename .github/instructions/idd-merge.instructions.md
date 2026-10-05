@@ -543,19 +543,23 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
    Preserve work in backup ref or external path. Before removal, `cd`
    to primary; stay; revalidate with the profile-selected
    `resume-claim-routing` helper. For this repository's `ephemeral-npx`
-   profile, read `helperRuntime.packageSpec` from
-   `.github/idd/config.json` as `IDD_HELPER_PACKAGE_SPEC` first; under
-   `instructions-only`, manually re-read the issue and apply the claim,
-   nonce, worktree-lock, and generated-token checks in
+   profile, resolve `IDD_HELPER_PACKAGE_SPEC` from the trusted common base
+   with `refs/remotes/origin/main` as shown below; never read it from the
+   checked-out worktree. Under `instructions-only`, manually re-read the
+   issue and apply the claim, nonce, worktree-lock, and generated-token checks in
    `idd-claim.instructions.md`. Any unreadable or mismatched evidence
    stops cleanup.
 
    ```sh
-   IDD_HELPER_PACKAGE_SPEC=$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(".github/idd/config.json", "utf8")).helperRuntime.packageSpec)')
-   if [ -z "$IDD_HELPER_PACKAGE_SPEC" ]; then
-     echo "helperRuntime.packageSpec is empty; stop before running the helper." >&2
+   TRUSTED_BASE=$(git merge-base HEAD refs/remotes/origin/main) || {
+     echo "Cannot identify a trusted common base with origin/main; stop before cleanup." >&2
      exit 1
-   fi
+   }
+   IDD_HELPER_PACKAGE_SPEC=$(git show "${TRUSTED_BASE}:.github/idd/config.json" | \
+     jq -er '.helperRuntime.packageSpec | strings | select(length > 0)') || {
+     echo "Cannot resolve helperRuntime.packageSpec from the trusted base; stop before cleanup." >&2
+     exit 1
+   }
    npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing \
      --issue <issue-number> \
      --claim-id <claim-id> --nonce <nonce> \

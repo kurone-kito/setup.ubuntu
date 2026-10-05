@@ -180,13 +180,20 @@ state requires **hold and stop**. Do not treat quiet-window or stale-age
 evidence as proof that the worktree is absent (#3141, Round 21 report).
 
 ```sh
-IDD_HELPER_PACKAGE_SPEC=$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(".github/idd/config.json", "utf8")).helperRuntime.packageSpec)')
-if [ -z "$IDD_HELPER_PACKAGE_SPEC" ]; then
-  echo "helperRuntime.packageSpec is empty; stop before running the helper." >&2
+TRUSTED_BASE=$(git merge-base HEAD refs/remotes/origin/main) || {
+  echo "Cannot identify a trusted common base with origin/main; stop before running the helper." >&2
   exit 1
-fi
+}
+IDD_HELPER_PACKAGE_SPEC=$(git show "${TRUSTED_BASE}:.github/idd/config.json" | \
+  jq -er '.helperRuntime.packageSpec | strings | select(length > 0)') || {
+  echo "Cannot resolve helperRuntime.packageSpec from the trusted base; stop before running the helper." >&2
+  exit 1
+}
 npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue <N>
 ```
+
+Never resolve the package spec from the checked-out worktree. This helper
+runs before takeover safety is established, while the branch may be unreviewed.
 
 Without helpers, manually re-read the claim and perform the claim-state and
 porcelain worktree checks from `idd-claim`'s A5 pre-check (a missing,
