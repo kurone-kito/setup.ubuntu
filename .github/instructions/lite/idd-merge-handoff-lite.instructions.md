@@ -61,16 +61,24 @@ the same as a commit or push:
 ## F2.5 — Draft and post the handoff comment
 
 1. Read the recorded merge policy before composing the comment below.
-   First run `git fetch origin main` (concurrent workers sharing one
+   Resolve `{development-branch}` from the PR's server-reported
+   `baseRefName` (`gh pr view {pr-number} --json baseRefName --jq
+   .baseRefName`) and require it to match the value resolved in B1.
+   This is the ref that governs the PR; do not use the PR branch's
+   editable config to choose its own policy source. First
+   run `git fetch origin
+   +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`
+   (concurrent workers sharing one
    clone: serialize this behind the clone-scoped lock,
    `docs/idd-helper-scripts.md#clone-scoped-lock`, the same as B1's own
    fetch). If the fetch itself fails, do not fall back to a
-   possibly-stale local `origin/main` — an
+   possibly-stale local `origin/{development-branch}` — an
    already-existing ref must never substitute for a fresh fetch, or a
    later failure could silently authorize a release against outdated
    policy. Only after a successful fetch, read the config file from
-   there — `git show origin/main:.github/idd/config.json` — never the
-   local worktree's own possibly-edited copy on this PR's branch, so a
+   there — `git show
+   origin/{development-branch}:.github/idd/config.json` — never the local
+   worktree's own possibly-edited copy on this PR's branch, so a
    PR cannot change its own release route (the #2373 trusted-ref
    reasoning). Resolve `mergePolicy`:
    - A successful fetch followed by `git show` failing with the

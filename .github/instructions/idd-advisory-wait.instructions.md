@@ -75,7 +75,7 @@ Required helper fields: `prHeadSha`, `lastCopilotCommit`,
 
 Optional non-gating secondary-bot fields (not in the `outcome`/
 `f3Outcome` enums; see **Secondary advisory bot supplement** below):
-`secondaryBotLogin` (single login only), `secondaryBotLogins` (full
+`secondaryBotLogin` (one login or a login list), `secondaryBotLogins` (full
 list), `secondaryRequestLogins` (still-unrequested subset), and
 `secondaryRequestNeeded` (true iff non-empty).
 

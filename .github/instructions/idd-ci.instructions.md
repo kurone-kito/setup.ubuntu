@@ -298,14 +298,20 @@ waiver kind is evaluated independent of the deadline/terminal-unavailable
 gate. This does not replace the manual flow for any other reason token,
 actor, or check.
 
-**Stale workflow definition on the PR branch.** `gh run rerun`
+**Stale workflow definition on the PR branch.** Reuse
+`{development-branch}` resolved in B1 from the primary worktree. On a
+resumed phase without that value, resolve it from the primary worktree's
+`.github/idd/config.json` (or the GitHub default branch when absent),
+never from the issue branch. `gh run rerun`
 re-resolves the failing check against the workflow **definition
-file** as it exists on the PR branch, not on `main` — a sibling
+file** as it exists on the PR branch, not on the configured development
+branch — a sibling
 track's already-merged fix to a shared CI check's own `.yml` file is
 invisible to a rerun here until this branch pulls that fix in. If a
 required check keeps failing the same way after a rerun and its
-workflow file changed recently on `main`, diff the PR branch's copy
-against `main`'s; a mismatch means a branch-sync merge (merge `main`
+workflow file changed recently on `{development-branch}`, diff the PR
+branch's copy against `{development-branch}`'s; a mismatch means a
+branch-sync merge (merge `{development-branch}`
 in, never rebase — see the E-phase branch-sync check in
 `idd-review-triage.instructions.md`) is the diagnostic recovery step.
 Treat this as reachable at D4/pre-review, not only after E8 — the

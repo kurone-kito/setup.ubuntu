@@ -486,13 +486,20 @@ completion.
      keyword from that `#M` reference.
    - **A missing entry** (a deliberate closing target absent from
      `closingIssuesReferences`) whose keyword matches step 3's regex for
-     that number, on a PR whose `createdAt` (`gh pr view <pr-number>
-     --json createdAt`) is under 4 hours before now (UTC), is GitHub's
-     asynchronous registration (`kurone-kito/idd-skill#3632`), not a
+     that number, on a PR whose age is under 4 hours using the GitHub
+     server `Date` header and `created_at` from the same REST response,
+     is GitHub's asynchronous registration
+     (`kurone-kito/idd-skill#3632`), not a
      body defect: do not edit the body, toggle draft, or close and
      reopen; continue to D4 and poll `closingIssuesReferences` the same
-     way while F2's `closing-set` gate waits. Otherwise (keyword absent,
-     or the entry still missing at 4 hours) apply step 4's
+     way while F2's `closing-set` gate waits. Read both values from one
+     `gh api --include repos/{owner}/{repo}/pulls/{pr-number}` response
+     and parse them with `Date.parse`; use the exception only when the
+     resulting age is in `[0, 14400)` seconds. Never use the local clock.
+     If the server `Date` header is missing, either timestamp is
+     unparseable, or the age is negative, stop with a hold; do not edit
+     the body or continue to D4 without valid server time. Otherwise
+     (keyword absent, or the entry still missing at 4 hours) apply step 4's
      edit-and-recheck path, re-placing the keyword line.
 
    Repeat this step once after any edit. If it still fails (pending

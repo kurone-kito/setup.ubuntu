@@ -455,6 +455,13 @@ review state.
 Before leaving triage, verify every ReviewItems_snapshot item has the
 evidence required by its path:
 
+- For every trust-bearing marker or disposition reply, inspect
+  `lastEditedAt` on the exact GraphQL node: `IssueComment` for a regular
+  comment and `PullRequestReviewComment` for a thread reply. Require an
+  explicit `null`; edited or unresolved edit state invalidates it.
+  `idd-review-disposition-verify` checks marker text and disposition,
+  not this edit-state field, so its `passed` result alone is insufficient.
+
 - Every PATH A item has a recorded classification and an Accept,
   Reject, or AMD decision (including E5 inconclusive). Every Accepted
   item cites its "Verify before accept" evidence, or the maintainer

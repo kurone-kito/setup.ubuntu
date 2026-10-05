@@ -195,6 +195,20 @@ exempt unless that section's exception list applies.
 **Step 3 — Filter into ReviewItems_snapshot.** Select and combine into
 **ReviewItems_snapshot**, recording the source URL for each item.
 
+Exclude a trusted marker-shaped comment only when its exact GraphQL
+node has `lastEditedAt: null`: use `IssueComment.lastEditedAt` for a
+regular PR comment and `PullRequestReviewComment.lastEditedAt` for a
+review-thread reply. Edited comments, missing fields, or failed edit-
+state lookups remain ordinary activity and must not be used as trusted
+evidence. The pinned review-activity helper may classify by author and
+prefix without edit-state; compare its result with the raw GraphQL set.
+If it omitted any edited or unresolved marker-shaped comment, do not use
+its helper-derived watermark count/max or `--from-pr`; recompute the
+total item count and maximum `updatedAt` over the complete raw snapshot
+and post the manual six-field watermark. Keep the helper's latest
+passing CI timestamp. When there is no such discrepancy, the helper
+watermark path remains available.
+
 **Review threads** (`isResolved=false`) — exclude threads where the
 latest substantive reply is from any IDD agent or the PR author with no
 reviewer reply since (awaiting-reviewer state), **unless**: the

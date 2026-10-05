@@ -976,7 +976,8 @@ incident.
 
 - **A closing link that stays empty.** D3.5 already says to wait, and
   not to edit the body, toggle draft, or close and reopen, while the
-  pull request is under 4 hours old (by `createdAt`) and its keyword
+  pull request is under 4 hours old using the GitHub server `Date`
+  header and `created_at` from the same REST response, and its keyword
   matches step 3's regex (kurone-kito/idd-skill#3660). Two adopters'
   reports add what it does not say: across seven pull requests the field
   stayed empty for 1 h 04 min to at least 2 h 24 min and healed without

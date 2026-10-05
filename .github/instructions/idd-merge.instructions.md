@@ -548,6 +548,10 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
 
    ```sh
    IDD_HELPER_PACKAGE_SPEC=$(node -e 'process.stdout.write(JSON.parse(require("node:fs").readFileSync(".github/idd/config.json", "utf8")).helperRuntime.packageSpec)')
+   if [ -z "$IDD_HELPER_PACKAGE_SPEC" ]; then
+     echo "helperRuntime.packageSpec is empty; stop before running the helper." >&2
+     exit 1
+   fi
    npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing \
      --issue <issue-number> \
      --claim-id <claim-id> --nonce <nonce> \

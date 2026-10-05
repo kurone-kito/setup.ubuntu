@@ -464,6 +464,11 @@ edited, an `advisory-reroll` marker still counts toward the same-HEAD
 reroll budget when edited, and a trusted A4.5 suitability-rejection
 record still excludes its candidate when edited.
 
+Resolve the field from the concrete comment type: regular issue/PR
+comments use `IssueComment.lastEditedAt`; replies in review threads use
+`PullRequestReviewComment.lastEditedAt`. This type distinction applies
+to disposition replies as well as operational markers.
+
 ## Claude Code Permission Baseline
 
 This section is **Claude Code-specific**: it documents the committed

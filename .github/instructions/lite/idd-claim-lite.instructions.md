@@ -158,7 +158,11 @@ node scripts/resume-claim-routing.mjs --issue <N> --fresh-claim-gate
 Written fallback (`instructions-only` profile only — per the Helper
 runtime contract above, any other profile stops-and-asks on a
 missing/failing/malformed helper instead of using this fallback):
-read issue comments chronologically. **Trusted marker actor** = the
+read issue comments chronologically. Before using any comment as claim
+evidence, fetch its GraphQL `IssueComment.lastEditedAt` and require the
+field to be explicitly `null`; an edited comment or unresolved edit
+state is not evidence. `updatedAt` does not establish edit state.
+**Trusted marker actor** = the
 current session (after it posts and verifies its own marker), a
 configured trusted bot/App login for IDD automation, or a
 Write/Maintain/Admin collaborator only when repository policy

@@ -86,9 +86,15 @@ following:
    `reacquired: true` both ends), else stop.
 6. If any check fails, stop.
 
-## D1 — Sync main before first push
+## D1 — Sync the configured development branch before first push
 
 This section's rebase only applies **before the branch's first push**.
+Reuse `{development-branch}` resolved in B1 from the primary worktree.
+On a resumed D1 without that value, resolve it from the primary
+worktree's `.github/idd/config.json` (or the GitHub default branch when
+absent), never from this issue branch. Validate it using the branch
+synchronization defaults and use it for every ref below; see
+[`idd-work.instructions.md`](../idd-work.instructions.md#b1--create-worktree-with-branch).
 
 1. Check whether the branch has been pushed:
    `git ls-remote --exit-code origin "refs/heads/{branch-name}"`
@@ -125,24 +131,28 @@ This section's rebase only applies **before the branch's first push**.
        `"force-push-exception"`, `"hold-unknown"`, or the helper is
        unavailable, fails, or disagrees with live GitHub state): stop
        per the condition above (out of this file's scope).
-2. Run `git fetch origin main`.
-3. If `git merge-base HEAD origin/main` equals `origin/main`, the branch
-   already contains every commit on `main` — skip the rebase and go to
-   D2.
+2. Fetch the configured branch into its remote-tracking ref:
+   `git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`.
+   If fetch fails, stop; do not use an existing remote-tracking ref, which may
+   be stale, for the comparison below.
+3. If `git merge-base HEAD origin/{development-branch}` equals
+   `origin/{development-branch}`, the branch already contains every
+   commit on `{development-branch}` — skip the rebase and go to D2.
 4. **Before rebasing**: if primary commit signing is non-interactive-
    hostile (GPG pinentry, or a hardware-touch path) and the repository
    provides **no** fallback wrapper for arbitrary git subcommands, stop
    and ask before running the rebase at all — replaying even one commit
    re-signs it, and a hostile path with no wrapper has no safe
    non-interactive way to do that.
-5. Rebase onto `origin/main` with `--rebase-merges` so merge commits
-   in the issue branch are preserved. When primary signing is
+5. Rebase onto `origin/{development-branch}` with `--rebase-merges` so
+   merge commits in the issue branch are preserved. When primary signing is
    non-interactive-hostile and a subcommand wrapper exists, run the
    rebase through it from the start: `git -c gpg.format=ssh -c
    user.signingkey=<abs-path> -c commit.gpgsign=true rebase
-   --rebase-merges origin/main`
+   --rebase-merges origin/{development-branch}`
    (or a repo alias; a commit-only alias will not run `rebase`).
-   Otherwise run `git rebase --rebase-merges origin/main`.
+   Otherwise run
+   `git rebase --rebase-merges origin/{development-branch}`.
 6. If the rebase hits a content conflict, resolve it and continue the
    rebase. On the signed-commit repo case in step 5, continue with the
    **wrapper's own** `--continue` form, not plain `git rebase
@@ -153,7 +163,8 @@ This section's rebase only applies **before the branch's first push**.
    written with no staged content conflict: run `git rebase --abort` to
    restore the branch tip, then
    restart the **full** rebase through the configured wrapper's `rebase
-   --rebase-merges origin/main` form. Use SSH `-c` or step 5's alias.
+   --rebase-merges origin/{development-branch}` form. Use SSH `-c` or
+   step 5's alias.
    This replays the stack; never replace with a one-commit cherry-pick.
    Do not run `git commit --amend -S` or `git commit --amend '-S'`.
    Step 6 `--continue` stays for a staged content conflict.
@@ -163,8 +174,8 @@ This section's rebase only applies **before the branch's first push**.
    any resulting changes before continuing. Then verify both:
    - `git branch --show-current` is non-empty (HEAD is not detached).
    - The expected local commit appears in `git log --oneline
-     origin/main..HEAD` (not local `main`, which this file never
-     fast-forwards and so can be stale).
+     origin/{development-branch}..HEAD` (not a local development
+     branch, which this file never fast-forwards and so can be stale).
 9. If a finished rebase left HEAD detached, re-attach once with
    `git checkout {branch-name}`, repeat this D1 rebase (through the
    same signing wrapper on a signed-commit repo), then re-verify both
@@ -172,7 +183,7 @@ This section's rebase only applies **before the branch's first push**.
    note naming the branch state.
 
 Once the branch is pushed, treat it as published review history: a
-later resync merges `main` into the branch through the E-phase review
+later resync merges `{development-branch}` into the branch through the E-phase review
 loop instead of returning to this D1 rebase path.
 
 ## D2 — Verify claim, lint, push
@@ -192,7 +203,7 @@ loop instead of returning to this D1 rebase path.
    and do not continue in this lite flow; the merge-based resync path
    is out of scope.
 4. New CI job: land it `workflow_dispatch`-only first (if its workflow
-   file isn't on `main` yet, land a bootstrap PR for just the trigger
+   file isn't on `{development-branch}` yet, land a bootstrap PR for just the trigger
    wiring first — `gh workflow run` can't dispatch a branch-only
    file), validate with a manual dispatch run, commit the trigger-flip
    edit, re-run **pre-push-validate**, and push, before D3.
@@ -272,12 +283,20 @@ loop instead of returning to this D1 rebase path.
    - An extra entry usually means an unrelated `#M` sits next to a
      keyword elsewhere in the body — separate them.
    - A missing entry whose keyword matches step 3's regex for that
-     number, on a PR whose `createdAt` (`gh pr view {pr-number} --json
-     createdAt`) is under 4 hours before now (UTC), is GitHub's async
-     registration (`kurone-kito/idd-skill#3632`): do not edit the body,
+     number, on a PR whose age is under 4 hours using the GitHub server
+     `Date` header and `created_at` from the same REST response, is
+     GitHub's async registration
+     (`kurone-kito/idd-skill#3632`): do not edit the body,
      toggle draft, or close and reopen; go on to D4 and poll
-     `closingIssuesReferences` the same way. Otherwise (keyword absent,
-     or still missing at 4 hours) apply step 4's path, re-placing the
+     `closingIssuesReferences` the same way. Read both values from one
+     `gh api --include repos/{owner}/{repo}/pulls/{pr-number}` response
+     and parse them with `Date.parse`; use the exception only when the
+     resulting age is in `[0, 14400)` seconds. Never use the local clock.
+     If the server `Date` header is missing, either timestamp is
+     unparseable, or the age is negative, stop with a hold; do not edit
+     the body or continue to D4 without valid server time. Otherwise
+     (keyword absent, or still missing at 4 hours) apply step 4's path,
+     re-placing the
      keyword line.
    - Repeat once after any edit. If it still fails (pending registration
      excepted), stop and post a hold note citing the PR URL.

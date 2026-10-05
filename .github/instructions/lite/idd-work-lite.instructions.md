@@ -18,7 +18,7 @@ repository is `instructions-only`, use the standard work instructions instead.
 
 B1's setup steps run on the primary worktree by design; the
 sibling-worktree and current-branch bullets below apply from B2
-onward, once B1 step 30's cwd check passes.
+onward, once B1 step 31's cwd check passes.
 
 - The active claim is ambiguous, disputed, or lost.
 - The current directory is not the sibling worktree for the claimed branch.
@@ -38,13 +38,13 @@ onward, once B1 step 30's cwd check passes.
 Before any commit, push, rebase, claim heartbeat, reply, resolve, reviewer
 request, or other GitHub side effect, confirm all of the following.
 
-Every B1 step — including the step 10 and step 31 hold-comment posts —
+Every B1 step — including the step 11 and step 32 hold-comment posts —
 runs with checks 1-2 only. Checks 3-5 apply from B2 onward, once B1 step
-30's cwd check passes; steps 28-31 are the hand-off mechanism, so a
-step 28 or 29 failure that routes to step 31's hold still runs under
+31's cwd check passes; steps 29-32 are the hand-off mechanism, so a
+step 29 or 30 failure that routes to step 32's hold still runs under
 checks 1-2 only. Never relax checks 1-2 anywhere. This defers only this
 guard's own check 3-5 gate, never B1's own explicit lock-acquisition
-steps: step 7's takeover lock/collision check, and steps 19 and 26's
+steps: step 8's takeover lock/collision check, and steps 20 and 27's
 lock acquisition and immediate token-recording after creation, all stay
 mandatory regardless of this deferral.
 
@@ -84,47 +84,55 @@ Concurrent workers sharing one clone: serialize every `fetch`/`merge
 worktree removal) behind the
 [clone-scoped lock](../../../docs/idd-helper-scripts.md#clone-scoped-lock).
 
-1. On the primary worktree, run
+1. On the primary worktree, require `git branch --show-current` to equal
+   `{development-branch}` before fetching. If the command fails or reports
+   another branch, stop and report; do not fetch or merge from the wrong
+   primary-worktree branch.
+2. Run
    `git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`.
-2. On the primary worktree, run
+   If fetch fails, stop; do not compare against a pre-existing remote-tracking
+   ref, which may be stale.
+3. Run
    `git log origin/{development-branch}..{development-branch} --oneline`.
-3. If step 2 outputs any lines, stop and report: local
+   If this command fails, stop and report; do not treat the failure as an
+   empty comparison or continue to merge.
+4. If step 3 outputs any lines, stop and report: local
    `{development-branch}` has unpushed commits. Do not force-reset it.
-4. Fast-forward local `{development-branch}` with
+5. Fast-forward local `{development-branch}` with
    `git merge --ff-only origin/{development-branch}`.
-5. Keep the primary worktree on `{development-branch}` throughout B1. Do not use
+6. Keep the primary worktree on `{development-branch}` throughout B1. Do not use
    `git switch -c <branch-name>`, `git checkout -b <branch-name>`, or a
    standalone `git branch <branch-name>` followed by in-place commits in the
    primary worktree — each of these violates this rule.
-6. Reuse the existing branch name verbatim for takeover.
-7. Run `git worktree list` (and `git worktree list --porcelain` when checking
+7. Reuse the existing branch name verbatim for takeover.
+8. Run `git worktree list` (and `git worktree list --porcelain` when checking
    prunable entries). If a sibling worktree already exists, inspect and
    acquire its worktree-local claim lock with the profile-selected
    `claim-lock` helper before reuse or removal. A `collision` result is
    fail-closed: do not reuse or remove the path — resolve it via the
    Claim-state rule in `idd-claim.instructions.md`, and only remove the
    path once the current claim is authorized to take it over.
-8. If `git worktree list --porcelain` marks the entry `prunable` and its path
+9. If `git worktree list --porcelain` marks the entry `prunable` and its path
    is already absent, remove that stale entry with
    `git worktree remove --force <path-from-list>` and continue.
-9. Run `git branch --list {branch-name}`. If the branch exists locally, reuse it
+10. Run `git branch --list {branch-name}`. If the branch exists locally, reuse it
    only when it is an inheritable takeover branch; otherwise delete it with
    `git branch -d {branch-name}`.
-10. If deletion is refused, check whether a remote branch or open PR exists for
+11. If deletion is refused, check whether a remote branch or open PR exists for
     this branch. If so, treat it as inheritable and reuse it. If not, post a
     hold comment and stop for manual cleanup.
-11. If the target path exists but is not listed in `git worktree list`, stop
+12. If the target path exists but is not listed in `git worktree list`, stop
     and report for manual cleanup.
-12. Create the sibling worktree at `../<repo-name>.<normalized-branch>`.
-13. Define `normalized-branch` as the branch name with each `/` replaced by
+13. Create the sibling worktree at `../<repo-name>.<normalized-branch>`.
+14. Define `normalized-branch` as the branch name with each `/` replaced by
     `-`.
-14. Use WorkTrunk if available.
-15. In automation, use:
+15. Use WorkTrunk if available.
+16. In automation, use:
     `wt switch --create -b {development-branch} <branch-name> -x true`.
-16. On Windows, use:
+17. On Windows, use:
     `git-wt switch --create -b {development-branch} <branch-name> -x true`,
     or the same `wt switch` form if `git-wt` is unavailable.
-17. If the `[pre-start]` hook's install command has not already been
+18. If the `[pre-start]` hook's install command has not already been
     approved, `wt switch --create` hangs non-interactively even with
     `-x <noop>` (`Cannot prompt for approval in non-interactive
     environment`). Before the first `wt switch --create` in such an
@@ -133,8 +141,8 @@ worktree removal) behind the
     to the git project, so sibling worktrees inherit it, and is
     narrower than the global `-y`/`--yes` flag, which would also skip
     approval for any other command WorkTrunk runs on that call.
-18. Do not use `wt new`.
-19. If WorkTrunk uses a pre-start install hook, its first command must
+19. Do not use `wt new`.
+20. If WorkTrunk uses a pre-start install hook, its first command must
     acquire the worktree lock, then — as a separate call — run
     `--record-tokens --worktree <this-worktree-path> --agent-id <id>
     --claim-id <id> --nonce <nonce>` (same nonce value as the A5 write;
@@ -142,58 +150,64 @@ worktree removal) behind the
     merges) for this worktree's own copy, before it installs anything.
     After the hook succeeds, `cd` into the new sibling (`-x <noop>` never
     changes the caller's directory; resolve the path from
-    `git worktree list`) before steps 28-30.
-20. If the hook cannot acquire the lock or record tokens, create the
+    `git worktree list`) before steps 29-31.
+21. If the hook cannot acquire the lock or record tokens, create the
     worktree without the hook.
-21. If WorkTrunk is unavailable, use:
+22. If WorkTrunk is unavailable, use:
     `git worktree add <path> -b <branch-name> origin/{development-branch}`
     for a fresh claim.
-22. If WorkTrunk is unavailable and this is a takeover, use
+23. If WorkTrunk is unavailable and this is a takeover, use
     `git worktree add <path> <branch-name>` with the local branch.
-23. If WorkTrunk is unavailable and only the remote branch exists, run
+24. If WorkTrunk is unavailable and only the remote branch exists, run
     `git fetch origin <branch-name>`.
-24. If WorkTrunk is unavailable and only the remote branch exists, use
+25. If WorkTrunk is unavailable and only the remote branch exists, use
     `git worktree add <path> -b <branch-name> origin/<branch-name>`.
-25. If WorkTrunk is unavailable and neither a local nor a remote branch
+26. If WorkTrunk is unavailable and neither a local nor a remote branch
     exists (rare), treat it as a fresh claim while preserving the inherited
     branch name.
-26. For manual `git worktree add` or WorkTrunk without a hook, acquire the
+27. For manual `git worktree add` or WorkTrunk without a hook, acquire the
     worktree lock with the profile-selected `claim-lock` helper, then — as
     a separate call — run `--record-tokens --worktree <this-worktree-path>
     --agent-id <id> --claim-id <id> --nonce <nonce>` (same nonce value as
     the A5 write; omitting `--nonce` drops it, since the helper overwrites
     rather than merges) for this worktree's own copy, immediately after
     creation and before any install or other mutation.
-27. On the manual/no-hook path, `cd` into the new sibling worktree first,
+28. On the manual/no-hook path, `cd` into the new sibling worktree first,
     then run `install-deps` there — never from the primary worktree,
     whose lifecycle hooks would otherwise mutate the primary checkout.
-28. Verify the primary worktree's HEAD is still on `{development-branch}`.
-29. Verify `git worktree list` shows the new path.
-30. Verify the current directory is the new sibling worktree. For a
+29. Verify the primary worktree's HEAD is still on `{development-branch}`.
+30. Verify `git worktree list` shows the new path.
+31. Verify the current directory is the new sibling worktree. For a
     harness whose file-read/edit tools stay bound to the launch
     workspace (Grok Build observed), use the sibling's absolute path
     for those tools rather than a shell `cd`/`pwd`.
-31. If any of steps 28-30 fails, the worktree-creation contract is violated:
+32. If any of steps 29-31 fails, the worktree-creation contract is violated:
     stop, post a hold note naming the failed check, and do not continue to
     B2 from the primary worktree.
-32. Repair a contract violation by removing the misplaced branch from the
+33. Repair a contract violation by removing the misplaced branch from the
     primary worktree, after confirming no work is lost, then recreate the
-    sibling worktree from step 12.
-33. If WorkTrunk reported `Cannot change directory — shell integration
+    sibling worktree from step 13.
+34. If WorkTrunk reported `Cannot change directory — shell integration
     installed but not active`, treat every later command's working
     directory as unverified until confirmed (e.g. `pwd`), not only at
-    steps 28-30.
+    steps 29-31.
 
 ## B2 — Create and refine plan
 
-1. Run `git fetch origin {development-branch}`.
-2. Re-read the issue and do the cheap supersession check. Treat a title-only
-   match as no hit.
+1. When concurrent workers share the clone, run the fetch behind the
+   [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock).
+   Fetch the explicit refspec
+   `+refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`
+   from `origin`; stop if it fails.
+2. Re-read the issue and do the cheap supersession check against the
+   freshly fetched `origin/{development-branch}`. Treat a title-only
+   match as no hit; do not use a potentially stale local branch.
 3. If a merged PR already closed the issue, stop.
 4. If a merged PR since the claim time already touched a scoped candidate file,
-   verify the acceptance criteria on current `{development-branch}`.
-5. If the criteria fully hold, close the issue with a comment referencing the
-   superseding PR.
+   verify the acceptance criteria on the freshly fetched
+   `origin/{development-branch}`.
+5. If the criteria fully hold on that remote-tracking ref, close the issue
+   with a comment referencing the superseding PR.
 6. If the criteria only partly hold, keep the issue open, record the overlap
    in the plan, and plan only the remaining work.
 7. If the issue is a decision-transcription issue — it records or restates a

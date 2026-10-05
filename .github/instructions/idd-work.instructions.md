@@ -36,12 +36,21 @@ and fail closed if it is invalid or absent on `origin`.
    local commits. Run this from the primary worktree while on
    `{development-branch}`:
 
+   Before fetching, require
+   `git branch --show-current` to equal `{development-branch}`. If the
+   command fails or reports another branch, stop and report; do not
+   fetch or merge from the wrong primary-worktree branch.
+
    ```sh
    git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
    git log origin/{development-branch}..{development-branch} --oneline
    ```
 
-   If the second command outputs any lines, the local
+   If `git fetch` fails, stop and report; do not compare against a
+   pre-existing remote-tracking ref, which may be stale. If the `git log`
+   command fails, stop and report; do not treat the
+   failure as an empty comparison or continue to merge. If it outputs
+   any lines, the local
    `{development-branch}` has unpushed commits — stop and report; do not
    force-reset it. Otherwise, fast-forward to origin:
 
@@ -420,9 +429,9 @@ function bodies look equivalent. See
 
 **Unexpected validation failures**: a `typecheck`/`lint` failure in a
 file this diff did not touch may signal dependency drift or a broken
-`main` baseline — verify with a fresh-vs-stale `node_modules` comparison
-or a clean **install-deps** rerun before assuming the failure traces to
-this diff. See
+`{development-branch}` baseline — verify with a fresh-vs-stale
+`node_modules` comparison or a clean **install-deps** rerun before
+assuming the failure traces to this diff. See
 [rationale](../../docs/idd-design-rationale.md#b3--dependency-drift-vs-own-diff-a-typechecklint-diagnostic).
 
 **Local test flakiness under concurrent load**: a test this diff did

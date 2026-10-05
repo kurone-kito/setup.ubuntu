@@ -41,7 +41,7 @@ severity or decides Accept/Reject.
 - E11 merge conflicts cannot be resolved cleanly, or the PR has
   unresolved review threads, unreplied comments, or a
   `CHANGES_REQUESTED` reviewer and no explicit operator confirmation
-  exists to merge `main` into the feature branch anyway.
+  exists to merge `{development-branch}` into the feature branch anyway.
 - A CI failure is neither clearly code-caused nor recognized
   infra-flaky/pre-existing, **except** the sole-failing
   `idd-advisory-convergence` check with `pending: false` and outstanding
@@ -176,7 +176,13 @@ self-critique and record risk.
     round count in a hold comment and stop for a maintainer decision
     (`#2865`).
 
-## E11 — Resolve conflicts with main
+## E11 — Resolve conflicts with the configured development branch
+
+Reuse `{development-branch}` resolved in B1 from the primary worktree.
+If that value is unavailable on resume, resolve it from the primary
+worktree's `.github/idd/config.json` (or the GitHub default branch when
+absent), never from the issue branch. Require the open PR's server-
+reported `baseRefName` to match; otherwise stop and report the mismatch.
 
 1. Check state with the profile-selected branch-conflict-state helper:
    `node scripts/branch-conflict-state.mjs --pr {pr-number}`, or the
@@ -193,7 +199,10 @@ self-critique and record risk.
    unreplied comments, or reviewer state `CHANGES_REQUESTED`: get
    explicit operator confirmation first — the merge commit will appear
    in the PR history.
-4. Run `git fetch origin main && git merge origin/main`. On
+4. Run `git fetch origin
+   +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`.
+   If fetch fails, stop; never merge using a pre-existing remote-tracking ref.
+   Only after a successful fetch, run `git merge origin/{development-branch}`. On
    non-interactive-hostile primary signing (GPG pinentry or
    hardware-touch) with a fallback wrapper, run the whole merge
    (including `--continue`) through that wrapper instead — see
@@ -423,7 +432,8 @@ self-critique and record risk.
 5. On failure that is code-caused: fix it, run `fix-validate`, commit
    atomically, then return to E11.
 6. On failure that is infra-flaky or pre-existing (also failing on
-   `main`, unrelated to this branch): apply `ciWait.rerunPolicy`. If it
+   `{development-branch}`, unrelated to this branch): apply
+   `ciWait.rerunPolicy`. If it
    authorizes a rerun, rerun once and resume polling. If the failure
    persists after that rerun, or the policy is `hold`, post a hold
    comment documenting the pre-existing failure and stop for a
