@@ -551,9 +551,16 @@ Route based on `branchState` from the helper (or `mergeable` /
    comments, or a reviewer's `CHANGES_REQUESTED` state require explicit
    operator confirmation before this merge, since the merge commit will
    appear in PR history.
-2. Merge `{development-branch}` into the feature branch:
-   `git fetch origin && git merge
-   origin/{development-branch}`. Use the
+2. Fetch the exact `{development-branch}` ref and merge it into the
+   feature branch:
+
+   ```sh
+   git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch} &&
+     git merge origin/{development-branch}
+   ```
+
+   This refreshes the configured remote-tracking ref even when the
+   clone's fetch refspec is narrow. Use the
    [signed-commit merge wrapper](../../docs/idd-helper-scripts.md#signed-commit-merge-wrapper-shared-git-procedure)
    when primary signing is non-interactive-hostile — its merge
    invocation includes a conventional `-m` subject (e.g. `chore: merge
