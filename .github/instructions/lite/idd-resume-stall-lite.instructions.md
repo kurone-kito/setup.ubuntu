@@ -49,10 +49,11 @@ as described in the [helper documentation](../../../docs/idd-helper-scripts.md#t
 never read it from this issue/PR checkout. Require it to equal this
 immutable pin before invoking (the literal spelling matches
 `.claude/settings.json`); if the trusted value cannot be established or
-differs, stop:
+differs, stop. Run this pin comparison separately from each helper
+invocation; run each npx command as its own top-level Bash command so
+`.claude/settings.json`'s literal-prefix allow rule matches:
 
 ```sh
-[ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
 npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing --issue <N>
 ```
 
@@ -88,12 +89,13 @@ node scripts/stalled-session-quiet-check.mjs \
 ```
 
 **This repository's ephemeral-npx profile:** confirm the literal pin
-against the trusted common base before invoking.
+against the trusted common base in a separate step. Run the helper below
+as its own top-level Bash command so the literal-prefix allow rule
+matches, inserting the captured server timestamp as a literal value.
 
 ```sh
-[ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
 npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-stalled-session-quiet-check \
-  --pr <pr-number> --now "$NOW" \
+  --pr <pr-number> --now {server-now} \
   --claim-created-at <latest-valid-claimed-by-created_at>
 ```
 

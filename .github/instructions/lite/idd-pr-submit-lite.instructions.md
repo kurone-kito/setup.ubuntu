@@ -96,36 +96,57 @@ primary worktree or trusted default branch as described in the [helper
 documentation](../../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
 never read it from this issue/PR checkout. Require it to equal the
 immutable pin below; if its trusted value cannot be established or
-differs, stop.
-On a resumed D1 without that value, resolve it from a freshly fetched
-GitHub default-branch ref, never from the primary worktree's checked-out
-config or this issue branch. Read the default branch and its config as
-follows; if the config is unavailable, malformed, or contains an invalid
-`developmentBranch`, stop. Use the default branch itself only when the
-valid config has no `developmentBranch` field:
+differs, stop. Perform that comparison separately, then run each npx
+invocation below as its own top-level Bash command so the
+`.claude/settings.json` literal-prefix allow rule matches.
 
-```sh
+On a resumed D1 without `{development-branch}`, resolve it from a freshly
+fetched GitHub default-branch ref, never from the primary worktree's
+checked-out config or this issue branch. First determine and validate the
+GitHub default branch, then capture its name:
+
+```bash
 DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef \
   --jq .defaultBranchRef.name) || exit 1
 git check-ref-format --branch "$DEFAULT_BRANCH" >/dev/null || exit 1
-[ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
+printf '%q\n' "$DEFAULT_BRANCH"
+```
+
+After separately confirming the trusted helper pin matches the literal
+below, substitute the shell-quoted default-branch token from the previous
+command and run this helper invocation by itself as a top-level Bash
+command:
+
+```sh
 npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
   --exec --agent-id {agent-id} --repo . -- git fetch origin \
-  "+refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}" || exit 1
+  +refs/heads/{shell-quoted-default-branch}:refs/remotes/origin/{shell-quoted-default-branch}
+```
+
+If the fetch fails, stop; do not use an existing remote-tracking ref.
+Then read and validate the default-branch config using the same
+shell-quoted branch token, replacing `{shell-quoted-default-branch}` with
+the token printed above. If the config is
+unavailable, malformed, or contains an invalid `developmentBranch`, stop.
+Use the default branch itself only when the valid config has no
+`developmentBranch` field:
+
+```sh
 DEFAULT_CONFIG=$(git show \
-  "refs/remotes/origin/${DEFAULT_BRANCH}:.github/idd/config.json") || exit 1
+  refs/remotes/origin/{shell-quoted-default-branch}:.github/idd/config.json) || exit 1
 printf '%s\n' "$DEFAULT_CONFIG" | jq -e 'type == "object"' >/dev/null || exit 1
 if printf '%s\n' "$DEFAULT_CONFIG" | jq -e 'has("developmentBranch")' >/dev/null; then
   DEVELOPMENT_BRANCH=$(printf '%s\n' "$DEFAULT_CONFIG" | \
     jq -er '.developmentBranch | strings | select(length > 0)') || exit 1
 else
-  DEVELOPMENT_BRANCH="$DEFAULT_BRANCH"
+  DEVELOPMENT_BRANCH={shell-quoted-default-branch}
 fi
 git check-ref-format --branch "$DEVELOPMENT_BRANCH" >/dev/null || exit 1
+printf '%q\n' "$DEVELOPMENT_BRANCH"
 ```
 
 Validate the resolved value using the branch synchronization defaults
-and use it for every ref below; see
+and use the shell-quoted token printed above for every ref below; see
 [`idd-work.instructions.md`](../idd-work.instructions.md#b1--create-worktree-with-branch).
 
 1. Check whether the branch has been pushed:
@@ -165,13 +186,15 @@ and use it for every ref below; see
        per the condition above (out of this file's scope).
 2. Refresh the configured branch's remote-tracking ref under the
    [clone-scoped lock](../../../docs/idd-helper-scripts.md#clone-scoped-lock),
-   because workers share this clone:
+   because workers share this clone. Confirm the trusted helper pin
+   separately, then invoke this npx helper as its own top-level Bash
+   command. Replace each `{shell-quoted-development-branch}` with the
+   shell-quoted configured branch printed above:
 
    ```sh
-   [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
    npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
      --exec --agent-id {agent-id} --repo . -- git fetch origin \
-     +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
+     +refs/heads/{shell-quoted-development-branch}:refs/remotes/origin/{shell-quoted-development-branch}
    ```
 
    If fetch fails, stop; do not use an existing remote-tracking ref, which may

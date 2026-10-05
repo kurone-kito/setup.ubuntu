@@ -25,10 +25,11 @@ without it, resolve it from the trusted primary worktree or trusted
 default branch as described in the [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
 never read it from this issue/PR checkout. Require it to equal the
 immutable pin below; if its trusted value cannot be established or
-differs, stop:
+differs, stop. Perform the pin comparison as a separate step, then
+invoke the helper below as its own top-level Bash command so
+`.claude/settings.json`'s literal-prefix allow rule matches:
 
 ```sh
-[ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
 npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
   --exec --agent-id {agent-id} --repo . -- git fetch origin \
   +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}

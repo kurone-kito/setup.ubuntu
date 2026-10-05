@@ -391,23 +391,32 @@ login).
      branch as described in the [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
      never read it from this issue/PR checkout. Require it to equal the
      immutable pin below before invoking a helper; if the trusted value
-     cannot be established or differs, stop. Derive `SERVER_NOW`
+     cannot be established or differs, stop. Run the pin comparison, the
+     server-time derivation, and the helper invocation as separate
+     top-level Bash commands; the npx command must start its own call so
+     `.claude/settings.json`'s literal-prefix allow rule matches. Derive
+     `SERVER_NOW`
      from the GitHub API `Date` header as described in
      [`idd-resume-stall.instructions.md`](idd-resume-stall.instructions.md#deriving-a-server-anchored-now);
      the marker timestamp feeds settled/stall decisions, so do not use
      the executor's local clock:
 
      ```sh
-     [ "${IDD_HELPER_PACKAGE_SPEC:-}" = "https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d" ] || exit 1
      set -o pipefail
      SERVER_DATE=$(gh api repos/<owner>/<repo>/pulls/{pr-number} --include \
        | grep -i '^date:' | tail -1 | sed 's/^[Dd]ate: *//' | tr -d '\r') || exit 1
      [ -n "$SERVER_DATE" ] || exit 1
      SERVER_NOW=$(node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\\.\\d{3}Z$/, 'Z'))" \
        "$SERVER_DATE") || exit 1
+     ```
+
+     After capturing `SERVER_NOW`, insert the literal timestamp and current
+     PR HEAD into this standalone helper command:
+
+     ```sh
      npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-post-idd-marker \
        --type advisory --target pr {pr-number} --agent-id {agent-id} \
-       --head-sha "$PR_HEAD_SHA" --timestamp "$SERVER_NOW" --apply
+       --head-sha {current-pr-head-sha} --timestamp {server-now} --apply
      ```
 
      Re-read and verify the trusted same-head marker before entering
