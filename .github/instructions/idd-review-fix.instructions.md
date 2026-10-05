@@ -379,6 +379,24 @@ login).
      are unproven/unreadable (only secondary `1`/`2` are non-gating).
 
      `advisory-wait: {agent-id} {PR_HEAD_SHA} {ISO8601-requested-at}`
+
+     On proven registration, post the `advisory-wait` marker before
+     polling, using the profile-selected `post-idd-marker --type
+     advisory` helper described in
+     [the helper documentation](../../docs/idd-helper-scripts.md). For
+     `ephemeral-npx`, resolve the package spec from trusted
+     default-branch configuration, then run:
+
+     ```sh
+     npx --yes --package <helper-package-spec> \
+       idd-post-idd-marker --type advisory --target pr {pr-number} \
+       --agent-id {agent-id} --head-sha "$PR_HEAD_SHA" \
+       --timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --apply
+     ```
+
+     Re-read and verify the trusted same-head marker before entering
+     the polling loop. If the post fails or the marker is missing,
+     stop/ask; do not poll without it.
    - **REQUEST_NEEDED**, `COPILOT_PENDING` `"true"` (unproven coverage —
      PR #1562): consult **`AW3-S`**'s `staleRequestRecovery` first —
      `"attempt"` runs its bounded remove/re-request/verify/mark cycle
