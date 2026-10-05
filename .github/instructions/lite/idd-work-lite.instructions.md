@@ -158,9 +158,12 @@ worktree removal) behind the
     for a fresh claim.
 23. If WorkTrunk is unavailable and this is a takeover, use
     `git worktree add <path> <branch-name>` with the local branch.
-24. If WorkTrunk is unavailable and only the remote branch exists, run
-    `git fetch origin <branch-name>`.
-25. If WorkTrunk is unavailable and only the remote branch exists, use
+24. If WorkTrunk is unavailable and only the remote branch exists, fetch
+    it into its remote-tracking ref with
+    `git fetch origin +refs/heads/{branch-name}:refs/remotes/origin/{branch-name}`.
+    If fetch fails, stop; do not use a pre-existing `origin/{branch-name}`
+    ref, which may be stale.
+25. Only after that fetch succeeds, use
     `git worktree add <path> -b <branch-name> origin/<branch-name>`.
 26. If WorkTrunk is unavailable and neither a local nor a remote branch
     exists (rare), treat it as a fresh claim while preserving the inherited
