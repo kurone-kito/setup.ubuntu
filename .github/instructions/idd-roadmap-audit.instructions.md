@@ -267,9 +267,11 @@ Apply one outcome:
      creating a new issue without `--parent`, create through the
      issue-authoring flow and link it with
      `gh issue edit <roadmap-number> --add-sub-issue <new-issue-number>`
-     when supported. If neither linking flag is available, use the REST
-     fallback below only when the current agent surface's permission
-     policy allows direct `gh api`. This repository's Claude Code baseline deliberately
+     when supported. For a reused issue, use the REST fallback below when
+     `--add-sub-issue` is unavailable. For a new issue, use that fallback
+     only when neither `--parent` nor `--add-sub-issue` is available. Use
+     the fallback only when the current agent surface's permission policy
+     allows direct `gh api`. This repository's Claude Code baseline deliberately
      disallows direct `gh api`; there, stop before creating a new issue
      or attempting the link and ask a maintainer to upgrade the CLI or
      perform the link. Do not broaden `.claude/settings.json`.
