@@ -46,6 +46,12 @@ status/HEAD. When an open PR backs the claim, the proof must also have
 `contextScope: issue-plus-pr` with `linkedPr` naming that live PR.
 Never invent or post forced-handoff markers.
 
+Before using any trusted claim, activation-nonce, unclaim, or
+forced-handoff marker as evidence, fetch its GraphQL
+`IssueComment.lastEditedAt` and require the field to be explicitly
+`null`. A non-null timestamp, omitted field, or failed lookup invalidates
+that marker; never substitute `updatedAt`.
+
 Use GitHub **server** timestamps only. Stale age default: **24 h**
 (`claim-stale-age` / `claimTiming.staleAge`).
 
