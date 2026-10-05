@@ -388,7 +388,7 @@ login).
      `IDD_HELPER_PACKAGE_SPEC` from B1's trusted common-base resolution.
      If this phase is entered directly or resumed without that value,
      resolve it from the trusted primary worktree or trusted default
-     branch as described in the [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
+     branch as described in the [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers);
      never read it from this issue/PR checkout. Require it to equal the
      immutable pin below before invoking a helper; if the trusted value
      cannot be established or differs, stop. Run the pin comparison, the

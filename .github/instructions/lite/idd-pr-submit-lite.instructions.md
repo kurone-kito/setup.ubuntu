@@ -93,7 +93,7 @@ Reuse `{development-branch}` resolved in B1. Carry
 `IDD_HELPER_PACKAGE_SPEC` from B1's trusted common-base resolution. If
 resuming without the helper package spec, resolve it from the trusted
 primary worktree or trusted default branch as described in the [helper
-documentation](../../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
+documentation](../../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers);
 never read it from this issue/PR checkout. Require it to equal the
 immutable pin below; if its trusted value cannot be established or
 differs, stop. Perform that comparison separately, then run each npx

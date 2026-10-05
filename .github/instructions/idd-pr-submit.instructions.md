@@ -22,7 +22,7 @@ clone-scoped lock (see
 because workers share this clone. Carry `IDD_HELPER_PACKAGE_SPEC` from
 B1's trusted common-base resolution. If entering D1 directly or resuming
 without it, resolve it from the trusted primary worktree or trusted
-default branch as described in the [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
+default branch as described in the [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers);
 never read it from this issue/PR checkout. Require it to equal the
 immutable pin below; if its trusted value cannot be established or
 differs, stop. Perform the pin comparison as a separate step, then

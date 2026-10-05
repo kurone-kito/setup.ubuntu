@@ -553,7 +553,7 @@ ascending issue-number order:
   `ephemeral-npx`, resolve `IDD_HELPER_PACKAGE_SPEC` from the trusted
   common base before invoking it. When Discover starts before B1, use the
   trusted primary worktree or trusted default branch as described in the
-  [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx);
+  [helper documentation](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers);
   never read the value from this issue checkout. Require it to equal the
   immutable pin below; if the trusted value cannot be established or
   differs, stop. Perform the pin comparison as a separate step, then
