@@ -118,10 +118,14 @@ CI-polling shared helper file), never this one. Read
    reached. Anchor `runningTimeout` to the check's server
    `startedAt`. If a check is missing or has no `startedAt`, anchor
    `generationTimeout` to the server `Date` header from the first
-   poll that observes that condition (or a `serverTime` field if the
-   helper exposes one). If the current profile or permission policy
-   prevents obtaining a server-reported time, stop and ask; never use
-   the client clock.
+   poll that observes that condition. The `ci-wait-state` helper does
+   not currently expose that header or `serverTime`; when direct API
+   reads are permitted, use the read-only command and extraction
+   procedure in [`ci-wait-state`'s server-clock guidance](../../../docs/idd-helper-scripts.md#server-clock-for-ci-generation-timeouts).
+   Repeat that read on each later poll while the condition persists
+   and compare server-derived timestamps. If direct API access is
+   prohibited, or the response has no single parseable `Date` header,
+   stop and ask; never use the client clock.
 
 ## Interpretation
 

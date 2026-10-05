@@ -4950,6 +4950,36 @@ to post it is the consuming track's job.
   `requiredCheckSourcePinnedUnresolved`, `protectionReadsUnreadable`,
   and a top-level `status` of
   `success|pending|failing|missing|no-required-checks|source-pinned|unreadable`)
+
+#### Server clock for CI generation timeouts
+
+`ci-wait-state` does not currently return a server timestamp or HTTP
+response headers. When a missing or not-yet-started check requires the
+`ciWait.generationTimeout` window, and the agent's permission policy
+allows a read-only `gh api` call, fetch the server `Date` header on the
+first poll that observes the condition and again on each later poll
+while it persists:
+
+```sh
+HTTP_HEADERS=$(gh api --include --silent \
+  repos/{owner}/{repo}/pulls/{pr-number}) || exit 2
+SERVER_DATE=$(printf '%s\n' "$HTTP_HEADERS" | awk '
+  tolower($1) == "date:" {
+    $1 = ""; sub(/^[[:space:]]+/, ""); print; count++
+  }
+  END { if (count != 1) exit 1 }
+') || exit 2
+SERVER_EPOCH=$(date -u -d "$SERVER_DATE" +%s) || exit 2
+```
+
+Replace `{pr-number}` with the live PR number. Require exactly one
+parseable header on every read; retain the first `SERVER_EPOCH` as the
+anchor and compare later server epochs against it. This read is only for
+time measurement; keep `ci-wait-state` authoritative for check and
+required-check state. If policy denies direct API reads or any request,
+header, or parse step fails, stop and ask rather than using the local
+clock. Do not widen agent permission settings to enable this read.
+
 - **Source-pinned required checks**: when a ruleset `workflows` rule or an
   app/integration-pinned classic required check is in force but cannot be
   enumerated by name, `requiredCheckSourcePinned` is `true` and `status` is

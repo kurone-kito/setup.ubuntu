@@ -179,11 +179,16 @@ that set instead of re-deriving it.
 Measure each running check's `ciWait.runningTimeout` window from its
 server `startedAt`. When `startedAt` is absent, or an expected check
 has not appeared, anchor `ciWait.generationTimeout` to the server
-`Date` header from the first poll that observes that condition (or a
-`serverTime` field if the helper exposes one). When the window elapses,
-post a hold and escalate rather than poll indefinitely. If the current
-profile or permission policy prevents obtaining a server-reported time,
-stop and ask; never anchor either timeout to a client clock.
+`Date` header from the first poll that observes that condition. The
+`ci-wait-state` helper does not currently expose that header or
+`serverTime`; when direct API reads are permitted, obtain the header
+with the read-only command and extraction procedure in
+[`ci-wait-state`'s server-clock guidance](../../docs/idd-helper-scripts.md#server-clock-for-ci-generation-timeouts).
+Repeat that read on each later poll while the condition persists and
+compare server-derived timestamps. If direct API access is prohibited,
+or the response has no single parseable `Date` header, stop and ask;
+never anchor either timeout to a client clock. When the window elapses,
+post a hold and escalate rather than poll indefinitely.
 
 Do not rely on `gh pr checks` command exit code as the gate decision.
 The decision must be based on normalized required-check states.
