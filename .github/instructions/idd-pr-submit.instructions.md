@@ -16,7 +16,10 @@ on resume) without a fresh B1 pass.
 
 If the branch has not been pushed yet, sync it onto `{development-branch}`
 before the first push — the routine pre-publication history cleanup step.
-First run `git fetch origin`, then check whether the branch is
+First fetch the configured branch into its remote-tracking ref:
+`git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`.
+If fetch fails, stop; do not use an existing remote-tracking ref, which may
+be stale, for the comparison below. Then check whether the branch is
 **already current** with `origin/{development-branch}`: if
 `git merge-base HEAD origin/{development-branch}` equals
 `origin/{development-branch}` (behind-count 0), the branch already
