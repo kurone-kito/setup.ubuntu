@@ -124,9 +124,22 @@ resolve it first: read `developmentBranch` from
 `.github/idd/config.json`, else `gh repo view --json
 defaultBranchRef --jq .defaultBranchRef.name`; validate the result
 ([defaults](../../docs/policy-constants.md#branch-synchronization-defaults)),
-fail closed if invalid/absent on `origin`, never fall back. Then
-`git fetch origin` (may be missing/stale otherwise). Use **WorkTrunk**
-if available (create verb:
+fail closed if invalid/absent on `origin`, never fall back. Before each
+fresh worktree creation, fast-forward the local base branch in the
+primary worktree. Confirm `git -C <primary-worktree>
+branch --show-current` is `{development-branch}`, then serialize the
+fetch behind the [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock)
+when concurrent workers share this clone and run:
+
+```sh
+git -C <primary-worktree> fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
+git -C <primary-worktree> merge --ff-only origin/{development-branch}
+```
+
+If either command fails, stop instead of creating a branch from a stale
+base. A bare `git fetch origin` only updates remote-tracking refs; it
+does not advance the primary worktree's local base branch. Use
+**WorkTrunk** if available (create verb:
 `wt switch --create`; `wt new` was removed):
 
 - macOS/Linux: `wt switch --create -b <base-branch> <branch-name>`
@@ -161,7 +174,7 @@ If WorkTrunk is unavailable, choose the correct case:
 | --- | --- |
 | Fresh claim | `git worktree add <path> -b <branch-name> origin/{development-branch}` |
 | Takeover — local branch exists | `git worktree add <path> <branch-name>` |
-| Takeover — remote branch only | `git fetch origin && git worktree add <path> -b <branch-name> origin/<branch-name>` |
+| Takeover — remote branch only | `git fetch origin +refs/heads/<branch-name>:refs/remotes/origin/<branch-name> && git worktree add <path> -b <branch-name> origin/<branch-name>` |
 | Takeover — neither local nor remote (rare) | treat as fresh claim; preserve the inherited branch name |
 <!-- dprint-ignore-end -->
 
