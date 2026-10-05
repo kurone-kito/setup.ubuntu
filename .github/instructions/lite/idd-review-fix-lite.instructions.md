@@ -326,7 +326,12 @@ reported `baseRefName` to match; otherwise stop and report the mismatch.
      `capExhaustedRoute`: `phase-specific` → E15; `hold` → stop/ask.
    - `SATISFIED`, `copilotPending` `false`,
      `copilotPendingCoversHead` `false` (elapsed-only, `#2327`) → apply
-     step 10, then E15.
+     `staleRequestRecovery` (AW3-S) before E15. `"attempt"` → hand off
+    to AW3-S and complete its bounded non-pending request/verify/mark
+    cycle; then apply step 10 and proceed to E15. `"cap-exhausted"` →
+    apply step 10, then follow `capExhaustedRoute` (`phase-specific`:
+     E15; `hold`: post a hold comment and stop/ask).
+     `"not-applicable"` → apply step 10 and proceed to E15 unchanged.
    - `SATISFIED` (otherwise) → apply step 10 first, then continue to
      E15.
    - `RECOVERY_NEEDED`: post the recovery marker
