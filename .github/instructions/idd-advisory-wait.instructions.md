@@ -287,7 +287,12 @@ E14's **Primary advisory bot**):
    node, retry `gh pr edit --remove-reviewer` alone (step 4's budget);
    any other failure, or that retry's exhaustion, posts the
    `AW4` pending-refresh-failed hold and stops — no cycle counted.
-2. **Verify** removal and current HEAD before proceeding.
+2. **Verify** removal and current HEAD before proceeding. Re-read the
+   GraphQL reviewRequests connection and require no node for the
+   configured primary bot; alternatively, accept a matching
+   review_request_removed timeline event newer than the removal
+   snapshot. An empty REST requested_reviewers list does not prove
+   removal (#2167, #3503).
 3. **Request** Copilot again, same fallback pattern; preserve its return
    status for step 4's bounded rechecks.
 4. **Verify association**: retain step 3's baselines, but require a new

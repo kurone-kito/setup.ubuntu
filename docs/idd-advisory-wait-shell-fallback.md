@@ -512,35 +512,71 @@ case "$AW3S_ENTRY" in
     ;;
 esac
 
+primary_request_nodes() {
+  local result
+  result=$(gh api graphql -F owner={owner} -F repo={repo} \
+    -F number={pr-number} -f query='query($owner:String!,$repo:String!,$number:Int!){repository(owner:$owner,name:$repo){pullRequest(number:$number){reviewRequests(first:100){nodes{id requestedReviewer{__typename ... on Bot{login} ... on User{login}}}}}}}') || return 1
+  printf '%s' "$result" | jq -r \
+    --arg rest "{primary-advisory-bot-rest-login}" \
+    --arg short "{primary-advisory-bot}" '
+      def matches_primary($reviewer):
+        ($reviewer.login // "" | ascii_downcase) as $login
+        | ($rest | ascii_downcase) as $rest_login
+        | ($short | ascii_downcase) as $short_login
+        | ($rest_login | sub("\\[bot\\]$"; "")) as $bare
+        | ($login == $rest_login or $login == $bare or $login == $short_login
+            or (($short_login == "copilot"
+                 or $bare == "copilot-pull-request-reviewer")
+                and ($login == "copilot"
+                     or $login == "copilot-pull-request-reviewer"
+                     or $login == "copilot-pull-request-reviewer[bot]")));
+      .data.repository.pullRequest.reviewRequests.nodes[]
+      | select(matches_primary(.requestedReviewer))
+      | .id'
+}
+
 # Step 1 — remove the stale request. PENDING entry only (COPILOT_PENDING
 # was "true"). Skip this step entirely for the non-pending entry (#2327 --
 # COPILOT_PENDING was already "false", nothing is pending to remove) and
 # start at Step 3 instead.
 if [ "$AW3S_ENTRY" = "pending" ]; then
   revalidate_head || exit 2
-  gh pr edit {pr-number} --remove-reviewer "@{primary-advisory-bot}"
-  # on a GraphQL login-resolution failure, this DELETE is an attempt only:
-  # a 422 "Could not resolve to a User node" for the default bot (PR #3471)
-  # is not a removal result -- retry gh pr edit --remove-reviewer alone
-  # (3 attempts) before any AW4 hold; never conclude from this call or an
-  # empty requested_reviewers read (#2167, #3503).
+  gh pr edit {pr-number} --remove-reviewer "@{primary-advisory-bot}" || true
   revalidate_head || exit 2
   gh api repos/{owner}/{repo}/pulls/{pr-number}/requested_reviewers \
-    -X DELETE -f "reviewers[]={primary-advisory-bot-rest-login}"
+    -X DELETE -f "reviewers[]={primary-advisory-bot-rest-login}" || true
+
+  # A GraphQL login-resolution failure can make the REST DELETE fail with
+  # 422 (PR #3471). That response is only an attempt, not proof of removal.
+  # Retry the gh CLI removal at most three times while GraphQL reviewRequests
+  # still lists the bot. The REST requested_reviewers response, including an
+  # empty list, does not prove removal; step 2 repeats the GraphQL check
+  # before re-requesting (#2167, #3503).
+  attempt=1
+  while [ "$attempt" -le 3 ]; do
+    revalidate_head || exit 2
+    if ! REQUEST_NODE_IDS=$(primary_request_nodes); then
+      echo "AW3-S could not read GraphQL reviewRequests; route to AW4" >&2
+      exit 2
+    fi
+    if [ -z "$REQUEST_NODE_IDS" ]; then
+      break
+    fi
+    revalidate_head || exit 2
+    gh pr edit {pr-number} --remove-reviewer "@{primary-advisory-bot}" || true
+    attempt=$((attempt + 1))
+  done
 fi
 
 # Step 2 — verify the stale request is absent and HEAD is still current.
 # Non-pending entries skip removal and begin at Step 3.
 if [ "$AW3S_ENTRY" = "pending" ]; then
   revalidate_head || exit 2
-  if ! REQUESTED_REVIEWERS_JSON=$(gh api \
-    repos/{owner}/{repo}/pulls/{pr-number}/requested_reviewers); then
-    echo "AW3-S could not verify reviewer removal; route to AW4" >&2
+  if ! REQUEST_NODE_IDS=$(primary_request_nodes); then
+    echo "AW3-S could not read GraphQL reviewRequests; route to AW4" >&2
     exit 2
   fi
-  if ! printf '%s\n' "$REQUESTED_REVIEWERS_JSON" | jq -e \
-    --arg login "{primary-advisory-bot-rest-login}" \
-    '.users | type == "array" and all(.[]; .login != $login)' >/dev/null; then
+  if [ -n "$REQUEST_NODE_IDS" ]; then
     echo "AW3-S reviewer removal is unverified; route to AW4" >&2
     exit 2
   fi
