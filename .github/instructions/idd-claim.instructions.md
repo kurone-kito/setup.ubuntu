@@ -78,11 +78,10 @@ canonical A5(c) evidence collector:
 # source repo / vendored-node
 node scripts/resume-claim-routing.mjs --issue <number> --fresh-claim-gate
 
-# this repository's ephemeral-npx profile: resolve DEVELOPMENT_BRANCH
-# from trusted B1 configuration, then follow the shared procedure at
-# docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers
-# to set IDD_HELPER_PACKAGE_SPEC. Never read it from this checkout.
-npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing \
+# This repository's ephemeral-npx pin is literal to match the narrow Bash
+# allowlist in .claude/settings.json. Resolve packageSpec from the trusted
+# common base and require it to equal this immutable pin before invoking.
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing \
   --issue <number> --fresh-claim-gate
 ```
 

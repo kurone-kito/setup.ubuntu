@@ -7,9 +7,11 @@ claim with **no** valid human-gated forced-handoff.
 Enter from `idd-resume-lite.instructions.md` Step 0. After a successful
 takeover, return to resume lite Step 1.
 
-The `node scripts/...` commands below are source-checkout or
-vendored-node examples. Under `package-manager` or `ephemeral-npx`, use
-the profile-selected commands documented in `docs/idd-helper-scripts.md`.
+Choose exactly one command form for the configured helper runtime. The
+`node scripts/...` form is for a source checkout or `vendored-node`;
+`package-manager` uses the named command from
+`docs/idd-helper-scripts.md`; this repository's `ephemeral-npx` form is
+shown literally below to match `.claude/settings.json`'s Bash allowlist.
 
 ## Helper runtime contract
 
@@ -19,28 +21,69 @@ the profile-selected commands documented in `docs/idd-helper-scripts.md`.
   or disagrees with live state → **hold and stop** (do not claim). Do
   not invent a silent prose takeover path.
 - **`instructions-only`**: use the written S1–S5 steps without helpers,
-  still with a server-anchored `now` for the quiet window.
+  including the manual claim-state and fail-closed porcelain worktree
+  checks below, still with a server-anchored `now` for the quiet window.
 
 ## Helper-first commands (helper-enabled profiles)
 
+Choose only the command under the configured profile.
+
+**Source checkout / vendored-node:**
+
 ```sh
-# Confirm non-owned claim
 node scripts/resume-claim-routing.mjs --issue <N>
+```
 
-# Resolve DEVELOPMENT_BRANCH from trusted B1 configuration and follow
-# docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers
-# to set IDD_HELPER_PACKAGE_SPEC; never read config from this checkout.
-npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue <N>
+**Package-manager:** use the named command from
+`docs/idd-helper-scripts.md`:
 
-# Server-anchored now (required for quiet window; only if permission permits)
+```sh
+<profile-selected-resume-claim-routing-command> --issue <N>
+```
+
+**This repository's ephemeral-npx profile:** resolve `packageSpec` from
+the trusted common base and require it to equal this immutable pin before
+invoking (the literal spelling matches `.claude/settings.json`):
+
+```sh
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing --issue <N>
+```
+
+Derive server-anchored `now` for the quiet window (only if permission
+permits):
+
+```sh
 SERVER_NOW=$(gh api repos/<owner>/<repo>/issues/<N> --include \
   | grep -i '^date:' | head -1 | sed 's/^[Dd]ate: *//' | tr -d '\r')
 NOW=$(node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\.\d{3}Z$/, 'Z'))" "$SERVER_NOW")
+```
 
-# Quiet-window evidence (always pass --now). Requires --pr; skip if none.
+When a PR exists, run exactly one quiet-window command for that profile.
+Without a PR, do not invent `--pr`; use the written S2 procedure below.
+
+**Source checkout / vendored-node:**
+
+```sh
 node scripts/stalled-session-quiet-check.mjs \
   --pr <pr-number> \
   --now "$NOW" \
+  --claim-created-at <latest-valid-claimed-by-created_at>
+```
+
+**Package-manager:**
+
+```sh
+<profile-selected-stalled-session-quiet-check-command> \
+  --pr <pr-number> --now "$NOW" \
+  --claim-created-at <latest-valid-claimed-by-created_at>
+```
+
+**This repository's ephemeral-npx profile:** confirm the literal pin
+against the trusted common base before invoking.
+
+```sh
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-stalled-session-quiet-check \
+  --pr <pr-number> --now "$NOW" \
   --claim-created-at <latest-valid-claimed-by-created_at>
 ```
 
@@ -98,14 +141,32 @@ Takeover only if latest valid trusted `claimed-by` `created_at` is
 `heartbeatOverdue` is **diagnostic only**. It does not shorten the 24 h
 gate.
 
-Before S4/posting, rerun helper; require `stale`/`takeover`,
+For helper-enabled profiles, before S4/posting, rerun the
+profile-selected helper; require `stale`/`takeover`,
 `evidence.local_worktree.status: absent`; fail → **STOP** (#3141).
+
+For `instructions-only`, re-read the issue and validate the latest
+trusted claim markers using the written A5 rules in
+`idd-claim-lite.instructions.md` (including explicit-null
+`IssueComment.lastEditedAt`). Then run
+`git worktree list --porcelain -z` and parse the complete NUL-delimited
+records. Match both the expected sibling path for the claimed branch and
+any `branch refs/heads/<claimed-branch>` record. Command failure,
+malformed/incomplete output, an unreadable matching worktree, or a
+matching detached worktree whose canonical root cannot be verified is
+occupied/unknown and must stop the route. Only a successful complete
+scan with no matching path or branch proves the worktree absent. See
+`idd-claim-lite.instructions.md` A5(e) for the full branch-collision
+fallback.
 
 ## S4 — Race-safe recheck (immediately before write)
 
 1. Run `idd-claim-lite.instructions.md` pre-checks (d)/(e); either
    failing → STOP.
-2. Re-run `resume-claim-routing.mjs --issue <N>`.
+2. Helper-enabled profiles: re-run the profile-selected
+   `resume-claim-routing` command from the variants above. For
+   `instructions-only`, re-read the issue and repeat S3's written
+   claim/edit-state and porcelain worktree checks.
 3. Active claim still the same non-owned `{claim-id}`.
 4. Still stale (≥ 24 h) now.
 5. Fresh server `NOW` + re-run quiet-check (no PR: written S2, not

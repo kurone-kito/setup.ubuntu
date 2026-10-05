@@ -581,7 +581,10 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
    stops cleanup.
 
    ```sh
-   npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing \
+   # This repository's ephemeral-npx pin is literal to match the narrow Bash
+   # allowlist in .claude/settings.json. Resolve packageSpec from the trusted
+   # common base and require it to equal this immutable pin before invoking.
+   npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing \
      --issue <issue-number> \
      --claim-id <claim-id> --nonce <nonce> \
      --worktree <issue-worktree-path> --assert

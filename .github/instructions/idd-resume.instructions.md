@@ -43,7 +43,7 @@ Evaluate in order; take the first matching row.
 
 | Condition                                                                                 | Route                                                              |
 | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Issue closed or PR merged                                                                 | Step 1 (§MC)                                                       |
+| Issue closed or PR merged                                                                 | Step 1 ([§MC](../../docs/idd-resume-detail.md#mc--f4-cleanup-routing-for-a-merged-or-closed-issue)) |
 | `forced-handoff: human-gated` + valid evidence matching active/inheritable state          | Step 1 forced-handoff path (skip stall check)                      |
 | `forced-handoff: human-gated` + evidence exists but mismatches live claim/branch/PR state | STOP — report mismatch; do not claim, push, or mutate review state |
 | Non-owned active claim + operator-present predicate (below) met + input received          | Operator-present release path (below); skip the stall file         |
@@ -132,10 +132,10 @@ When helper runtime is enabled, collect Step 1 evidence with the
 profile-selected command. For this repository's `ephemeral-npx` profile:
 
 ```sh
-# Resolve DEVELOPMENT_BRANCH from trusted B1 configuration and follow
-# docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers
-# to set IDD_HELPER_PACKAGE_SPEC; never read config from this checkout.
-npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue {issue-number} [--claim-id {claim-id}] [--nonce {nonce}] [--worktree {path}]
+# This repository's ephemeral-npx pin is literal to match the narrow Bash
+# allowlist in .claude/settings.json. Resolve packageSpec from the trusted
+# common base and require it to equal this immutable pin before invoking.
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing --issue {issue-number} [--claim-id {claim-id}] [--nonce {nonce}] [--worktree {path}]
 ```
 
 Never resolve the package spec from the checked-out worktree. This helper
@@ -195,7 +195,8 @@ stop before re-claim or takeover; never treat failure as no match.
 | PR merged; claim = this session's verified `{claim-id}`                                        | Run F4 steps 4-7 (guarded); also step 1 if non-default branch + open closing issue; STOP (§MC)      |
 | PR merged; claim released (no active claim); its branch = `{branch}`; no local worktree for it | Run F4 step 4 + step 5's `git branch -d` only (guarded); skip steps 6-7; STOP (§MC)                 |
 | FH evidence names this session's already-verified `{claim-id}`                                 | STOP — current session is displaced; do not push, comment, resolve, request reviewers, or merge     |
-| Issue closed with no PR merged, or any other closed/merged state                               | Post a hold comment naming the state; STOP — never remove a worktree or branch                      |
+| Issue closed with no merged PR; this session owns the verified active claim                  | Post a hold comment naming the state; STOP — never remove a worktree or branch                      |
+| Issue closed or PR merged, but no §MC cleanup row applies and no verified active claim is ours | Report the state and STOP without an issue/PR comment or cleanup mutation                           |
 | This session's claim; branch starts with `roadmap-audit/`                                      | Re-run A1.5; skip worktree creation; STOP (roadmap coordination only)                               |
 | Active claim = this session's verified `{claim-id}`                                            | Continue with same `{claim-id}`; ignore stale FH evidence citing a different `{claim-id}`; → Step 2 |
 | Forced-handoff recovery confirmed (§FH)                                                        | Re-claim via A5 after GitHub reflects handoff; cite evidence in digest `Authoritative by`; → Step 2 |

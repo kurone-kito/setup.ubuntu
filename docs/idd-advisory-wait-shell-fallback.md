@@ -780,7 +780,7 @@ THREADS_JSON=$(gh api graphql --paginate -f query='
             isResolved
             comments(first:100) {
               pageInfo { hasNextPage }
-              nodes { author { login } body createdAt commit { oid } }
+              nodes { author { login } body createdAt lastEditedAt commit { oid } }
             }
           }
         }
@@ -813,7 +813,8 @@ CONJUNCT3=$(printf '%s' "${THREADS_JSON}" | jq -rs --arg sha "${PR_HEAD_SHA}" --
       | ($agents | map(ascii_downcase) | index($u)) != null);
   def is_disp:
     ((.body | startswith("**Accepted**") or startswith("**Rejected**")))
-    and is_idd_agent;
+    and is_idd_agent
+    and has("lastEditedAt") and .lastEditedAt == null;
   def latest_feedback:
     [.comments.nodes[] | select(is_disp | not) | .createdAt]
     | if length == 0 then null else max end;
@@ -836,13 +837,25 @@ CONVERGED=$([ "${CONJUNCT1}" = true ] && [ "${CONJUNCT2}" = true ] && [ "${CONJU
 # dispositionEvidence: later **Accepted** / **Rejected** markers, 1:1
 # by count (E6). Non-agent regular comments and every review thread.
 COMMENTS_JSON=$(
-  gh api "repos/${OWNER}/${REPO}/issues/{pr-number}/comments" --paginate \
+  gh api graphql --paginate -f query='
+    query($owner:String!, $repo:String!, $number:Int!, $endCursor:String) {
+      repository(owner:$owner, name:$repo) {
+        pullRequest(number:$number) {
+          comments(first:100, after:$endCursor) {
+            pageInfo { hasNextPage endCursor }
+            nodes { author { login } body createdAt lastEditedAt }
+          }
+        }
+      }
+    }' -F owner="${OWNER}" -F repo="${REPO}" -F number={pr-number} \
+    --jq '.data.repository.pullRequest.comments.nodes' \
     | jq -s 'add // []'
 )
 DISPOSITION_JSON=$(printf '%s' "${COMMENTS_JSON}" | jq -c --argjson agents "${IDD_AGENT_LOGIN_JSON}" '
   map(select(
     (.body | startswith("**Accepted**") or startswith("**Rejected**"))
-    and (((.user.login // "") | ascii_downcase) as $u
+    and has("lastEditedAt") and .lastEditedAt == null
+    and (((.author.login // "") | ascii_downcase) as $u
       | ($agents | map(ascii_downcase) | index($u)) != null)
   ))
 ')
@@ -850,18 +863,18 @@ MISSING_REGULAR=$(printf '%s\n' "${COMMENTS_JSON}" "${DISPOSITION_JSON}" | jq -s
   .[0] as $comments | .[1] as $disp
   | ($comments
      | map(select(
-         (.user.login as $u | ($bots | index($u) | not))
-         and (((.user.login // "") | ascii_downcase) as $u
+         (.author.login as $u | ($bots | index($u) | not))
+         and (((.author.login // "") | ascii_downcase) as $u
            | ($agents | map(ascii_downcase) | index($u)) == null)
          and (.body | startswith("**Accepted**") or startswith("**Rejected**") | not)
          and (.body | startswith("<!--") | not)
        ))
-     | sort_by(.created_at)) as $out
-  | ($disp | sort_by(.created_at)) as $ds
-  | reduce $out[] as $c (
-      {unused: $ds, missing: 0};
-      ((.unused | to_entries
-        | map(select(.value.created_at > $c.created_at))
+      | sort_by(.createdAt)) as $out
+   | ($disp | sort_by(.createdAt)) as $ds
+   | reduce $out[] as $c (
+       {unused: $ds, missing: 0};
+       ((.unused | to_entries
+         | map(select(.value.createdAt > $c.createdAt))
         | first) as $hit
       | if $hit == null then .missing += 1
         else .unused |= del(.[$hit.key])
@@ -876,7 +889,8 @@ MISSING_THREADS=$(printf '%s' "${THREADS_JSON}" | jq -rs --argjson agents "${IDD
       | ($agents | map(ascii_downcase) | index($u)) != null);
   def is_disp:
     ((.body | startswith("**Accepted**") or startswith("**Rejected**")))
-    and is_idd_agent;
+    and is_idd_agent
+    and has("lastEditedAt") and .lastEditedAt == null;
   def latest_feedback:
     [.comments.nodes[] | select(is_disp | not) | .createdAt]
     | if length == 0 then null else max end;

@@ -90,10 +90,35 @@ following:
 
 This section's rebase only applies **before the branch's first push**.
 Reuse `{development-branch}` resolved in B1 from the primary worktree.
-On a resumed D1 without that value, resolve it from the primary
-worktree's `.github/idd/config.json` (or the GitHub default branch when
-absent), never from this issue branch. Validate it using the branch
-synchronization defaults and use it for every ref below; see
+On a resumed D1 without that value, resolve it from a freshly fetched
+GitHub default-branch ref, never from the primary worktree's checked-out
+config or this issue branch. Read the default branch and its config as
+follows; if the config is unavailable, malformed, or contains an invalid
+`developmentBranch`, stop. Use the default branch itself only when the
+valid config has no `developmentBranch` field:
+
+```sh
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef \
+  --jq .defaultBranchRef.name) || exit 1
+git check-ref-format --branch "$DEFAULT_BRANCH" >/dev/null || exit 1
+# When workers share this clone, serialize this ref refresh with the
+# clone-scoped lock described in docs/idd-helper-scripts.md.
+git fetch origin \
+  "+refs/heads/${DEFAULT_BRANCH}:refs/remotes/origin/${DEFAULT_BRANCH}" || exit 1
+DEFAULT_CONFIG=$(git show \
+  "refs/remotes/origin/${DEFAULT_BRANCH}:.github/idd/config.json") || exit 1
+printf '%s\n' "$DEFAULT_CONFIG" | jq -e 'type == "object"' >/dev/null || exit 1
+if printf '%s\n' "$DEFAULT_CONFIG" | jq -e 'has("developmentBranch")' >/dev/null; then
+  DEVELOPMENT_BRANCH=$(printf '%s\n' "$DEFAULT_CONFIG" | \
+    jq -er '.developmentBranch | strings | select(length > 0)') || exit 1
+else
+  DEVELOPMENT_BRANCH="$DEFAULT_BRANCH"
+fi
+git check-ref-format --branch "$DEVELOPMENT_BRANCH" >/dev/null || exit 1
+```
+
+Validate the resolved value using the branch synchronization defaults
+and use it for every ref below; see
 [`idd-work.instructions.md`](../idd-work.instructions.md#b1--create-worktree-with-branch).
 
 1. Check whether the branch has been pushed:

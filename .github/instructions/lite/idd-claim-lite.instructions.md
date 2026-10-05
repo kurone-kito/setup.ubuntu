@@ -9,7 +9,8 @@ forced-handoff. Prefer helpers.
 "Return to Discover" branches mean **STOP and report; do not claim**.
 Fresh candidate: before claim, if context pressure prevents completing Claim
 through F4, report for handoff; stop; do not claim. Recovery unchanged.
-Make no claim-stage event/marker, branch/worktree, or issue-state change.
+In that context-pressure stop path, make no claim-stage event/marker,
+branch/worktree, or issue-state change.
 (#3144; preventive)
 
 ## Helper runtime contract

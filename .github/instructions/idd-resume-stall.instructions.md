@@ -187,10 +187,10 @@ state requires **hold and stop**. Do not treat quiet-window or stale-age
 evidence as proof that the worktree is absent (#3141, Round 21 report).
 
 ```sh
-# Resolve DEVELOPMENT_BRANCH from trusted B1 configuration and follow
-# docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers
-# to set IDD_HELPER_PACKAGE_SPEC; never read config from this checkout.
-npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue <N>
+# This repository's ephemeral-npx pin is literal to match the narrow Bash
+# allowlist in .claude/settings.json. Resolve packageSpec from the trusted
+# common base and require it to equal this immutable pin before invoking.
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing --issue <N>
 ```
 
 Never resolve the package spec from the checked-out worktree. This helper

@@ -8,6 +8,57 @@ Lite profile for claimed PRs; `instructions-only` uses standard file.
   silently to prose.
 - `instructions-only` uses `idd-review-snapshot.instructions.md`.
 
+## Profile-selected E1 helper commands
+
+Choose only the command set matching the configured runtime. Each set
+contains the required snapshot and watermark steps; never run a
+different profile's `node scripts/...` example first.
+
+**Source checkout / vendored-node:**
+
+```sh
+node scripts/review-activity-snapshot.mjs --pr {pr-number} \
+  --trusted-marker-logins "<trusted-login-1>,<trusted-login-2>"
+node scripts/post-idd-marker.mjs --type watermark --from-pr {pr-number} \
+  --expected-head-sha {head-SHA} --agent-id <id> --claim-id <id> \
+  --trusted-marker-logins "<trusted-login-1>,<trusted-login-2>" --apply \
+  --operation-local --prior-head-sha {head-SHA} \
+  --prior-total-item-count {total-item-count} \
+  --prior-max-activity-at {max-activity-updatedAt}
+```
+
+**Package-manager:** use the named commands from
+`docs/idd-helper-scripts.md`:
+
+```sh
+<profile-selected-review-activity-snapshot-command> --pr {pr-number} \
+  --trusted-marker-logins "<trusted-login-1>,<trusted-login-2>"
+<profile-selected-post-idd-marker-command> --type watermark \
+  --from-pr {pr-number} --expected-head-sha {head-SHA} \
+  --agent-id <id> --claim-id <id> \
+  --trusted-marker-logins "<trusted-login-1>,<trusted-login-2>" --apply \
+  --operation-local --prior-head-sha {head-SHA} \
+  --prior-total-item-count {total-item-count} \
+  --prior-max-activity-at {max-activity-updatedAt}
+```
+
+**This repository's ephemeral-npx profile:** resolve the pin from the
+trusted common base and require it to match this immutable URL before
+invoking; the literal form matches `.claude/settings.json`'s Bash
+allowlist.
+
+```sh
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-review-activity-snapshot \
+  --pr {pr-number} --trusted-marker-logins "<trusted-login-1>,<trusted-login-2>"
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-post-idd-marker \
+  --type watermark --from-pr {pr-number} --expected-head-sha {head-SHA} \
+  --agent-id <id> --claim-id <id> \
+  --trusted-marker-logins "<trusted-login-1>,<trusted-login-2>" --apply \
+  --operation-local --prior-head-sha {head-SHA} \
+  --prior-total-item-count {total-item-count} \
+  --prior-max-activity-at {max-activity-updatedAt}
+```
+
 ## Triage hand-off boundary (E4-E8 excluded)
 
 Fetch/route; never classify/decide. Non-empty E3 hands off to
@@ -74,13 +125,11 @@ E1.
    headRefOid --jq '.headRefOid'` — and store it as `{head-SHA}`. Never
    re-read it elsewhere in E1 — reuse this value, except for the
    deferred E3 check below.
-2. Run the profile-selected `review-activity-snapshot` helper for
-   `{head-SHA}`, `{max-activity-updatedAt}`, `{total-item-count}`, and
-   `{latest-ci-completed-at}`: `node
-   scripts/review-activity-snapshot.mjs --pr {pr-number}
-   --trusted-marker-logins "<trusted-login-1>,<trusted-login-2>"`, or its
-   package-manager equivalent. It supplies Step 2 data and
-   `embeddedFindings` for Step 3; raw triage fetch remains required.
+2. Run the profile-matched `review-activity-snapshot` command above to
+   collect `{head-SHA}`, `{max-activity-updatedAt}`,
+   `{total-item-count}`, and `{latest-ci-completed-at}`. It supplies
+   Step 2 data and `embeddedFindings` for Step 3; raw triage fetch
+   remains required.
    Use `latestPassingCiCompletedAt`, not the latest completion.
 3. Independently fetch, in one pass before filtering: every review
    thread (resolved or not — paginate until `hasNextPage` is `false`,
@@ -120,23 +169,18 @@ E1.
    and post the manual six-field watermark, keeping the helper's latest
    passing CI timestamp. Otherwise the helper watermark path remains
    available.
-5. Fetch bot activity; lite F2 skips
-   `secondaryQuietWindow`.
+5. Fetch bot activity. Lite has no separate advisory wait loop, but F2
+   still honors any configured `secondaryQuietWindow` blocker from the
+   authoritative readiness helper; when it is configured,
+   `secondaryQuietWindow.elapsed` must be `true` before F2 proceeds.
 
 ### Step 2 — Record the watermark
 
 After deferral, rerun Step 1 for fresh `latest-ci-completed-at`; never
 reuse deferred value.
 
-Post a marker per E1 pass when satisfied. Prefer
-the one-command path: `node
-scripts/post-idd-marker.mjs --type watermark --from-pr {pr-number}
---expected-head-sha {head-SHA} --agent-id <id> --claim-id <id>
---trusted-marker-logins "<trusted-login-1>,<trusted-login-2>" --apply
---operation-local --prior-head-sha {head-SHA}
---prior-total-item-count {total-item-count}
---prior-max-activity-at {max-activity-updatedAt}`
-(or the package-manager equivalent). Pass Step 1's `{head-SHA}`,
+Post a marker per E1 pass when satisfied, using the profile-matched
+`post-idd-marker` command above. Pass Step 1's `{head-SHA}`,
 `{total-item-count}`, and `{max-activity-updatedAt}` as the prior
 boundary so same-head activity arriving after Step 1 prevents publishing
 a watermark from the stale snapshot. Always pass `--expected-head-sha`
