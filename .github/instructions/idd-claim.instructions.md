@@ -78,16 +78,10 @@ canonical A5(c) evidence collector:
 # source repo / vendored-node
 node scripts/resume-claim-routing.mjs --issue <number> --fresh-claim-gate
 
-# this repository's ephemeral-npx profile
-TRUSTED_BASE=$(git merge-base HEAD refs/remotes/origin/main) || {
-  echo "Cannot identify a trusted common base with origin/main; stop before running the helper." >&2
-  exit 1
-}
-IDD_HELPER_PACKAGE_SPEC=$(git show "${TRUSTED_BASE}:.github/idd/config.json" | \
-  jq -er '.helperRuntime.packageSpec | strings | select(length > 0)') || {
-  echo "Cannot resolve helperRuntime.packageSpec from the trusted base; stop before running the helper." >&2
-  exit 1
-}
+# this repository's ephemeral-npx profile: resolve DEVELOPMENT_BRANCH
+# from trusted B1 configuration, then follow the shared procedure at
+# docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers
+# to set IDD_HELPER_PACKAGE_SPEC. Never read it from this checkout.
 npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing \
   --issue <number> --fresh-claim-gate
 ```

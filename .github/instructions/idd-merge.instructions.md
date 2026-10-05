@@ -572,22 +572,15 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
    to primary; stay; revalidate with the profile-selected
    `resume-claim-routing` helper. For this repository's `ephemeral-npx`
    profile, resolve `IDD_HELPER_PACKAGE_SPEC` from the trusted common base
-   with `refs/remotes/origin/main` as shown below; never read it from the
+   using the validated `{development-branch}` as described in
+   `docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers`;
+   never read it from the
    checked-out worktree. Under `instructions-only`, manually re-read the
    issue and apply the claim, nonce, worktree-lock, and generated-token checks in
    `idd-claim.instructions.md`. Any unreadable or mismatched evidence
    stops cleanup.
 
    ```sh
-   TRUSTED_BASE=$(git merge-base HEAD refs/remotes/origin/main) || {
-     echo "Cannot identify a trusted common base with origin/main; stop before cleanup." >&2
-     exit 1
-   }
-   IDD_HELPER_PACKAGE_SPEC=$(git show "${TRUSTED_BASE}:.github/idd/config.json" | \
-     jq -er '.helperRuntime.packageSpec | strings | select(length > 0)') || {
-     echo "Cannot resolve helperRuntime.packageSpec from the trusted base; stop before cleanup." >&2
-     exit 1
-   }
    npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing \
      --issue <issue-number> \
      --claim-id <claim-id> --nonce <nonce> \

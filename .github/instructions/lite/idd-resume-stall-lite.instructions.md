@@ -27,7 +27,12 @@ the profile-selected commands documented in `docs/idd-helper-scripts.md`.
 # Confirm non-owned claim
 node scripts/resume-claim-routing.mjs --issue <N>
 
-# Server-anchored now (required for quiet window)
+# Resolve DEVELOPMENT_BRANCH from trusted B1 configuration and follow
+# docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers
+# to set IDD_HELPER_PACKAGE_SPEC; never read config from this checkout.
+npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue <N>
+
+# Server-anchored now (required for quiet window; only if permission permits)
 SERVER_NOW=$(gh api repos/<owner>/<repo>/issues/<N> --include \
   | grep -i '^date:' | head -1 | sed 's/^[Dd]ate: *//' | tr -d '\r')
 NOW=$(node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\.\d{3}Z$/, 'Z'))" "$SERVER_NOW")
@@ -38,6 +43,11 @@ node scripts/stalled-session-quiet-check.mjs \
   --now "$NOW" \
   --claim-created-at <latest-valid-claimed-by-created_at>
 ```
+
+If direct API reads are blocked by the active permission policy, follow
+the approved operator-evidence path in `docs/idd-helper-scripts.md`;
+if that evidence is unavailable, hold and stop. Do not widen permissions,
+route the request through a wrapper, or use the local clock.
 
 No PR: do not invent `--pr`. Skip the helper (not a helper
 failure). Decide S2 from the written bullets using the claim

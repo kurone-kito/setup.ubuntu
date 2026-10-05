@@ -132,15 +132,9 @@ When helper runtime is enabled, collect Step 1 evidence with the
 profile-selected command. For this repository's `ephemeral-npx` profile:
 
 ```sh
-TRUSTED_BASE=$(git merge-base HEAD refs/remotes/origin/main) || {
-  echo "Cannot identify a trusted common base with origin/main; stop before running the helper." >&2
-  exit 1
-}
-IDD_HELPER_PACKAGE_SPEC=$(git show "${TRUSTED_BASE}:.github/idd/config.json" | \
-  jq -er '.helperRuntime.packageSpec | strings | select(length > 0)') || {
-  echo "Cannot resolve helperRuntime.packageSpec from the trusted base; stop before running the helper." >&2
-  exit 1
-}
+# Resolve DEVELOPMENT_BRANCH from trusted B1 configuration and follow
+# docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers
+# to set IDD_HELPER_PACKAGE_SPEC; never read config from this checkout.
 npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue {issue-number} [--claim-id {claim-id}] [--nonce {nonce}] [--worktree {path}]
 ```
 

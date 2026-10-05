@@ -57,6 +57,74 @@ any flag it does not recognize verbatim to `pre-merge-readiness.mjs`,
 so `--claim-issue` reaches it transitively even though it declares no
 such flag of its own.)
 
+### Trusted common base for ephemeral-npx helpers
+
+Before an `ephemeral-npx` call, resolve `{development-branch}` using
+B1's trusted primary-worktree configuration. When entering before B1
+from an issue branch, use the value from the trusted primary worktree
+or resolve it from `.github/idd/config.json` on the trusted repository
+default branch (identified with `gh repo view --json defaultBranchRef`);
+use the default branch itself only when that field is absent. Never
+read the branch name or package specification from the checked-out issue
+branch. Validate the branch and refresh the default/development
+remote-tracking refs with their exact origin refspecs, serialized with the
+[clone-scoped lock](#clone-scoped-lock) when workers share a clone.
+If the trusted branch or fresh remote ref cannot be established, stop.
+
+When no B1 value was carried into the session, resolve it from the
+trusted default-branch ref before reading the common base:
+
+```sh
+if [ -z "${DEVELOPMENT_BRANCH:-}" ]; then
+  DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef \
+    --jq .defaultBranchRef.name) || exit 1
+  git check-ref-format --branch "$DEFAULT_BRANCH" >/dev/null || exit 1
+  DEFAULT_BRANCH_REF="refs/remotes/origin/${DEFAULT_BRANCH}"
+  git show-ref --verify --quiet "$DEFAULT_BRANCH_REF" || exit 1
+  DEFAULT_CONFIG_JSON=$(git show \
+    "${DEFAULT_BRANCH_REF}:.github/idd/config.json") || exit 1
+  printf '%s\n' "$DEFAULT_CONFIG_JSON" | jq -e 'type == "object"' \
+    >/dev/null || exit 1
+  if printf '%s\n' "$DEFAULT_CONFIG_JSON" | jq -e \
+    'has("developmentBranch")' >/dev/null; then
+    DEVELOPMENT_BRANCH=$(printf '%s\n' "$DEFAULT_CONFIG_JSON" | \
+      jq -er '.developmentBranch | strings | select(length > 0)') || exit 1
+  else
+    DEVELOPMENT_BRANCH="$DEFAULT_BRANCH"
+  fi
+fi
+```
+
+Use the configured development branch's remote ref for the common-base
+lookup, then read the package specification from that immutable base:
+
+```sh
+: "${DEVELOPMENT_BRANCH:?Resolve the trusted B1 development branch first}"
+git check-ref-format --branch "$DEVELOPMENT_BRANCH" >/dev/null || {
+  echo "Invalid trusted development branch; stop before running the helper." >&2
+  exit 1
+}
+TRUSTED_BRANCH_REF="refs/remotes/origin/${DEVELOPMENT_BRANCH}"
+git show-ref --verify --quiet "$TRUSTED_BRANCH_REF" || {
+  echo "The trusted development-branch ref is unavailable; refresh it under the clone-scoped lock and retry." >&2
+  exit 1
+}
+TRUSTED_BASE=$(git merge-base HEAD "$TRUSTED_BRANCH_REF") || {
+  echo "Cannot identify a trusted common base with the development branch; stop before running the helper." >&2
+  exit 1
+}
+IDD_HELPER_PACKAGE_SPEC=$(git show "${TRUSTED_BASE}:.github/idd/config.json" | \
+  jq -er '.helperRuntime.packageSpec | strings | select(length > 0)') || {
+  echo "Cannot resolve helperRuntime.packageSpec from the trusted base; stop before running the helper." >&2
+  exit 1
+}
+```
+
+Do not substitute `origin/main` or `origin/HEAD`: either can differ
+from the configured development branch. The B1-resolved branch value
+is the authority for both the common-base lookup and helper package
+pin.
+
 ## Claim-family marker edit-state contract (kurone-kito/idd-skill#3248)
 
 Every consumer of a claim-family marker must verify both the trusted GitHub
@@ -4951,7 +5019,7 @@ to post it is the consuming track's job.
   and a top-level `status` of
   `success|pending|failing|missing|no-required-checks|source-pinned|unreadable`)
 
-#### Server clock for CI generation timeouts
+#### Server clock for IDD evidence windows
 
 `ci-wait-state` does not currently return a server timestamp or HTTP
 response headers. When a missing or not-yet-started check requires the
@@ -4959,6 +5027,19 @@ response headers. When a missing or not-yet-started check requires the
 allows a read-only `gh api` call, fetch the server `Date` header on the
 first poll that observes the condition and again on each later poll
 while it persists:
+
+The same permission boundary applies to stalled-session quiet windows
+and the PR closing-keyword registration window. Use a direct read-only
+`gh api --include` request only when the active agent permission policy
+allows it. If the policy blocks the direct read, do not widen the
+permission baseline or route the request through a shell wrapper,
+script, or alternate client. Ask an authorized maintainer/operator for
+the required response captured through an approved context, and hold if
+that evidence is unavailable. For a closing-keyword age check, the
+`Date` header and `created_at` must come from the same PR response; for
+quiet-window or CI timing, require exactly one parseable `Date` header.
+Never substitute a local clock or infer server time from activity
+timestamps.
 
 ```sh
 HTTP_HEADERS=$(gh api --include --silent \

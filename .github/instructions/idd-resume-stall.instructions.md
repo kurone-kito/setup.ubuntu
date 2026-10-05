@@ -46,7 +46,8 @@ or behind the server, which can push genuinely recent activity outside
 the window and make `quiet_window_met` spuriously `true`.
 
 Obtain a server-anchored `now` from the `Date` HTTP response header of a
-`gh api` call — pass `--include` to see response headers. Reuse one
+read-only `gh api` call when the active agent permission policy allows
+it — pass `--include` to see response headers. Reuse one
 already made while gathering the inputs above when one happened to use
 `gh api --include`; otherwise issue one lightweight `gh api --include`
 call for this purpose (a single extra request, not one per check).
@@ -61,6 +62,12 @@ SERVER_NOW=$(gh api repos/<owner>/<repo>/issues/<number> --include \
 node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\.\d{3}Z$/, 'Z'))" \
   "$SERVER_NOW"
 ```
+
+If the active permission policy blocks this direct read, follow the
+approved operator-evidence path in
+[`docs/idd-helper-scripts.md`](../../docs/idd-helper-scripts.md#server-clock-for-idd-evidence-windows)
+and stop if that evidence is unavailable. Do not widen permissions,
+route the request through a wrapper, or use the local clock.
 
 The `sed` step strips the `Date:` header label so only the RFC 7231
 timestamp value (e.g. `Wed, 15 Jul 2026 03:42:53 GMT`) reaches the
@@ -180,15 +187,9 @@ state requires **hold and stop**. Do not treat quiet-window or stale-age
 evidence as proof that the worktree is absent (#3141, Round 21 report).
 
 ```sh
-TRUSTED_BASE=$(git merge-base HEAD refs/remotes/origin/main) || {
-  echo "Cannot identify a trusted common base with origin/main; stop before running the helper." >&2
-  exit 1
-}
-IDD_HELPER_PACKAGE_SPEC=$(git show "${TRUSTED_BASE}:.github/idd/config.json" | \
-  jq -er '.helperRuntime.packageSpec | strings | select(length > 0)') || {
-  echo "Cannot resolve helperRuntime.packageSpec from the trusted base; stop before running the helper." >&2
-  exit 1
-}
+# Resolve DEVELOPMENT_BRANCH from trusted B1 configuration and follow
+# docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers
+# to set IDD_HELPER_PACKAGE_SPEC; never read config from this checkout.
 npx --yes --package="$IDD_HELPER_PACKAGE_SPEC" idd-resume-claim-routing --issue <N>
 ```
 

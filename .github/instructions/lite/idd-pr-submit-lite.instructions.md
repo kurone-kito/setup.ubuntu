@@ -213,8 +213,12 @@ loop instead of returning to this D1 rebase path.
 1. Before drafting the body, check whether
    `.github/pull_request_template.md` exists; if it does, shape the
    body to that template's sections from the start.
-2. Create the PR using GH CLI (`gh pr create`) or GH MCP, with a body
-   satisfying the rules below.
+2. Create the PR using GH CLI (`gh pr create --base
+   {development-branch}`) or GH MCP with `base:
+   {development-branch}`, with a body satisfying the rules below.
+   On resume or takeover, verify the existing PR's `baseRefName` equals
+   `{development-branch}` before continuing. A mismatch is a wrong-base
+   hold; do not retarget it or proceed.
 3. The PR body must include: a concise summary, a closing keyword line
    for the claimed issue, recommended follow-up issues (if any), and
    background/rationale only when it materially affects review. Ground
@@ -260,6 +264,11 @@ loop instead of returning to this D1 rebase path.
 
 ### D3.5 — Verify closing keyword detection
 
+If `{development-branch}` is not the repository's default branch, skip
+this section: GitHub does not populate `closingIssuesReferences` or
+auto-close issues for that target. F4 closes the deliberate issue set
+explicitly. On the default branch, apply the following checks.
+
 1. Fetch the PR body: `gh pr view {pr-number} --json body --jq '.body'`.
 2. Strip fenced code blocks, inline-code spans, and block-quoted lines
    from the body.
@@ -289,9 +298,14 @@ loop instead of returning to this D1 rebase path.
      (`kurone-kito/idd-skill#3632`): do not edit the body,
      toggle draft, or close and reopen; go on to D4 and poll
      `closingIssuesReferences` the same way. Read both values from one
-     `gh api --include repos/{owner}/{repo}/pulls/{pr-number}` response
-     and parse them with `Date.parse`; use the exception only when the
+     read-only `gh api --include repos/{owner}/{repo}/pulls/{pr-number}`
+     response when the active permission policy allows it, and parse
+     them with `Date.parse`; use the exception only when the
      resulting age is in `[0, 14400)` seconds. Never use the local clock.
+     If the permission policy blocks the direct read, follow the
+     approved operator-evidence path in `docs/idd-helper-scripts.md` and
+     hold if that evidence is unavailable. Do not widen permissions or
+     route the request through a wrapper.
      If the server `Date` header is missing, either timestamp is
      unparseable, or the age is negative, stop with a hold; do not edit
      the body or continue to D4 without valid server time. Otherwise

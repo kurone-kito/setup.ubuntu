@@ -496,9 +496,14 @@ completion.
      body defect: do not edit the body, toggle draft, or close and
      reopen; continue to D4 and poll `closingIssuesReferences` the same
      way while F2's `closing-set` gate waits. Read both values from one
-     `gh api --include repos/{owner}/{repo}/pulls/{pr-number}` response
-     and parse them with `Date.parse`; use the exception only when the
+     read-only `gh api --include repos/{owner}/{repo}/pulls/{pr-number}`
+     response when the active permission policy allows it, and parse
+     them with `Date.parse`; use the exception only when the
      resulting age is in `[0, 14400)` seconds. Never use the local clock.
+     If the permission policy blocks the direct read, follow the
+     approved operator-evidence path in `docs/idd-helper-scripts.md` and
+     hold if that evidence is unavailable. Do not widen permissions or
+     route the request through a wrapper.
      If the server `Date` header is missing, either timestamp is
      unparseable, or the age is negative, stop with a hold; do not edit
      the body or continue to D4 without valid server time. Otherwise
