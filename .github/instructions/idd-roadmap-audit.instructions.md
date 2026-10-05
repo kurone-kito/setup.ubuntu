@@ -233,13 +233,15 @@ Apply one outcome:
 
 - **Audit passes**: post an `IDD roadmap completion audit` comment with
   a concise evidence summary, then close the roadmap. Every referenced
-  child and descendant is closed. If any child was closed as not
+  child and descendant is closed or otherwise complete under the A1.5
+  traversal and helper contract. If any child was closed as not
   planned or a duplicate rather than completed, name it and its close
   reason in the evidence summary (for example `#1234 (not_planned)`)
   instead of folding it into an undifferentiated "closed or otherwise
   complete" count. In recursive hierarchies, this outcome applies only
   when the selected roadmap is the deepest remaining open roadmap on
-  its path whose descendants are all closed. After closing a nested
+  its path whose descendants are all closed or otherwise complete under
+  the A1.5 traversal and helper contract. After closing a nested
   roadmap, release that roadmap-audit claim, re-fetch the ancestor
   graph, and return to `idd-discover.instructions.md` (A1) so the
   parent roadmap can be re-evaluated from fresh state. No child task
