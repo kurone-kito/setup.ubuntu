@@ -29,7 +29,7 @@ for when this applies).
    commits. Run this from the primary worktree while on `main`:
 
    ```sh
-   git fetch origin
+   git fetch origin main
    git log origin/main..main --oneline
    ```
 

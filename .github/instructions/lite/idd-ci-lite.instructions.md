@@ -86,7 +86,11 @@ CI-polling shared helper file), never this one. Read
   still running normal CI — fall back to `checks[]`'s own per-check
   `status` (already bucketed by the helper as `success` / `pending` /
   `failure` / `unknown`, distinct from step 2's raw-state normalization
-  below): every entry `success` → proceed; any `pending`/`unknown` →
+  below): first group entries by exact `(checkName, workflowName)`.
+  Within a group, an in-flight instance with no `completedAt` takes
+  precedence; otherwise use the instance with the latest
+  `completedAt`. Evaluate one selected instance per group: every
+  selected status `success` → proceed; any `pending`/`unknown` →
   keep polling (`unknown` isn't settled yet, so treat it like
   `pending`); any `failure`, or `checks[]` itself empty → stop and ask.
   Never treat an empty required-check set as a vacuous pass.
@@ -98,17 +102,26 @@ CI-polling shared helper file), never this one. Read
 1. Fetch checks with the Helper-first canonical path above — never
    `gh pr checks` directly, since it can collapse same-named checks
    across workflows.
-2. Normalize states: `skipped` / `neutral` / `not_applicable` → pass;
+2. On the first poll, record `headRefOid`. Before evaluating every
+   later poll, require the same `headRefOid`; if it differs, stop and
+   restart from E1 against the new HEAD. Do not route results from the
+   moved HEAD through this wait.
+3. Normalize states: `skipped` / `neutral` / `not_applicable` → pass;
    `pending` / `requested` / `waiting` / `queued` / `in_progress` /
    Commit-Status `expected` → running; `failure` / `cancelled` /
    `timed_out` / `action_required` / `startup_failure` / `stale` →
    non-pass.
-3. Evaluate only checks in the required-check set — except the
+4. Evaluate only checks in the required-check set — except the
    `no-required-checks` fallback above, which evaluates every present
    check instead.
-4. Repeat at a reasonable interval until a terminal outcome below is
-   reached. Anchor every timeout to the check's own server `startedAt`,
-   never a client clock.
+5. Repeat at a reasonable interval until a terminal outcome below is
+   reached. Anchor `runningTimeout` to the check's server
+   `startedAt`. If a check is missing or has no `startedAt`, anchor
+   `generationTimeout` to the server `Date` header from the first
+   poll that observes that condition (or a `serverTime` field if the
+   helper exposes one). If the current profile or permission policy
+   prevents obtaining a server-reported time, stop and ask; never use
+   the client clock.
 
 ## Interpretation
 

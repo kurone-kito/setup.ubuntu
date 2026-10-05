@@ -543,11 +543,17 @@ drives every live GitHub API call the script makes (reviews, threads,
 comments), independent of what is checked out locally, so pinning the
 checkout to the trusted branch costs nothing functionally.
 
-Only `pull_request_target` triggers the verdict now:
-evaluated against the base branch's copy, so a same-repository PR
-cannot edit its own copy to force the check green (see Trusted-code
-checkout above). A PR that first adds this workflow gets no run --
-register the check only once it exists on the default branch.
+During the trigger-migration period, both `pull_request` and
+`pull_request_target` trigger the verdict. The former uses the PR merge
+ref; the latter evaluates the base branch's workflow copy. Both produce
+the same `idd-advisory-convergence` context. If registered without a
+producer constraint, that context accepts any producer; this repository
+intentionally leaves it unregistered during the transition. Do not
+register it as a required check while both triggers are active. First remove
+`pull_request` from the default branch and verify the
+`pull_request_target` workflow on production PRs; then register the
+context as required. A PR that first adds the remaining workflow gets
+no run, so register it only after it exists on the default branch.
 Likewise, a PR that adds a permission scope to the
 `idd-advisory-convergence-self-waiver` job is judged by the base copy,
 which lacks it, so that job can be red on it; see

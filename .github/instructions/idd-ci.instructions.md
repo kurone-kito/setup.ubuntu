@@ -177,13 +177,13 @@ that set instead of re-deriving it.
    below is reached.
 
 Measure each running check's `ciWait.runningTimeout` window from its
-server `startedAt`. When absent (a queued check not yet started), the
-running-timeout hasn't begun: keep polling, capped at
-`ciWait.generationTimeout`. Some running states (e.g. a Commit-Status
-`expected` context) never report `startedAt` — when
-`ciWait.generationTimeout` elapses with still none, post a hold and
-escalate rather than poll indefinitely. Never anchor the window to a
-client clock.
+server `startedAt`. When `startedAt` is absent, or an expected check
+has not appeared, anchor `ciWait.generationTimeout` to the server
+`Date` header from the first poll that observes that condition (or a
+`serverTime` field if the helper exposes one). When the window elapses,
+post a hold and escalate rather than poll indefinitely. If the current
+profile or permission policy prevents obtaining a server-reported time,
+stop and ask; never anchor either timeout to a client clock.
 
 Do not rely on `gh pr checks` command exit code as the gate decision.
 The decision must be based on normalized required-check states.

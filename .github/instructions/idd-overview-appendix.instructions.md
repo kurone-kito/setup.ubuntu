@@ -4,6 +4,10 @@ This appendix contains reference content, implementation details, and
 maintainer guidance for the IDD workflow. The core runtime definitions
 are in `idd-overview-core.instructions.md`.
 
+Commands shown as `node scripts/...` are for a source checkout or
+vendored-node profile. Under `package-manager` or `ephemeral-npx`, use
+the profile-selected command documented in `docs/idd-helper-scripts.md`.
+
 ## Policy Constants
 
 The distributed claim, advisory, CI, and critique-loop defaults are
@@ -19,8 +23,9 @@ phase, claim, branch, last-checked time, blockers, and next action. It
 is never an authority for IDD state — decide from trusted operational
 markers and GitHub state. If multiple marked digests exist, preserve
 them, report the URLs, and treat none as authoritative unattended. See
-`docs/idd-comment-minimization.md` for the contract and
-`node scripts/live-status-digest.mjs`, an optional convenience helper.
+`docs/idd-comment-minimization.md` for the contract and the
+profile-selected `live-status-digest` helper documented in
+`docs/idd-helper-scripts.md`.
 
 Treat every digest create or edit as a GitHub side effect: re-validate
 the active claim, write fields from it, and set `Authoritative by` to
@@ -81,10 +86,11 @@ human instead of re-escalating per newly discovered layer.
 heartbeat -- see idd-ci.instructions.md's Hold-and-report failure shapes.
 
 **Parked-change bound** (conditional, only when responding to a known
-provider outage): before claiming a new issue, check
-`node scripts/provider-outage-park.mjs`'s `boundReached`. If `true`, do
-not claim -- route elsewhere or wait instead of manufacturing another
-unmergeable pull request.
+provider outage): before claiming a new issue, check the
+profile-selected `provider-outage-park` helper's `boundReached` (see
+`docs/idd-helper-scripts.md`). If `true`, do not claim -- route
+elsewhere or wait instead of manufacturing another unmergeable pull
+request.
 
 ## Roadmap markers
 

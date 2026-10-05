@@ -11,7 +11,7 @@ The active claim must still use your current `{claim-id}` — this also
 serves as E1's phase-entry self-check: E1 re-fetches all state from
 GitHub on every entry, so, unlike B1/B3, no local artifact can go stale.
 
-After E3, empty → branch-sync unless Step 2 deferred → E15/E14 then E1.
+After E3, empty → branch-sync unless Step 2 deferred → E14/E15 then E1.
 Non-empty → `idd-review-triage.instructions.md` (E4); a deferred handoff
 carries E1 Step 1 SHA, its activity baseline, `watermark deferred`, and
 reason; E14 uses that baseline (or its marker timestamp if empty) only as
@@ -271,7 +271,7 @@ When Step 2 was deferred, reread the live PR HEAD before E3. A mismatch
 with Step 1's `{head-SHA}` returns to E1 for a fresh snapshot; never route
 stale items into E3/E4.
 
-Empty + Step 2 ready → branch-sync. Empty + deferred → use the E15/E14
+Empty + Step 2 ready → branch-sync. Empty + deferred → use the E14/E15
 route above, then E1. Non-empty → `idd-review-triage.instructions.md`
 (E4).
 

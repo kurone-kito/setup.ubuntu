@@ -843,8 +843,9 @@ against an unrelated branch, and none has an observed incident of its own
 
    Otherwise the same lock is already held, and the confirm-the-block
    re-check above already ran while holding it. Run `git worktree
-   remove <path>`, then `git worktree prune` — as F4's own step 5
-   (`idd-merge.instructions.md`). If it fails with `fatal: working
+   remove <path>`; that removes this worktree's metadata. Do not run
+   clone-wide `git worktree prune`, which can also delete unrelated
+   missing worktree entries. If removal fails with `fatal: working
    trees containing submodules cannot be moved or removed`, retry
    `git worktree remove --force <path>` after confirming step 3's
    preservation already succeeded — the other allowed case is a dirty

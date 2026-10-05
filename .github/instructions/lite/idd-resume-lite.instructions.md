@@ -3,6 +3,10 @@
 Lite profile for weak/local models. Same semantics as
 `idd-resume.instructions.md`; load it alone for resume routing.
 
+The `node scripts/...` commands below are source-checkout or
+vendored-node examples. Under `package-manager` or `ephemeral-npx`, use
+the profile-selected commands documented in `docs/idd-helper-scripts.md`.
+
 ## Helper runtime contract
 
 1. **When helper runtime is enabled** (`package-manager`, `ephemeral-npx`
@@ -71,8 +75,9 @@ Else stall-lite. Steps 1-2 are pre-claim (stall windows do not apply).
 2. Re-read; if claim and predicate still hold, post a trusted
    `unclaimed-by` matching the held `{agent-id}` / `{claim-id}`.
 3. Confirm unclaimed; else STOP.
-4. Fresh-claim-gate; A5 `supersedes: none` → Step 1 with
-   `--claim-id`/`--nonce` of that claim.
+4. Fresh-claim-gate; A5 `supersedes: none` → Step 1 with the fresh
+   claim's newly generated and recorded `--claim-id`/`--nonce`. Do not
+   reuse the released claim's tokens.
 
 ## Step 1 — Claim state (helper-first)
 

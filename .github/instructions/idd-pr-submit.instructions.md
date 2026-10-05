@@ -23,14 +23,16 @@ First run `git fetch origin`, then check whether the branch is
 contains every commit on `{development-branch}`, so the rebase would be a
 pure no-op. **Skip the rebase entirely and proceed to D2** — D1's
 pre-publication synchronization goal is already met. In a
-sibling-worktree setup a no-op `git rebase origin/{development-branch}`
+sibling-worktree setup a no-op `git rebase --rebase-merges
+origin/{development-branch}`
 can still detach HEAD at the upstream tip without replaying the local
 commit, and retrying that no-op re-detaches every time, so skip it.
 Post-rebase verification cannot converge for that no-op.
 
 Otherwise the branch **is** behind `origin/{development-branch}`: rebase
-it onto `{development-branch}` (`git rebase origin/{development-branch}`),
-then apply Post-rebase verification below.
+it onto `{development-branch}` (`git rebase --rebase-merges
+origin/{development-branch}`) so merge commits in the issue branch are
+preserved, then apply Post-rebase verification below.
 
 After the first D-phase push, do not reuse D1 as the normal
 synchronization path. Later branch updates should return through the
@@ -56,7 +58,8 @@ signing wrapper for arbitrary git subcommands (pass
 to `git` before the subcommand — `git -c … rebase`, not `git rebase -c …`
 — or use a repo alias that wraps any subcommand; a commit-only alias like
 `git commit-ssh` will not run `rebase`),
-**run the initial `git rebase origin/{development-branch}` above
+**run the initial `git rebase --rebase-merges
+origin/{development-branch}` above
 through that wrapper, and continue a staged content conflict with
 the wrapper's own `--continue`**. Plain `git rebase --continue`
 re-signs through primary signing and stalls non-interactively.
@@ -67,7 +70,8 @@ pre-rebase commit, so no commit object was written. No staged content
 conflict: use this path; use wrapper's `--continue` for one. Abort with
 `git rebase --abort` to restore the pre-rebase branch tip, then restart
 the **full** rebase from that branch through the same configured
-fallback wrapper's `rebase origin/{development-branch}` form. The
+fallback wrapper's `rebase --rebase-merges
+origin/{development-branch}` form. The
 wrapper may be the explicit SSH `-c` form or a repository alias. This
 replays the
 complete pre-rebase commit range, including every earlier commit in a

@@ -369,10 +369,11 @@ check steps 1–4. Step 5 applies to both paths:
    (including yours) sharing your event's `created_at` second.
 2. 2+ contenders → the lexicographically earliest `{claim-id}` wins
    (case-sensitive ASCII compare).
-3. The active claim now uses **your** `{claim-id}` after that
-   tie-break. A later trusted `claimed-by` with a different `{claim-id}`
-   never disputes this (#3268): Claim-state parsing rules 4/6 could never
-   have activated it, so it stays diagnostic only.
+3. If your `{claim-id}` won, continue with that active claim. If a
+   different contender won, stop as contested; do not treat its claim
+   as yours. A later trusted `claimed-by` with a different
+   `{claim-id}` never disputes the winner (#3268): Claim-state parsing
+   rules 4/6 could never have activated it, so it stays diagnostic only.
 4. If you posted an activation-nonce for this `{claim-id}`, recompute
    its winner and confirm it is yours (no marker posted → treat as
    passed).

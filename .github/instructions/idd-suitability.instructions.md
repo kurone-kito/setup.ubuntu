@@ -277,9 +277,13 @@ coordination-close procedure below:
    to dry-run first):
 
    ```sh
-   node scripts/suitability-close-execute.mjs --issue <number> \
+   <profile-selected-suitability-close-execute-command> --issue <number> \
      --claim-id <claim-id> --agent-id <agent-id> --apply
    ```
+
+   Resolve the `package-manager` or `ephemeral-npx` command from
+   `docs/idd-helper-scripts.md`; `node scripts/...` is for a
+   source-checkout or vendored-node profile.
 
    It re-collects the same mechanical evidence, posts the
    evidence-bound closing comment (the accepted human-notification

@@ -7,8 +7,8 @@ repository is `instructions-only`, use the standard work instructions instead.
 ## Helper runtime contract
 
 - Helper-enabled profiles: when a step names a helper or command set, use it.
-  If a required helper is missing, fails, or disagrees with live state, stop
-  and ask. Do not fall back silently to prose.
+  If a required helper is missing, fails, returns invalid JSON, or disagrees
+  with live state, stop and ask. Do not fall back silently to prose.
 - `instructions-only`: do not use this lite file; use
   `idd-work.instructions.md` instead.
 - Any mismatch between this file and the standard work phase is a bug in this
@@ -184,34 +184,26 @@ worktree removal) behind the
    superseding PR.
 6. If the criteria only partly hold, keep the issue open, record the overlap
    in the plan, and plan only the remaining work.
-7. Draft an issue comment plan for the change set.
-8. For a per-agent plan critique, resolve `critiqueLoop.subagentWaitCeiling`
+7. If the issue is a decision-transcription issue — it records or restates a
+   prior human decision whose rationale asserts a checkable fact about shipped
+   behavior — verify that fact against the prior change's actual code or docs.
+   If it cannot be verified, stop and hold with primary-source evidence until a
+   maintainer addendum resolves it.
+8. If the issue's "Proposed change" or "Acceptance criteria" cites an existing
+   schema field, config key, or token as an example (not one it adds), verify it
+   exists as cited. Fix or drop an invalid citation; stop and hold if unclear
+   (`#2806`).
+9. Draft an issue comment plan for the change set.
+10. For a per-agent plan critique, resolve `critiqueLoop.subagentWaitCeiling`
    (`PT20M` default). If the harness lacks bound/cleanup, skip delegation and
    use structured self-critique, recording risk. Otherwise enforce a harness
    timeout, not a wrapper (#3449); timeout/cancel/interruption/error without
    findings uses self-critique and records no return. Then run the critique.
-9. Post the refined final plan as a follow-up or update to the same issue
+11. Post the refined final plan as a follow-up or update to the same issue
    comment.
-10. After the final plan comment, update the live status digest to `B2 planned`,
+12. After the final plan comment, update the live status digest to `B2 planned`,
     `Open blockers: none` unless the plan found a blocker, `Next action: B3
     implement`, and `Authoritative by` pointing at the claim and plan comment.
-
-## B2.1 — Premise verification
-
-If the issue is a decision-transcription issue — it records or restates a prior
-human decision whose rationale asserts a checkable fact about shipped behavior —
-verify that fact against the prior change's actual code or docs before drafting
-the plan. If the prior change or the asserted fact cannot be verified, stop and
-hold with the primary-source evidence (file, line, or excerpt, or the reason
-verification was inconclusive) in the hold comment, until a maintainer
-addendum resolves it.
-
-## B2.2 — Example field-name verification
-
-If the issue's "Proposed change" or "Acceptance criteria" cites an
-existing schema field, config key, or token as an example (not one it
-adds), verify it exists as cited before drafting the plan. Fix or drop
-the citation if it does not exist; stop and hold if unclear (`#2806`).
 
 ## B3 — Implement
 

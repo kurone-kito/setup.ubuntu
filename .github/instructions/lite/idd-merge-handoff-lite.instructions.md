@@ -8,17 +8,13 @@ recorded `mergePolicy` only to decide whether to release the worker
 claim afterward. It never evaluates whether autonomous merge should
 proceed and never continues to `idd-merge.instructions.md` (F3-F5) —
 those stay fully out of scope for this profile regardless of policy.
-Unlike the standard `idd-merge-handoff.instructions.md`, this file does
-not evaluate the standard file's step 5 prose-recorded sub-cases
-(whether the current session is the designated merge-capable actor, or
-whether an actor and resume condition are recorded) — it reads only the
-machine-readable
-`mergePolicy` value below. Consequently, when the repository records no
-merge-capable actor, releasing the claim here returns the issue to
-Discover with no designated merger, where the standard file would hold
-and keep the claim instead — expect repeated claim and handoff-comment
-churn on that issue until someone merges it. If the repository is
-`instructions-only`, use `idd-merge-handoff.instructions.md` instead.
+This file applies the same designated-merger and resume-condition checks
+as `idd-merge-handoff.instructions.md`. If the repository is
+`instructions-only`, use that standard file instead.
+
+The `node scripts/...` commands below are source-checkout or
+vendored-node examples. Under `package-manager` or `ephemeral-npx`, use
+the profile-selected commands documented in `docs/idd-helper-scripts.md`.
 
 ## Stop-and-ask conditions
 
@@ -124,8 +120,13 @@ the same as a commit or push:
    - `human_merge`, `fully_autonomous_merge`, or an unrecognized
      `mergePolicy` value: keep the claim (no release), regardless of
      `ready`.
-   - `mergePolicy` is `separate_merge_agent` **and** `ready: true` —
-     the only case that releases:
+   - `mergePolicy` is `separate_merge_agent` **and** `ready: true`:
+     require the recorded designated actor and resume condition. If
+     either is missing, post a hold and keep the claim. If this session
+     is the designated actor, keep the claim and stop for a
+     merge-capable session to resume the standard merge phase. If a
+     different actor is designated, post the handoff summary and release
+     the claim:
      1. Repeat the pre-mutation guard in full (checks 1-4: the active
         claim still uses this session's `{claim-id}`; the activation
         nonce, if posted, still wins; the worktree is still the one

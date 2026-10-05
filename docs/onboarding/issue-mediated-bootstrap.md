@@ -323,7 +323,8 @@ absolute policy-document path before running this command:
 ```
 
 With `instructions-only`, or when the pinned clone or its working Node.js
-runtime is unavailable, follow the manual Step 3 procedure in `ONBOARDING.md`
+runtime is unavailable, follow the manual Step 3 procedure in the pinned
+[`idd-template/ONBOARDING.md`](https://github.com/kurone-kito/idd-skill/blob/v0.14.0/idd-template/ONBOARDING.md)
 and the policy-decisions template: use the embedded transcript as the
 source, write the selected policy section into the target documentation,
 set the core-bootstrap companion status to `not installed`, and retain the

@@ -479,8 +479,9 @@ F3 apply follows [the livelock rule](idd-review-triage.instructions.md#merge-dev
    See `docs/idd-comment-minimization.md` for the evidence comment
    format, cleanup-failure comment format, permission-blocked comment
    format, and fallback GraphQL commands.
-4. Concurrent workers sharing one clone: serialize this fetch and
-   step 5's `worktree remove` behind the
+4. Concurrent workers sharing one clone: hold the clone-scoped lock
+   across the fetch, primary-worktree switch, fast-forward, and step 5's
+   `worktree remove` behind the
    [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock).
    From the **primary worktree** (elsewhere would fast-forward the
    wrong branch), switch to `{development-branch}` (the PR's

@@ -572,15 +572,15 @@ ascending issue-number order:
   (#3141); see §LWR (`docs/idd-resume-detail.md`). Otherwise it
   **remains eligible**.
 
-After scanning the current batch:
+After scanning each batch, continue with every remaining batch even if
+the current one contains an eligible candidate. Accumulate eligible
+candidates across the entire viable set so Step 2 can rank them
+globally; do not select from only the first eligible batch.
 
-- **At least one eligible candidate in the batch**: proceed to Step 2
-  to rank and select.
-- **All `N` in this batch are ineligible but viable survivors remain**:
-  continue with the next batch (`N+1`–`2N`, then `2N+1`–`3N`, …) until
-  an eligible candidate is found.
-- **Entire viable candidate set exhausted** (all surviving viable
-  candidates are ineligible): if the A3.5 approval-needed bucket is
+- **Entire viable candidate set scanned with eligible candidates**:
+  proceed to Step 2 to rank and select among all eligible candidates.
+- **Entire viable candidate set exhausted with every candidate
+  ineligible**: if the A3.5 approval-needed bucket is
   non-empty, apply A3.5's own approval-needed routing, also reporting
   the survivor exhaustion (the approval hold takes precedence — not a
   true zero); otherwise apply Step 1's **exhaustion-exit routing**

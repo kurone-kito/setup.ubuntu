@@ -135,12 +135,14 @@ This section's rebase only applies **before the branch's first push**.
    and ask before running the rebase at all — replaying even one commit
    re-signs it, and a hostile path with no wrapper has no safe
    non-interactive way to do that.
-5. Rebase onto `origin/main`. When primary signing is
+5. Rebase onto `origin/main` with `--rebase-merges` so merge commits
+   in the issue branch are preserved. When primary signing is
    non-interactive-hostile and a subcommand wrapper exists, run the
    rebase through it from the start: `git -c gpg.format=ssh -c
-   user.signingkey=<abs-path> -c commit.gpgsign=true rebase origin/main`
+   user.signingkey=<abs-path> -c commit.gpgsign=true rebase
+   --rebase-merges origin/main`
    (or a repo alias; a commit-only alias will not run `rebase`).
-   Otherwise run plain `git rebase origin/main`.
+   Otherwise run `git rebase --rebase-merges origin/main`.
 6. If the rebase hits a content conflict, resolve it and continue the
    rebase. On the signed-commit repo case in step 5, continue with the
    **wrapper's own** `--continue` form, not plain `git rebase
@@ -151,7 +153,7 @@ This section's rebase only applies **before the branch's first push**.
    written with no staged content conflict: run `git rebase --abort` to
    restore the branch tip, then
    restart the **full** rebase through the configured wrapper's `rebase
-   origin/main` form. Use SSH `-c` or step 5's alias.
+   --rebase-merges origin/main` form. Use SSH `-c` or step 5's alias.
    This replays the stack; never replace with a one-commit cherry-pick.
    Do not run `git commit --amend -S` or `git commit --amend '-S'`.
    Step 6 `--continue` stays for a staged content conflict.

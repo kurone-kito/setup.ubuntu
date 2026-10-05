@@ -529,6 +529,24 @@ if [ "$AW3S_ENTRY" = "pending" ]; then
     -X DELETE -f "reviewers[]={primary-advisory-bot-rest-login}"
 fi
 
+# Step 2 — verify the stale request is absent and HEAD is still current.
+# Non-pending entries skip removal and begin at Step 3.
+if [ "$AW3S_ENTRY" = "pending" ]; then
+  revalidate_head || exit 2
+  if ! REQUESTED_REVIEWERS_JSON=$(gh api \
+    repos/{owner}/{repo}/pulls/{pr-number}/requested_reviewers); then
+    echo "AW3-S could not verify reviewer removal; route to AW4" >&2
+    exit 2
+  fi
+  if ! printf '%s\n' "$REQUESTED_REVIEWERS_JSON" | jq -e \
+    --arg login "{primary-advisory-bot-rest-login}" \
+    '.users | type == "array" and all(.[]; .login != $login)' >/dev/null; then
+    echo "AW3-S reviewer removal is unverified; route to AW4" >&2
+    exit 2
+  fi
+fi
+revalidate_head || exit 2
+
 # Step 3 — request again (non-pending entry: the first mutating step;
 # pending entry: after step 2 verifies the removal). Run the
 # registration-proven review request above in AW3-S mode. Its

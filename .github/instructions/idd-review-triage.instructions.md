@@ -17,10 +17,14 @@ out-of-scope statement only if it predates the B2 plan
 (`idd-work.instructions.md`): a later author edit must not
 force-reject a finding. Fetch `userContentEdits`, not `updatedAt`,
 paginating until `pageInfo.hasNextPage` is false; a missing, failed, or
-incomplete fetch fails closed. Each `diff` is the full post-edit body:
-use the latest `editedAt` at or before the plan post, else the
-creation-time body, never the live body. A statement absent from that
-snapshot needs a maintainer comment.
+incomplete fetch fails closed. GitHub's `UserContentEdit.diff` is a
+summary of the edit, not a full historical body. If no body edit is
+later than the final B2 plan comment, use the current live body as the
+plan-time body. If any body edit followed that plan, or the edit history
+is unavailable or incomplete, the full plan-time body cannot be
+reconstructed here: do not use a scope fence from it without a
+maintainer comment. A statement absent from the confirmed plan-time
+body also needs a maintainer comment.
 
 For each item in ReviewItems_snapshot, first classify it:
 

@@ -257,12 +257,18 @@ Apply one outcome:
      have taken long enough for the claim to have been lost. Create a
      new follow-up only through the repository's issue-authoring
      rules — never a bare `gh issue create` outside that flow
-     (`idd-pr-submit.instructions.md`'s D3 direct-creation rule). When
-     that flow's own creation call is `gh issue create`, pass
-     `--parent <number>` so the follow-up lands already linked. For a
-     reused existing follow-up, or when `--parent` was not applied to
-     a new one, run `gh issue edit <number> --add-sub-issue <n>`.
-     Only on an older `gh` without either flag, fall back to:
+     (`idd-pr-submit.instructions.md`'s D3 direct-creation rule).
+     Before creating or linking, inspect the installed CLI's
+     `gh issue create --help` and `gh issue edit --help` output. When
+     `--parent` is supported, pass it to `gh issue create`. Otherwise,
+     create through the issue-authoring flow and link with
+     `gh issue edit <number> --add-sub-issue <n>` when supported. If
+     neither flag is available, use the REST fallback below only when
+     the current agent surface's permission policy allows direct
+     `gh api`. This repository's Claude Code baseline deliberately
+     disallows direct `gh api`; there, stop before creating a new issue
+     or attempting the link and ask a maintainer to upgrade the CLI or
+     perform the link. Do not broaden `.claude/settings.json`.
 
      ```sh
      gh api --method POST \
@@ -314,4 +320,4 @@ Apply one outcome:
 the three outcomes above: when a child issue is split into two or more
 issues, bring the roadmap task list and sequencing notes current in the
 same action, per the issue-authoring contract's same-action rule
-(`skills/issue-authoring/references/contract.md`).
+(`.claude/skills/issue-authoring/references/contract.md`).

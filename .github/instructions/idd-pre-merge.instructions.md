@@ -430,8 +430,10 @@ never clears by polling: follow its `detail`.
   D3.5 steps 6-7 only; re-derive D3.7 below locally.
   After fetch, the claim gate must confirm
   `git branch --show-current` is `{branch-name}`; else hold.
-  Require empty `git status --porcelain` and
-  `git merge-base --is-ancestor HEAD "$PR_HEAD_SHA"`; else hold. Under
+  Require empty `git status --porcelain` and exact local/remote HEAD
+  equality: `test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"`; else hold.
+  The ancestry check alone also accepts a local HEAD behind the PR.
+  Under
   `set -o pipefail`, run
   `git ls-tree -r -z --full-tree --name-only "$PR_HEAD_SHA" |
   (cd "$(git rev-parse --show-toplevel)" &&
