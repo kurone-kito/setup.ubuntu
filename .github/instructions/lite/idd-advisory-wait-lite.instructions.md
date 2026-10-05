@@ -145,8 +145,10 @@ duplicated here).
    into `outcome` on every call, including the stalled/rate-limited
    case — never re-derive that decision by hand from raw window
    values.
-5. Otherwise (`outcome` is `WAIT`, or any other non-terminal value),
-   keep polling.
+5. If `outcome` is `WAIT`, keep polling.
+6. Any missing, malformed, or unrecognized `outcome` is a helper
+   contract failure: stop and ask. Never poll an unknown value, since it
+   may not represent a waitable state.
 
 ## Secondary advisory bot(s) (non-gating, optional)
 
