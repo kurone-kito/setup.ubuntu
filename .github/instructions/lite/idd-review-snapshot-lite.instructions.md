@@ -132,11 +132,17 @@ Post a marker per E1 pass when satisfied. Prefer
 the one-command path: `node
 scripts/post-idd-marker.mjs --type watermark --from-pr {pr-number}
 --expected-head-sha {head-SHA} --agent-id <id> --claim-id <id>
---trusted-marker-logins "<trusted-login-1>,<trusted-login-2>" --apply`
-(or the package-manager equivalent). Always pass `--expected-head-sha`
-with the exact Step 1 `{head-SHA}`; the helper fails closed (posts
-nothing) when the branch moved since Step 1 — on that failure, return
-to Step 1 and re-snapshot the moved branch, not a Step 2 retry.
+--trusted-marker-logins "<trusted-login-1>,<trusted-login-2>" --apply
+--operation-local --prior-head-sha {head-SHA}
+--prior-total-item-count {total-item-count}
+--prior-max-activity-at {max-activity-updatedAt}`
+(or the package-manager equivalent). Pass Step 1's `{head-SHA}`,
+`{total-item-count}`, and `{max-activity-updatedAt}` as the prior
+boundary so same-head activity arriving after Step 1 prevents publishing
+a watermark from the stale snapshot. Always pass `--expected-head-sha`
+with the exact Step 1 `{head-SHA}`; if the branch moved or the
+operation-local check refuses publication, return to Step 1 and
+re-snapshot rather than retrying Step 2 as-is.
 
 The manual six-field fallback — `--type watermark --target pr
 {pr-number} --agent-id <id> --claim-id <id> --head-sha {head-SHA}
@@ -145,7 +151,27 @@ The manual six-field fallback — `--type watermark --target pr
 --apply` — stays available when `--from-pr` cannot run. Before using it,
 require each required `(checkName, workflowName)`
 producer to pass for `{head-SHA}` and verify advisory identity/event;
-raw names are insufficient. Otherwise skip Step 2 and use E15/E14.
+raw names are insufficient. Because this path has no atomic
+operation-local guard, immediately before POST re-read the complete raw
+GraphQL activity set, PR HEAD, and producer-aware CI state. Compare the
+full activity item identities and their `updatedAt`/`lastEditedAt`
+values, derived item count and maximum `updatedAt`, HEAD, and latest
+passing CI completion with Step 1. If any differs, collection is
+incomplete, or CI proof fails, do not POST; discard the snapshot and
+restart Step 1. Immediately after POST, fetch the same evidence again.
+Exclude the new watermark only after its exact GraphQL node has the
+expected trusted author, exact body, and `lastEditedAt: null`. If HEAD,
+remaining activity, count, maximum timestamp, or latest passing CI
+completion differs from the pre-POST boundary, do not continue; treat
+the watermark as stale and restart Step 1. Re-run producer-aware CI
+proof after POST too: the same required `(checkName, workflowName)`
+producers must still pass for this HEAD, and advisory identity/event
+verification must still succeed. A missing or changed required producer,
+any non-pass state, incomplete proof, or failed advisory verification
+makes the watermark stale; do not continue. F2's live currency check
+remains required to catch later activity. If producer-aware proof is
+unavailable at either boundary, skip Step 2 before POST or treat a
+posted watermark as stale and use E15/E14.
 
 The rendered body is exactly:
 

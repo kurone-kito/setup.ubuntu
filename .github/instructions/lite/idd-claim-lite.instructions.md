@@ -219,9 +219,10 @@ failure, the active claim is unchanged; treat it under the rules above.
 No helper. Re-check live GitHub state: an open PR may close or reference
 this issue only when its head branch matches an inheritable claim — the
 verified active, stale, released, forced-handoff (matching branch and
-linked PR), or legacy migration source. Check linked issues and PR-body
-closing keywords (bare mentions and `Refs #N` do not count). A
-non-inheritable match → **STOP**.
+linked PR), or legacy migration source. Check linked issues and
+PR-body closing keywords; a bare prose mention without issue-reference
+syntax does not count, but an issue reference such as a standalone
+`Refs #N` line does. A non-inheritable match → **STOP**.
 
 ### (e) Branch collision
 

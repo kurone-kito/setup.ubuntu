@@ -6873,12 +6873,12 @@ a destructive re-run.
 ## Signed-Commit Merge Wrapper (Shared Git Procedure)
 
 `idd-review-triage.instructions.md`'s E-phase sync path and
-`idd-review-fix.instructions.md`'s E11 both merge `main` into the feature
-branch:
+`idd-review-fix.instructions.md`'s E11 both merge
+`{development-branch}` into the feature branch:
 
 ```sh
-git fetch origin +refs/heads/main:refs/remotes/origin/main \
-  && git merge origin/main
+git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch} \
+  && git merge origin/{development-branch}
 ```
 
 On a repo whose primary commit signing is non-interactive-hostile (GPG
@@ -6888,7 +6888,10 @@ arbitrary git subcommands, run the **merge** step — including a
 plain command (`git fetch` creates no commit and needs no signing):
 
 ```sh
-git -c gpg.format=ssh -c user.signingkey=<abs-path> -c commit.gpgsign=true merge -m "chore: merge origin/main into the claimed branch" origin/main
+git -c gpg.format=ssh -c user.signingkey=<abs-path> \
+  -c commit.gpgsign=true merge -m \
+  "chore: merge origin/{development-branch} into the claimed branch" \
+  origin/{development-branch}
 # resolve conflicts if any, then:
 git -c gpg.format=ssh -c user.signingkey=<abs-path> -c commit.gpgsign=true merge --continue
 ```

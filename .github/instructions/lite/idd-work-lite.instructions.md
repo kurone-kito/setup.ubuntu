@@ -198,7 +198,7 @@ worktree removal) behind the
 ## B2 — Create and refine plan
 
 1. When concurrent workers share the clone, run the fetch behind the
-   [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock).
+   [clone-scoped lock](../../../docs/idd-helper-scripts.md#clone-scoped-lock).
    Fetch the explicit refspec
    `+refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`
    from `origin`; stop if it fails.

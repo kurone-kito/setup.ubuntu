@@ -103,6 +103,15 @@ start of Step 1, compute `{max-activity-updatedAt}` as the highest
 `updatedAt` server timestamp across the **entire snapshot** (not just
 the items in ReviewItems_snapshot; `none` if empty), and
 `{total-item-count}` as the snapshot's total item count (0 if empty).
+Before posting a helper-derived watermark, compare its result with the
+raw GraphQL activity set captured at Step 1. If the helper omitted any
+edited or unresolved trusted-marker-shaped comment, do not use the
+helper-derived count, maximum activity, or `--from-pr` fields; recompute
+the count and maximum from the complete raw snapshot and use the manual
+six-field watermark below, preserving the latest passing CI timestamp.
+When there is no discrepancy, the helper-derived watermark path remains
+available.
+
 Persist all six values by posting a PR comment with this format (when
 helper runtime is enabled, prefer the **one-command** profile-selected
 post-idd-marker watermark path — `--type watermark --from-pr <pr-number>
@@ -121,7 +130,27 @@ the CI-incomplete routing above.
 The manual six-field fallback requires `idd-ci` producer-aware proof:
 required `(checkName, workflowName)` producers pass and advisory
 identity/event verify; raw `gh pr checks` is insufficient. Emit/manual
-POST inherit it (see `docs/idd-helper-scripts.md`):
+POST inherit it (see `docs/idd-helper-scripts.md`). Because this path
+does not have the helper's atomic operation-local guard, take a fresh
+raw GraphQL activity, PR HEAD, and producer-aware CI snapshot immediately
+before POST. Compare the full activity item identities and their
+`updatedAt`/`lastEditedAt` values, the derived item count and maximum
+`updatedAt`, the HEAD, and the latest passing CI completion with Step 1.
+If any value differs, the collection is incomplete, or CI proof fails,
+do not POST; discard the snapshot and restart Step 1. Immediately after
+POST, fetch the same evidence again. Exclude the new watermark only after
+its exact GraphQL node has the expected trusted author, exact body, and
+`lastEditedAt: null`. If the HEAD, remaining activity set, count,
+maximum timestamp, or latest passing CI completion differs from the
+pre-POST boundary, do not continue to E2/E3; treat the watermark as stale
+and restart Step 1. Re-run producer-aware CI proof after POST as well:
+the same required `(checkName, workflowName)` producers must still pass
+for this HEAD, and advisory identity/event verification must still
+succeed. A missing or changed required producer, any non-pass state,
+incomplete proof, or failed advisory verification makes the watermark
+stale; do not continue to E2/E3. F2's live currency check remains
+required to catch activity arriving after this post-check. The marker
+format is:
 
 ```markdown
 <!-- review-watermark: {agent-id} {claim-id} {head-SHA} {max-activity-updatedAt|none} {total-item-count} {latest-ci-completed-at|none} -->
@@ -200,14 +229,7 @@ node has `lastEditedAt: null`: use `IssueComment.lastEditedAt` for a
 regular PR comment and `PullRequestReviewComment.lastEditedAt` for a
 review-thread reply. Edited comments, missing fields, or failed edit-
 state lookups remain ordinary activity and must not be used as trusted
-evidence. The pinned review-activity helper may classify by author and
-prefix without edit-state; compare its result with the raw GraphQL set.
-If it omitted any edited or unresolved marker-shaped comment, do not use
-its helper-derived watermark count/max or `--from-pr`; recompute the
-total item count and maximum `updatedAt` over the complete raw snapshot
-and post the manual six-field watermark. Keep the helper's latest
-passing CI timestamp. When there is no such discrepancy, the helper
-watermark path remains available.
+evidence.
 
 **Review threads** (`isResolved=false`) — exclude threads where the
 latest substantive reply is from any IDD agent or the PR author with no
