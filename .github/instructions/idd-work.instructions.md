@@ -25,24 +25,33 @@ cleanup's own worktree removal -- behind the
 (see the [fan-out variant](../../docs/idd-workflow.md#orchestrator-fan-out-variant)
 for when this applies).
 
-1. Ensure the local `main` branch is up to date and has no local
-   commits. Run this from the primary worktree while on `main`:
+Resolve `{development-branch}` before Step 1: read `developmentBranch`
+from `.github/idd/config.json`; if absent, use
+`gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
+Validate it using
+[branch synchronization defaults](../../docs/policy-constants.md#branch-synchronization-defaults)
+and fail closed if it is invalid or absent on `origin`.
+
+1. Ensure the local `{development-branch}` is up to date and has no
+   local commits. Run this from the primary worktree while on
+   `{development-branch}`:
 
    ```sh
-   git fetch origin main
-   git log origin/main..main --oneline
+   git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
+   git log origin/{development-branch}..{development-branch} --oneline
    ```
 
-   If the second command outputs any lines, local `main` has unpushed
-   commits — stop and report, do not force-reset `main`. Otherwise,
-   fast-forward to origin:
+   If the second command outputs any lines, the local
+   `{development-branch}` has unpushed commits — stop and report; do not
+   force-reset it. Otherwise, fast-forward to origin:
 
    ```sh
-   git merge --ff-only origin/main
+   git merge --ff-only origin/{development-branch}
    ```
 
-   After this `main` fast-forward, do **not** change the primary
-   worktree's HEAD off `main` for any reason during B1 — see
+   After this `{development-branch}` fast-forward, do **not** change the
+   primary worktree's HEAD off `{development-branch}` for any reason
+   during B1 — see
    Anti-patterns below for the forbidden commands and the allowed
    HEAD-preserving exceptions (read-only inspection, and the
    HEAD-preserving branch/worktree commands used by Steps 2-3 below and
@@ -89,8 +98,8 @@ branch in the primary worktree:
   primary worktree — defeats the sibling-worktree invariant even though
   `git branch` alone does not move HEAD.
 
-The primary worktree's HEAD MUST remain on `main` throughout B1; if it
-ever leaves `main`, stop immediately and follow the B1 self-check
+The primary worktree's HEAD MUST remain on `{development-branch}` throughout B1;
+if it ever leaves `{development-branch}`, stop immediately and follow the B1 self-check
 repair path below.
 
 ### Worktree creation
@@ -119,13 +128,9 @@ use them (same class as #1930). When a tool can't pin both, use
 but is not listed in `git worktree list`, stop and report for manual
 cleanup before continuing.
 
-**Step 2 — Create**: `<base-branch>` below is `{development-branch}` —
-resolve it first: read `developmentBranch` from
-`.github/idd/config.json`, else `gh repo view --json
-defaultBranchRef --jq .defaultBranchRef.name`; validate the result
-([defaults](../../docs/policy-constants.md#branch-synchronization-defaults)),
-fail closed if invalid/absent on `origin`, never fall back. Before each
-fresh worktree creation, fast-forward the local base branch in the
+**Step 2 — Create**: `<base-branch>` below is the `{development-branch}`
+resolved before Step 1. Before each fresh worktree creation,
+fast-forward the local base branch in the
 primary worktree. Confirm `git -C <primary-worktree>
 branch --show-current` is `{development-branch}`, then serialize the
 fetch behind the [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock)
@@ -239,7 +244,7 @@ retry the install exactly once before failing loudly — see the
 Before continuing to B2, verify all of the following:
 
 - `git -C <primary-worktree-root> rev-parse --abbrev-ref HEAD` returns
-  `main`.
+  `{development-branch}`.
 - `git worktree list` includes the new sibling worktree path.
 - The agent's current working directory is the new sibling worktree
   path, not the primary worktree; a launch-workspace-bound file-tool

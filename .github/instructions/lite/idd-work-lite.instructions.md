@@ -72,17 +72,27 @@ mandatory regardless of this deferral.
 
 ## B1 — Create worktree
 
+Resolve `{development-branch}` before Step 1: read `developmentBranch`
+from `.github/idd/config.json`; if absent, use
+`gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`.
+Validate it using
+[branch synchronization defaults](../../../docs/policy-constants.md#branch-synchronization-defaults)
+and fail closed if it is invalid or absent on `origin`.
+
 Concurrent workers sharing one clone: serialize every `fetch`/`merge
 --ff-only`/worktree add/remove call below (and F4 cleanup's own
 worktree removal) behind the
 [clone-scoped lock](../../../docs/idd-helper-scripts.md#clone-scoped-lock).
 
-1. On the primary worktree, run `git fetch origin main`.
-2. On the primary worktree, run `git log origin/main..main --oneline`.
-3. If step 2 outputs any lines, stop and report: local `main` has unpushed
-   commits. Do not force-reset `main`.
-4. Fast-forward local `main` with `git merge --ff-only origin/main`.
-5. Keep the primary worktree on `main` throughout B1. Do not use
+1. On the primary worktree, run
+   `git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`.
+2. On the primary worktree, run
+   `git log origin/{development-branch}..{development-branch} --oneline`.
+3. If step 2 outputs any lines, stop and report: local
+   `{development-branch}` has unpushed commits. Do not force-reset it.
+4. Fast-forward local `{development-branch}` with
+   `git merge --ff-only origin/{development-branch}`.
+5. Keep the primary worktree on `{development-branch}` throughout B1. Do not use
    `git switch -c <branch-name>`, `git checkout -b <branch-name>`, or a
    standalone `git branch <branch-name>` followed by in-place commits in the
    primary worktree — each of these violates this rule.
@@ -109,9 +119,10 @@ worktree removal) behind the
 13. Define `normalized-branch` as the branch name with each `/` replaced by
     `-`.
 14. Use WorkTrunk if available.
-15. In automation, use `wt switch --create -b <base-branch> <branch-name> -x true`
-    (`<base-branch>` is normally `main`).
-16. On Windows, use `git-wt switch --create -b <base-branch> <branch-name> -x true`,
+15. In automation, use:
+    `wt switch --create -b {development-branch} <branch-name> -x true`.
+16. On Windows, use:
+    `git-wt switch --create -b {development-branch} <branch-name> -x true`,
     or the same `wt switch` form if `git-wt` is unavailable.
 17. If the `[pre-start]` hook's install command has not already been
     approved, `wt switch --create` hangs non-interactively even with
@@ -134,8 +145,9 @@ worktree removal) behind the
     `git worktree list`) before steps 28-30.
 20. If the hook cannot acquire the lock or record tokens, create the
     worktree without the hook.
-21. If WorkTrunk is unavailable, use
-    `git worktree add <path> -b <branch-name> origin/main` for a fresh claim.
+21. If WorkTrunk is unavailable, use:
+    `git worktree add <path> -b <branch-name> origin/{development-branch}`
+    for a fresh claim.
 22. If WorkTrunk is unavailable and this is a takeover, use
     `git worktree add <path> <branch-name>` with the local branch.
 23. If WorkTrunk is unavailable and only the remote branch exists, run
@@ -155,7 +167,7 @@ worktree removal) behind the
 27. On the manual/no-hook path, `cd` into the new sibling worktree first,
     then run `install-deps` there — never from the primary worktree,
     whose lifecycle hooks would otherwise mutate the primary checkout.
-28. Verify the primary worktree's HEAD is still on `main`.
+28. Verify the primary worktree's HEAD is still on `{development-branch}`.
 29. Verify `git worktree list` shows the new path.
 30. Verify the current directory is the new sibling worktree. For a
     harness whose file-read/edit tools stay bound to the launch
@@ -174,12 +186,12 @@ worktree removal) behind the
 
 ## B2 — Create and refine plan
 
-1. Run `git fetch origin main`.
+1. Run `git fetch origin {development-branch}`.
 2. Re-read the issue and do the cheap supersession check. Treat a title-only
    match as no hit.
 3. If a merged PR already closed the issue, stop.
 4. If a merged PR since the claim time already touched a scoped candidate file,
-   verify the acceptance criteria on current `main`.
+   verify the acceptance criteria on current `{development-branch}`.
 5. If the criteria fully hold, close the issue with a comment referencing the
    superseding PR.
 6. If the criteria only partly hold, keep the issue open, record the overlap
