@@ -547,14 +547,26 @@ Before selecting from the surviving viable issues, eliminate candidates
 with a concurrent active non-stale claim or an unsafe stale takeover, in
 ascending issue-number order:
 
-- **Parked-issue check (once per pass).** Per
-  `provider-outage-park.mjs --parked-issues`, a candidate in its
-  `parkedIssues` is **ineligible**, as a live claim is. A failed or
-  malformed read is Step 1.5 exhaustion (report it; last bullet's
-  routing). `parkedIssuesComplete: false` still skips listed issues —
-  name the gap in the run report; an unlisted parked issue may be
-  picked. Under `instructions-only` (no park helper), this rule does
-  not apply.
+- **Parked-issue check (once per pass).** Run the profile-selected
+  `provider-outage-park --parked-issues` helper documented in
+  [the helper documentation](../../docs/idd-helper-scripts.md). Under
+  `ephemeral-npx`, invoke the published `idd-provider-outage-park` bin
+  with the trusted package spec:
+
+  ```sh
+  npx --yes --package <helper-package-spec> \
+    idd-provider-outage-park --parked-issues
+  ```
+
+  Resolve `<helper-package-spec>` from trusted default-branch
+  configuration as described in the helper documentation; do not
+  assume `scripts/provider-outage-park.mjs` is present in this
+  checkout. A candidate in its `parkedIssues` is **ineligible**, as a
+  live claim is. A failed or malformed read is Step 1.5 exhaustion
+  (report it; last bullet's routing). `parkedIssuesComplete: false`
+  still skips listed issues — name the gap in the run report; an
+  unlisted parked issue may be picked. Under `instructions-only` (no
+  park helper), this rule does not apply.
 - Scan the **top N** survivors, where `N` is `.github/idd/config.json`
   `discover.activeClaimPreScanBatchSize` (distributed default: `10`).
 - For each candidate, fetch the issue and parse comments per the shared
