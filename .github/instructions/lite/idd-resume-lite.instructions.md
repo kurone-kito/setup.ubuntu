@@ -197,6 +197,11 @@ git check-ref-format --branch "$DEVELOPMENT_BRANCH" >/dev/null || exit 1
 printf '%q\n' "$DEVELOPMENT_BRANCH"
 ```
 
+Validate the resolved value using the branch synchronization defaults
+and fail closed if it is absent on `origin`. See
+[branch synchronization defaults](../../../docs/policy-constants.md#branch-synchronization-defaults).
+Do not fetch or merge the name until both checks pass.
+
 The primary worktree must stay on `{development-branch}`. Never
 `git switch` it onto the issue branch.
 
@@ -229,6 +234,14 @@ correction. Do not fetch or merge that branch into the PR branch.
 
 Before any mutation after routing: re-validate claim ownership, PR HEAD,
 and CI live state.
+
+Instructions-only routing uses the table below and still guards the
+sync. Before the content-conflict row, and before the behind-only row's
+sync, read the open PR's live `baseRefName` when a PR exists
+(`gh pr view {pr-number} --json baseRefName --jq .baseRefName`) and
+require it to equal the Step 2 `{development-branch}`. On a mismatch,
+stop and report it for maintainer correction. Do not fetch or merge
+that branch.
 
 Written table (`instructions-only` profile only):
 

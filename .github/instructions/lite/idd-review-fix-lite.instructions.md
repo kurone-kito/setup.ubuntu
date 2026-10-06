@@ -187,6 +187,8 @@ clone-scoped lock, then read `.github/idd/config.json` from the fetched
 ref. Use `developmentBranch` only when it is a non-empty string; use the
 default branch itself only when the field is absent. If the fetch fails,
 or the config is unavailable, malformed, or has an invalid value, stop.
+Validate the resolved value using the branch synchronization defaults
+and fail closed if it is absent on `origin`, before the fetch in step 4.
 Require the open PR's server-reported `baseRefName` to match the resolved
 value; otherwise stop and report the mismatch.
 
