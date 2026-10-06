@@ -149,10 +149,56 @@ agent-id alone.
 | Multiple open PRs for the claim branch | STOP — ambiguous                                                |
 | No PR, no remote, no local branch      | → B1 fresh worktree                                             |
 
-Resolve `{development-branch}` from the primary worktree's
-`.github/idd/config.json` `developmentBranch`; when absent, use the
-GitHub repository's `defaultBranchRef`. The primary worktree must stay on
-`{development-branch}`. Never `git switch` it onto the issue branch.
+Resolve `{development-branch}` before Step 3. On resume, do not read it
+from the primary worktree's checked-out `.github/idd/config.json` or from
+this issue branch. That checkout can still name the previous
+`developmentBranch` after the default branch changes, and Step 3's
+`Esync` route hands the value to the standard branch-sync merge. Resolve
+it from a freshly fetched GitHub default-branch ref, the same way a
+resumed D1 does. First determine and validate the GitHub default branch,
+then capture its name:
+
+```bash
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef \
+  --jq .defaultBranchRef.name) || exit 1
+git check-ref-format --branch "$DEFAULT_BRANCH" >/dev/null || exit 1
+printf '%q\n' "$DEFAULT_BRANCH"
+```
+
+After separately confirming the trusted helper pin matches the literal
+below, substitute the shell-quoted default-branch token from the previous
+command and run this helper invocation by itself as a top-level Bash
+command:
+
+```sh
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-clone-lock \
+  --exec --agent-id {agent-id} --repo . -- git fetch origin \
+  +refs/heads/{shell-quoted-default-branch}:refs/remotes/origin/{shell-quoted-default-branch}
+```
+
+If the fetch fails, stop; do not use an existing remote-tracking ref.
+Then read and validate the default-branch config using the same
+shell-quoted branch token, replacing `{shell-quoted-default-branch}` with
+the token printed above. If the config is unavailable, malformed, or
+contains an invalid `developmentBranch`, stop. Use the default branch
+itself only when the valid config has no `developmentBranch` field:
+
+```sh
+DEFAULT_CONFIG=$(git show \
+  refs/remotes/origin/{shell-quoted-default-branch}:.github/idd/config.json) || exit 1
+printf '%s\n' "$DEFAULT_CONFIG" | jq -e 'type == "object"' >/dev/null || exit 1
+if printf '%s\n' "$DEFAULT_CONFIG" | jq -e 'has("developmentBranch")' >/dev/null; then
+  DEVELOPMENT_BRANCH=$(printf '%s\n' "$DEFAULT_CONFIG" | \
+    jq -er '.developmentBranch | strings | select(length > 0)') || exit 1
+else
+  DEVELOPMENT_BRANCH={shell-quoted-default-branch}
+fi
+git check-ref-format --branch "$DEVELOPMENT_BRANCH" >/dev/null || exit 1
+printf '%q\n' "$DEVELOPMENT_BRANCH"
+```
+
+The primary worktree must stay on `{development-branch}`. Never
+`git switch` it onto the issue branch.
 
 ## Step 3 — PR / CI / review route (helper-first)
 
@@ -174,6 +220,12 @@ On helper-enabled profiles, run `resume-route-selection.mjs --issue <N>`
 - `F1` / `F2` → `idd-pre-merge-lite.instructions.md`, from the top
   (covers both F1 and F2)
 - `stop` → STOP — report helper `reason`
+
+When the helper route is `D1` or `Esync` and an open PR exists, read its
+live `baseRefName` (`gh pr view {pr-number} --json baseRefName --jq
+.baseRefName`) and require it to equal the `{development-branch}` resolved
+in Step 2. If it does not, stop and report the mismatch for maintainer
+correction. Do not fetch or merge that branch into the PR branch.
 
 Before any mutation after routing: re-validate claim ownership, PR HEAD,
 and CI live state.

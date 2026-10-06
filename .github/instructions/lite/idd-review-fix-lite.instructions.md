@@ -178,11 +178,17 @@ self-critique and record risk.
 
 ## E11 — Resolve conflicts with the configured development branch
 
-Reuse `{development-branch}` resolved in B1 from the primary worktree.
-If that value is unavailable on resume, resolve it from the primary
-worktree's `.github/idd/config.json` (or the GitHub default branch when
-absent), never from the issue branch. Require the open PR's server-
-reported `baseRefName` to match; otherwise stop and report the mismatch.
+Reuse `{development-branch}` resolved in B1. On resume without that
+value, resolve it from a freshly fetched GitHub default-branch ref, never
+from the primary worktree's checked-out config or this issue branch. Use
+the resumed D1 commands in `idd-pr-submit-lite.instructions.md`: capture
+the default branch with `gh repo view`, fetch that exact ref under the
+clone-scoped lock, then read `.github/idd/config.json` from the fetched
+ref. Use `developmentBranch` only when it is a non-empty string; use the
+default branch itself only when the field is absent. If the fetch fails,
+or the config is unavailable, malformed, or has an invalid value, stop.
+Require the open PR's server-reported `baseRefName` to match the resolved
+value; otherwise stop and report the mismatch.
 
 1. Check state with the profile-selected branch-conflict-state helper:
    `node scripts/branch-conflict-state.mjs --pr {pr-number}`, or the
