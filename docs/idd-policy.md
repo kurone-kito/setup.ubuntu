@@ -594,7 +594,11 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   `docs/onboarding/issue-mediated-bootstrap.md`,
   `docs/onboarding/optional-host-setup.md`,
   `docs/onboarding/project-tuning.md`, `profiles/README.md`, and the
-  header comment of `idd-advisory-convergence-probe.yml`. The 0.12.0
+  header comment of `idd-advisory-convergence-probe.yml`, the header
+  comment of `.github/workflows/post-merge-cleanup.yml` (separate
+  from that file's `tar.gz/` invocation above), and the
+  hosted-workflows bullet in this file, which repeats the full
+  commit when it names the probe header. The 0.12.0
   snapshot's commit URL for `11105d70` stays as the history of that
   resync. It is not an active archive pin.
 - `.github/workflows/idd-advisory-convergence.yml` (#47, ported in
