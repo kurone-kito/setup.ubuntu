@@ -286,7 +286,10 @@ scripts.
   `PT24H` is the waiver lifetime, not the convergence deadline.
   The self-waiver bootstrap expiry is a separate clock: the HEAD
   commit timestamp plus a fixed `PT24H`, clamped to `maxValidity`
-  when that maximum is shorter. `externalChecks.waivable` lists
+  when that maximum is shorter. If that HEAD-anchored result is
+  already non-future (a stale HEAD, such as a `reopened` trigger
+  with no new commit), the window anchors on the current time
+  instead. `externalChecks.waivable` lists
   `idd-advisory-convergence` with `matchMode` `exact`.
 - Lite instructions: `.github/instructions/lite/` is part of the
   imported surface as of #194 (11 files). Earlier snapshot entries
@@ -321,14 +324,24 @@ scripts.
   plus `workflow_dispatch` and `workflow_call`. The comment
   companion uses `pull_request_review` (`submitted`),
   `pull_request_review_comment` (`created`, `edited`, `deleted`),
-  and `issue_comment` (`created`), and that companion reruns the
-  gate. The probe uses `issue_comment` (`created`). Post-merge
+  and `issue_comment` (`created`). A submitted
+  `pull_request_review` reruns the gate regardless of comment
+  classification, skips debounce, and passes `--refresh-latest
+  --apply`. A review comment or an issue comment reruns only when
+  it is IDD-originated and debounce does not skip, using plain
+  `--apply`. The probe uses `issue_comment` (`created`). Post-merge
   cleanup uses `pull_request_target` (`closed`) and
   `workflow_dispatch`. Permissions stay least-privilege. The
   gate default is contents, issues, and pull-requests `read`;
   its verdict job adds `actions: read`; its self-waiver job is
   contents `read`, pull-requests `write`, issues `write`, checks
-  `read`, and statuses `read`. The comment companion is those
+  `read`, and statuses `read`. That job's `if` is
+  `pull_request_target` only. It posts
+  `self-referential-bootstrap-auto` only for a same-repository
+  pull request whose diff touches `.github/idd/config.json`,
+  `.github/workflows/idd-advisory-convergence.yml`, or
+  `.github/workflows/idd-advisory-convergence-comment.yml`. The
+  comment companion is those
   three read scopes plus `actions: write`. The probe workflow
   `permissions` block is empty, and its job is contents, issues,
   pull-requests, actions, checks, and statuses `read`. Post-merge
@@ -624,34 +637,60 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   `maxValidity` is the waiver lifetime. The self-waiver bootstrap
   expiry is a different clock: the HEAD commit timestamp plus a
   fixed `PT24H`, clamped to `maxValidity` when that maximum is
-  shorter. This opens two distinct routes, not one: (1) a maintainer
-  can post a per-pull-request `idd-external-check-waiver:` marker
-  directly once past that `PT9H` deadline, or (2) once this pull
-  request's own terminal-unavailable state independently holds
-  (Copilot's recovery cycle exhausted and
-  `advisoryWait.terminalWindow` elapsed with no current-HEAD review —
-  see
+  shorter. If that HEAD-anchored result is already non-future (a
+  stale HEAD, such as a `reopened` trigger with no new commit), the
+  window anchors on the current time instead. This opens three
+  distinct routes. (1) A maintainer can post a per-pull-request
+  `idd-external-check-waiver:` marker directly once past that
+  `PT9H` deadline. (2) Once this pull request's own
+  terminal-unavailable state independently holds (Copilot's
+  recovery cycle exhausted and `advisoryWait.terminalWindow`
+  elapsed with no current-HEAD review — see
   [`idd-advisory-wait.instructions.md`](../.github/instructions/idd-advisory-wait.instructions.md#terminal-copilot-stall-recovery-contract-state-policy-markers-clock)),
   an active `providerOutage` declaration (target: #158) substitutes
-  for posting that per-PR marker. Passing that `PT9H` deadline alone
-  does **not** by itself satisfy route (2) — declaring an outage
-  without the PR's own terminal state also holding leaves the check
-  red. Posting a waiver comment does not by itself re-run the check
-  — a fresh trigger still has to fire. `workflow_dispatch` does
-  **not** reliably refresh the current-HEAD required-check rollup (a
-  dispatched run has no `pull_request` context to associate with the
-  PR's HEAD SHA) and must not be used for this; rerun the existing
-  run instead (`gh run rerun <run-id>`, see
-  [rerun mechanics](../.github/instructions/idd-ci.instructions.md#rerun-mechanics)).
+  for posting that per-PR marker. Passing that `PT9H` deadline
+  alone does **not** by itself satisfy route (2) — declaring an
+  outage without the PR's own terminal state also holding leaves
+  the check red. (3) A same-repository pull request whose diff
+  touches the committed trigger-file allowlist gets a
+  `self-referential-bootstrap-auto` waiver from the gate
+  workflow's own job, with no manual waiver and no rerun. The
+  allowlist is `.github/idd/config.json`,
+  `.github/workflows/idd-advisory-convergence.yml`, and
+  `.github/workflows/idd-advisory-convergence-comment.yml`. That
+  job runs only on `pull_request_target` and skips a fork. A valid
+  marker of this reason is evaluated unconditionally, independent
+  of the `PT9H` deadline and of terminal-unavailable state. It
+  does not replace routes (1) or (2) for any other reason, actor,
+  or check. A manually posted waiver comment does not by itself
+  re-run the check — a fresh trigger still has to fire.
+  `workflow_dispatch` does **not** reliably refresh the
+  current-HEAD required-check rollup (a dispatched run has no
+  `pull_request` context to associate with the PR's HEAD SHA) and
+  must not be used for that refresh. When a helper runtime is
+  available, rerun with `idd-rerun-advisory-convergence --pr <n>
+  --apply`: it reruns every rerun-eligible same-named instance in
+  order, waits for each to reach a terminal state before the next,
+  stops once the rollup resolves, and never reruns a
+  `bot-gated-skip` or `rerun-budget-held` instance. On
+  `instructions-only` (no helper runtime), run `gh run rerun
+  <run-id>` for each plan entry, waiting for each to finish before
+  the next. See
+  [rerun mechanics](../.github/instructions/idd-ci.instructions.md#rerun-mechanics).
   The comment companion
-  `idd-advisory-convergence-comment.yml` reruns that gate run for a
-  qualifying IDD-originated comment. Arbitrary review-comment
-  activity alone is not enough. The gate's own triggers are
-  `pull_request` and `pull_request_target` (`opened`, `reopened`,
-  `synchronize`), plus `workflow_dispatch` and `workflow_call`. It
-  does not trigger on review or review-comment events, and it has no
-  `push` trigger. The companion does: `pull_request_review`
-  (`submitted`), `pull_request_review_comment` (`created`, `edited`,
-  `deleted`), and `issue_comment` (`created`). Action pins, runners,
-  and permission blocks for these workflows are in
+  `idd-advisory-convergence-comment.yml` reruns that gate for a
+  submitted `pull_request_review` regardless of comment
+  classification. That path skips debounce and passes
+  `--refresh-latest --apply`. A `pull_request_review_comment` or
+  `issue_comment` reruns only when the comment is IDD-originated
+  and debounce does not skip, using plain `--apply`. Arbitrary
+  review-comment activity alone is not enough. The gate's own
+  triggers are `pull_request` and `pull_request_target` (`opened`,
+  `reopened`, `synchronize`), plus `workflow_dispatch` and
+  `workflow_call`. It does not trigger on review or review-comment
+  events, and it has no `push` trigger. The companion does:
+  `pull_request_review` (`submitted`),
+  `pull_request_review_comment` (`created`, `edited`, `deleted`),
+  and `issue_comment` (`created`). Action pins, runners, and
+  permission blocks for these workflows are in
   [Policy decisions](#policy-decisions).
