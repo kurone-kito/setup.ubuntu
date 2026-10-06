@@ -196,6 +196,9 @@ $RECYCLE.BIN/
 # OpenAI Codex sandbox
 .codex/
 
+### Node.js tooling caches and dependencies
+node_modules/
+
 ### NeoVim ###
 # Project-local NeoVim config
 .nvim.lua

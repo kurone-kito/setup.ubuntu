@@ -5,6 +5,10 @@ rate-limited session and needs a dedicated, safety-first decision path.
 This path relies only on externally observable state. It never depends
 on the prior session posting a graceful shutdown.
 
+A live session that still owns its claim but is unsure what to check next
+mid E/F-phase should use the [E/F orientation]
+(../../docs/idd-workflow.md#live-session-ef-orientation) instead.
+
 This file applies only to unattended stale-takeover evidence for a
 non-owned claim. Human-gated forced handoff is a separate recovery path
 and is routed from `idd-resume.instructions.md` before this file runs.
@@ -42,7 +46,8 @@ or behind the server, which can push genuinely recent activity outside
 the window and make `quiet_window_met` spuriously `true`.
 
 Obtain a server-anchored `now` from the `Date` HTTP response header of a
-`gh api` call — pass `--include` to see response headers. Reuse one
+read-only `gh api` call when the active agent permission policy allows
+it — pass `--include` to see response headers. Reuse one
 already made while gathering the inputs above when one happened to use
 `gh api --include`; otherwise issue one lightweight `gh api --include`
 call for this purpose (a single extra request, not one per check).
@@ -57,6 +62,12 @@ SERVER_NOW=$(gh api repos/<owner>/<repo>/issues/<number> --include \
 node -e "console.log(new Date(process.argv[1]).toISOString().replace(/\.\d{3}Z$/, 'Z'))" \
   "$SERVER_NOW"
 ```
+
+If the active permission policy blocks this direct read, follow the
+approved operator-evidence path in
+[`docs/idd-helper-scripts.md`](../../docs/idd-helper-scripts.md#server-clock-for-idd-evidence-windows)
+and stop if that evidence is unavailable. Do not widen permissions,
+route the request through a wrapper, or use the local clock.
 
 The `sed` step strips the `Date:` header label so only the RFC 7231
 timestamp value (e.g. `Wed, 15 Jul 2026 03:42:53 GMT`) reaches the
@@ -166,6 +177,30 @@ above: **hold and stop**, exactly as any other non-stale claim. Do not
 treat a missed heartbeat as shortening the wait or as quiet-window
 evidence.
 
+Before continuing to S4, apply the local-worktree safety gate. With helpers,
+run the following against a fresh snapshot; continue only when it reports
+`state: stale` with
+`action: takeover` and `evidence.local_worktree.status: absent` for the
+claimed branch. `local_worktree_occupied` / `stop` (including `occupied`,
+`unreadable`, or unknown worktree evidence), missing evidence, or contradictory
+state requires **hold and stop**. Do not treat quiet-window or stale-age
+evidence as proof that the worktree is absent (#3141, Round 21 report).
+
+```sh
+# This repository's ephemeral-npx pin is literal to match the narrow Bash
+# allowlist in .claude/settings.json. Resolve packageSpec from the trusted
+# common base and require it to equal this immutable pin before invoking.
+npx --yes --package https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d idd-resume-claim-routing --issue <N>
+```
+
+Never resolve the package spec from the checked-out worktree. This helper
+runs before takeover safety is established, while the branch may be unreviewed.
+
+Without helpers, manually re-read the claim and perform the claim-state and
+porcelain worktree checks from `idd-claim`'s A5 pre-check (a missing,
+malformed, or unreadable result is fail-closed); only a proven absent matching
+worktree permits S4.
+
 ### S4 — Race-safe takeover recheck
 
 Immediately before posting takeover:
@@ -184,20 +219,24 @@ Immediately before posting takeover:
 5. Re-check closed/merged guards. If the issue is now closed or the PR
    is now merged, stop and return to `idd-resume.instructions.md` Step 1
    cleanup behavior.
-6. If takeover is still eligible, use A5 race-safe claim verification
+6. Re-run the S3 local-worktree safety gate immediately before posting. The
+   same claim must still be stale/takeover-eligible and its matching
+   worktree must still be explicitly `absent`; occupied, unreadable, unknown,
+   missing, or contradictory evidence means stop.
+7. If takeover is still eligible, use A5 race-safe claim verification
    (`idd-claim.instructions.md`) for the upcoming takeover post-and-
    verify sequence: wait for the configured settle delay from
    `.github/idd/config.json` `claim.verifySettleDelay`
    (distributed default: `PT5S`) after posting, re-parse
-   chronologically, apply same-second lexicographic `{claim-id}`
-   tie-break, and reject later trusted competing `claimed-by` markers
-   with different `{claim-id}` values.
+   chronologically, and apply the same-second lexicographic `{claim-id}`
+   tie-break.
 
 If any check fails, stop and restart from Resume discovery/routing.
 Do not post takeover with stale evidence.
 
 ### S5 — Execute takeover and verify
 
+Only execute takeover after S4's final local-worktree safety gate passes.
 Perform takeover via `idd-claim.instructions.md` using:
 
 - a fresh `{claim-id}`
@@ -211,12 +250,15 @@ After successful verification, run `idd-resume.instructions.md` Step 1
 to preserve closed/merged cleanup and `roadmap-audit/*` special-case
 routing before continuing to Step 2/Step 3.
 
-## Hold behavior (when S2/S3 is not satisfied)
+## Hold behavior (when S2/S3/S4 is not satisfied)
 
 In this non-owned-claim path, do not post hold notes on the issue/PR.
-Record evidence in session logs only and stop. Posting hold notes here
-would violate the shared claim revalidation gate and can reset
-quiet-window evidence.
+Record evidence in session logs only and stop; when the hold traces to
+a `local_worktree_occupied` stop (S3's gate or S4's re-check), that
+evidence is the §LWR wake-condition record
+(`docs/idd-resume-detail.md`). Posting hold
+notes here would violate the shared claim revalidation gate and can
+reset quiet-window evidence.
 
 Keep claim safety strict: no early takeover before the shared stale
 threshold.

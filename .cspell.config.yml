@@ -1,17 +1,24 @@
 allowCompoundWords: true
+cache:
+  cacheFormat: universal
+  cacheLocation: node_modules/.cache/cspell/.cspell.cache
+  cacheStrategy: metadata
+  useCache: true
 dictionaries:
-  - bash
-  - cpp-compound-words
-  - docker
+  - cpp
   - en_US
   - en-gb
+  - fullstack
   - git
   - markdown
   - misc
-  - npm
-  - python
   - shellscript
   - softwareTerms
+  - bash
+  - cpp-compound-words
+  - docker
+  - npm
+  - python
   - terraform
 enableGlobDot: true
 features:
@@ -19,53 +26,76 @@ features:
 globRoot: ${cwd}
 ignorePaths:
   - .*ignore
-  - .cspell.config.yml
   - .git
   - .github/CODE_OF_CONDUCT.*
-  - .terraform.lock.hcl
   - .vscode/extensions.json
+  - pnpm-lock.yaml
+  - .cspell.config.yml
+  - .terraform.lock.hcl
 language: en,ja
 useGitignore: true
-version: "0.2"
+version: '0.2'
 words:
-  - byobu
-  - dedup
-  - deprioritize
   - desync
   - desynced
+  - idd
+  - isort
+  - kito
+  - Kiro
+  - kuron
+  - kurone
+  - kuroné
+  - ONNX
+  - pylint
+  - pytest
+  - pyproject
+  - qwen
+  - TOCTOU
+  - tsfile
+  - undispositioned
+  - unioned
+  - unmigrated
+  - unmirrored
+  - unpushed
+  - unreplied
+  - unrouted
+  - unscored
+  - unwaived
+  - Esync
+  - minimizable
+  - waivable
+  - rollup
+  - GHEC
+  - GHES
+  - WHATWG
+  - dedup
+  - deinitialized
+  - deprioritize
   - dofork
+  - ministral
+  - nektos
+  - nvmrc
+  - remediations
+  - vrchat
+  - byobu
   - esync
   - ghec
   - ghes
   - hyfetch
-  - kito
   - kislyuk
-  - kuron
-  - kuroné
   - larstobi
   - lazyjj
   - libgl
   - ludeeus
   - msedit
-  - nektos
   - nodm
   - nvenc
   - nyancat
   - ollama
-  - qwen
-  - remediations
   - resynced
   - toctou
-  - undispositioned
-  - unioned
-  - unpushed
-  - unreplied
-  - unscored
-  - unwaived
   - vaapi
   - vainfo
-  - vrchat
-  - waivable
   - xkblayout
   - xkbmodel
   - xkboptions

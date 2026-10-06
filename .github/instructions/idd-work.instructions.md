@@ -25,24 +25,48 @@ cleanup's own worktree removal -- behind the
 (see the [fan-out variant](../../docs/idd-workflow.md#orchestrator-fan-out-variant)
 for when this applies).
 
-1. Ensure the local `main` branch is up to date and has no local
-   commits. Run this from the primary worktree while on `main`:
+Resolve `{development-branch}` before Step 1 from trusted
+configuration: identify the repository's default branch with
+`gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`,
+refresh its exact `origin` ref under the clone-scoped lock, and read
+`.github/idd/config.json` from that default-branch ref (see
+[the trusted common-base procedure](../../docs/idd-helper-scripts.md#trusted-common-base-for-ephemeral-npx-helpers)).
+Never read this setting from the current issue/PR checkout. Use the
+default branch only when `developmentBranch` is absent; malformed
+configuration, an empty or invalid value, or an unavailable trusted ref
+is a stop. Validate the selected branch using
+[branch synchronization defaults](../../docs/policy-constants.md#branch-synchronization-defaults)
+and fail closed if it is absent on `origin`.
+
+1. Ensure the local `{development-branch}` is up to date and has no
+   local commits. Run this from the primary worktree while on
+   `{development-branch}`:
+
+   Before fetching, require
+   `git branch --show-current` to equal `{development-branch}`. If the
+   command fails or reports another branch, stop and report; do not
+   fetch or merge from the wrong primary-worktree branch.
 
    ```sh
-   git fetch origin main
-   git log origin/main..main --oneline
+   git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
+   git log origin/{development-branch}..{development-branch} --oneline
    ```
 
-   If the second command outputs any lines, local `main` has unpushed
-   commits — stop and report, do not force-reset `main`. Otherwise,
-   fast-forward to origin:
+   If `git fetch` fails, stop and report; do not compare against a
+   pre-existing remote-tracking ref, which may be stale. If the `git log`
+   command fails, stop and report; do not treat the
+   failure as an empty comparison or continue to merge. If it outputs
+   any lines, the local
+   `{development-branch}` has unpushed commits — stop and report; do not
+   force-reset it. Otherwise, fast-forward to origin:
 
    ```sh
-   git merge --ff-only origin/main
+   git merge --ff-only origin/{development-branch}
    ```
 
-   After this `main` fast-forward, do **not** change the primary
-   worktree's HEAD off `main` for any reason during B1 — see
+   After this `{development-branch}` fast-forward, do **not** change the
+   primary worktree's HEAD off `{development-branch}` for any reason
+   during B1 — see
    Anti-patterns below for the forbidden commands and the allowed
    HEAD-preserving exceptions (read-only inspection, and the
    HEAD-preserving branch/worktree commands used by Steps 2-3 below and
@@ -89,8 +113,8 @@ branch in the primary worktree:
   primary worktree — defeats the sibling-worktree invariant even though
   `git branch` alone does not move HEAD.
 
-The primary worktree's HEAD MUST remain on `main` throughout B1; if it
-ever leaves `main`, stop immediately and follow the B1 self-check
+The primary worktree's HEAD MUST remain on `{development-branch}` throughout B1;
+if it ever leaves `{development-branch}`, stop immediately and follow the B1 self-check
 repair path below.
 
 ### Worktree creation
@@ -119,14 +143,23 @@ use them (same class as #1930). When a tool can't pin both, use
 but is not listed in `git worktree list`, stop and report for manual
 cleanup before continuing.
 
-**Step 2 — Create**: `<base-branch>` below is `{development-branch}` —
-resolve it first: read `developmentBranch` from
-`.github/idd/config.json`, else `gh repo view --json
-defaultBranchRef --jq .defaultBranchRef.name`; validate the result
-([defaults](../../docs/policy-constants.md#branch-synchronization-defaults)),
-fail closed if invalid/absent on `origin`, never fall back. Then
-`git fetch origin {development-branch}` (may be missing/stale
-otherwise). Use **WorkTrunk** if available (create verb:
+**Step 2 — Create**: `<base-branch>` below is the `{development-branch}`
+resolved before Step 1. Before each fresh worktree creation,
+fast-forward the local base branch in the
+primary worktree. Confirm `git -C <primary-worktree>
+branch --show-current` is `{development-branch}`, then serialize the
+fetch behind the [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock)
+when concurrent workers share this clone and run:
+
+```sh
+git -C <primary-worktree> fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}
+git -C <primary-worktree> merge --ff-only origin/{development-branch}
+```
+
+If either command fails, stop instead of creating a branch from a stale
+base. A bare `git fetch origin` only updates remote-tracking refs; it
+does not advance the primary worktree's local base branch. Use
+**WorkTrunk** if available (create verb:
 `wt switch --create`; `wt new` was removed):
 
 - macOS/Linux: `wt switch --create -b <base-branch> <branch-name>`
@@ -161,7 +194,7 @@ If WorkTrunk is unavailable, choose the correct case:
 | --- | --- |
 | Fresh claim | `git worktree add <path> -b <branch-name> origin/{development-branch}` |
 | Takeover — local branch exists | `git worktree add <path> <branch-name>` |
-| Takeover — remote branch only | `git fetch origin && git worktree add <path> -b <branch-name> origin/<branch-name>` |
+| Takeover — remote branch only | `git fetch origin +refs/heads/<branch-name>:refs/remotes/origin/<branch-name> && git worktree add <path> -b <branch-name> origin/<branch-name>` |
 | Takeover — neither local nor remote (rare) | treat as fresh claim; preserve the inherited branch name |
 <!-- dprint-ignore-end -->
 
@@ -204,7 +237,9 @@ are installed:
 - **WorkTrunk with a pre-start install hook** (e.g.,
   `[pre-start].install` in `.config/wt.toml`): The hook must acquire the
   lock before installing, as described above; after the hook succeeds,
-  skip this step.
+  skip this step. `-x <noop>` never changes the caller's directory —
+  `cd` into the new sibling (from `git worktree list`) before later
+  steps.
 - **Manual `git worktree add`, WorkTrunk without a hook, or a
   compliant pinned harness-native tool**: `cd` into the newly created
   worktree, then run **install-deps**.
@@ -224,7 +259,7 @@ retry the install exactly once before failing loudly — see the
 Before continuing to B2, verify all of the following:
 
 - `git -C <primary-worktree-root> rev-parse --abbrev-ref HEAD` returns
-  `main`.
+  `{development-branch}`.
 - `git worktree list` includes the new sibling worktree path.
 - The agent's current working directory is the new sibling worktree
   path, not the primary worktree; a launch-workspace-bound file-tool
@@ -275,12 +310,14 @@ under concurrent execution, so re-check once the B1 worktree exists and
 **before writing any code or drafting the plan below**, using a
 mechanical file/close-based signal stronger than A4.5's title/
 declaration heuristic (a weak **title-only** match is **not** a hit
-here). Keep it cheap: one fetch plus a bounded merged-PR scan.
+here).
 
-1. `git fetch origin {development-branch}` (concurrent workers sharing
-   one clone: behind the
+1. Fetch `{development-branch}` into its remote-tracking ref with
+   `git fetch origin +refs/heads/{development-branch}:refs/remotes/origin/{development-branch}`
+   (concurrent workers sharing one clone: run it behind the
    [clone-scoped lock](../../docs/idd-helper-scripts.md#clone-scoped-lock),
-   same as B1).
+   same as B1). If fetch fails, stop; do not run the supersession check
+   against a pre-existing remote-tracking ref, which may be stale.
 2. **Closed-by-a-merged-PR signal**: re-fetch the issue; if it is now closed
    with a linked closing PR, the deliverable already shipped:
 
@@ -300,13 +337,15 @@ here). Keep it cheap: one fetch plus a bounded merged-PR scan.
    gh pr view <n> --json files --jq '.files[].path'
    ```
 
-**On a hit → verify-then-close** (never silent re-implementation, and never an
-auto-close on a weak signal): confirm the issue's acceptance criteria already
-hold on current `{development-branch}`, then close the issue with a
+**On a hit → verify-then-close**: confirm the issue's acceptance criteria
+already hold on current `{development-branch}`, then close the issue with a
 comment referencing the superseding PR. If the criteria only
 **partly** hold, keep the issue open,
 record the overlap, and plan only the genuinely-remaining work. On no hit,
 continue with the plan below.
+
+`gh issue close` is not completion: with no diff and no PR, only
+**verify-then-close** or F4 step 1 post-merge close may close it.
 
 ### B2.1 — Premise verification (decision-transcription issues)
 
@@ -377,6 +416,9 @@ Implement the plan, running **fix-validate** before each atomic commit
 the [signed-commit merge wrapper](../../docs/idd-helper-scripts.md#signed-commit-merge-wrapper-shared-git-procedure)
 instead.
 
+**Validate.** Judge the run by its own exit status — see
+[Project commands](idd-overview-core.instructions.md#project-commands).
+
 **Verify a commit actually landed before trusting a subsequent push.**
 A `commit-msg` hook (e.g. commitlint's body-max-line-length) can
 silently reject a long single-line body, so no commit is created but
@@ -395,9 +437,9 @@ function bodies look equivalent. See
 
 **Unexpected validation failures**: a `typecheck`/`lint` failure in a
 file this diff did not touch may signal dependency drift or a broken
-`main` baseline — verify with a fresh-vs-stale `node_modules` comparison
-or a clean **install-deps** rerun before assuming the failure traces to
-this diff. See
+`{development-branch}` baseline — verify with a fresh-vs-stale
+`node_modules` comparison or a clean **install-deps** rerun before
+assuming the failure traces to this diff. See
 [rationale](../../docs/idd-design-rationale.md#b3--dependency-drift-vs-own-diff-a-typechecklint-diagnostic).
 
 **Local test flakiness under concurrent load**: a test this diff did

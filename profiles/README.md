@@ -46,4 +46,5 @@ Every profile artifact must record:
   documentation.
 
 When maintaining a repository that adopts this template, keep these artifacts
-aligned with `docs/idd-review-policy-profiles.md` and `../ONBOARDING.md`.
+aligned with `docs/idd-review-policy-profiles.md` and
+[`ONBOARDING.md`](https://github.com/kurone-kito/idd-skill/blob/ae16f497434a5023dfaa28f965fc2af92ebf055d/idd-template/ONBOARDING.md).
