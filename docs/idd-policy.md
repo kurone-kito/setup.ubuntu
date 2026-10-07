@@ -278,6 +278,18 @@ scripts.
 - Advisory-wait deadline: `advisoryWait.convergenceDeadline` is
   `PT9H`, measured from when GitHub first recorded the HEAD (its
   earliest check suite), not from the commit timestamp (#193).
+  The imported prose at this same pin still states the upstream
+  default, not this operative clock. `docs/policy-constants.md`
+  (advisory-review defaults), `docs/onboarding/optional-host-setup.md`
+  (waiver-after-deadline), and `docs/idd-helper-scripts.md`
+  (deadlock / deadline policy) say the deadline is 24h measured
+  from the HEAD commit timestamp. That wording predates
+  kurone-kito/idd-skill#3253. The helper at
+  `ae16f497434a5023dfaa28f965fc2af92ebf055d` measures elapsed time
+  from `headObservedAt` (the earliest GitHub-recorded check suite);
+  `headCommittedAt` is informational only. Those three passages are
+  not operative here. A later import that updates them should
+  replace this note.
   `convergenceScope` stays `idd-claimed`. No secondary-bot quiet
   window is configured.
 - External-check waivers: `ciGate.externalCheckWaivers.mode` stays
@@ -325,11 +337,18 @@ scripts.
   companion uses `pull_request_review` (`submitted`),
   `pull_request_review_comment` (`created`, `edited`, `deleted`),
   and `issue_comment` (`created`). A submitted
-  `pull_request_review` reruns the gate regardless of comment
-  classification, skips debounce, and passes `--refresh-latest
-  --apply`. A review comment or an issue comment reruns only when
-  it is IDD-originated and debounce does not skip, using plain
-  `--apply`. The probe uses `issue_comment` (`created`). Post-merge
+  `pull_request_review` from a non-bot actor reruns the gate
+  regardless of comment classification, skips debounce, and passes
+  `--refresh-latest --apply`. A submission by the primary bot does
+  not: GitHub gates that bot-triggered run to `action_required`
+  before any job starts, so the companion never reaches the rerun
+  step. The required check then refreshes on the next non-bot
+  trigger, such as a push or a human or session review-thread
+  reply. A fork pull request's review token is read-only, so that
+  rerun step cannot run there either. A review comment or an issue
+  comment reruns only when it is IDD-originated and debounce does
+  not skip, using plain `--apply`. The probe uses `issue_comment`
+  (`created`). Post-merge
   cleanup uses `pull_request_target` (`closed`) and
   `workflow_dispatch`. Permissions stay least-privilege. The
   gate default is contents, issues, and pull-requests `read`;
@@ -340,7 +359,11 @@ scripts.
   `self-referential-bootstrap-auto` only for a same-repository
   pull request whose diff touches `.github/idd/config.json`,
   `.github/workflows/idd-advisory-convergence.yml`, or
-  `.github/workflows/idd-advisory-convergence-comment.yml`. The
+  `.github/workflows/idd-advisory-convergence-comment.yml`, and
+  only when `advisoryWait.convergenceScope` leaves that pull
+  request applicable. This repository sets `idd-claimed`, so a
+  linked issue with no active claim, or with an ambiguous claim
+  history, is not eligible. The
   comment companion is those
   three read scopes plus `actions: write`. The probe workflow
   `permissions` block is empty, and its job is contents, issues,
@@ -627,7 +650,9 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   This is by design, not a failure to fix.
   The waiver escape path after `advisoryWait.convergenceDeadline`
   (`PT9H`, measured from when GitHub first recorded the HEAD — its
-  earliest check suite — not from the commit timestamp) only exists
+  earliest check suite — not from the commit timestamp; imported
+  prose that still says 24h from the commit timestamp is not
+  operative, as the advisory-wait deadline bullet records) only exists
   once `ciGate.externalCheckWaivers.mode` is `maintainer-authorized`
   (not its default, `disabled`) and `idd-advisory-convergence` is
   listed under `ciGate.externalChecks.waivable`. **Both
@@ -656,9 +681,13 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   alone does **not** by itself satisfy route (2) — declaring an
   outage without the PR's own terminal state also holding leaves
   the check red. (3) A same-repository pull request whose diff
-  touches the committed trigger-file allowlist gets a
+  touches the committed trigger-file allowlist can get a
   `self-referential-bootstrap-auto` waiver from the gate
-  workflow's own job, with no manual waiver and no rerun. The
+  workflow's own job, with no manual waiver and no rerun, when
+  the convergence scope leaves that pull request applicable.
+  This repository's scope is `idd-claimed`. A linked issue with
+  no active claim, or with an ambiguous claim history, resolves
+  indeterminate and is not eligible. The
   allowlist is `.github/idd/config.json`,
   `.github/workflows/idd-advisory-convergence.yml`, and
   `.github/workflows/idd-advisory-convergence-comment.yml`. That
@@ -675,17 +704,22 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   available, rerun with `idd-rerun-advisory-convergence --pr <n>
   --apply`: it reruns every rerun-eligible same-named instance in
   order, waits for each to reach a terminal state before the next,
-  stops once the rollup resolves, and never reruns a
-  `bot-gated-skip` or `rerun-budget-held` instance. On
+  stops once the rollup resolves, and does not rerun a
+  `bot-gated-skip` or `rerun-budget-held` instance except through
+  the helper's own `liveCoverageRecoveryPlan` and
+  `passedSiblingRecoveryPlan` exceptions. On
   `instructions-only` (no helper runtime), run `gh run rerun
   <run-id>` for each plan entry, waiting for each to finish before
   the next. See
   [rerun mechanics](../.github/instructions/idd-ci.instructions.md#rerun-mechanics).
   The comment companion
   `idd-advisory-convergence-comment.yml` reruns that gate for a
-  submitted `pull_request_review` regardless of comment
-  classification. That path skips debounce and passes
-  `--refresh-latest --apply`. A `pull_request_review_comment` or
+  submitted `pull_request_review` from a non-bot actor regardless
+  of comment classification. That path skips debounce and passes
+  `--refresh-latest --apply`. A primary-bot submission is gated
+  to `action_required` and does not reach the step, and a fork
+  pull request's review token cannot perform the rerun. A
+  `pull_request_review_comment` or
   `issue_comment` reruns only when the comment is IDD-originated
   and debounce does not skip, using plain `--apply`. Arbitrary
   review-comment activity alone is not enough. The gate's own
