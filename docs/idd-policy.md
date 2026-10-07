@@ -481,7 +481,8 @@ scripts.
 - Workshop example repository: `""` (empty string, treated as unset;
   default) — this repository has not published a `docs/workshop/`, so
   the `idd-doctor` example-repository back-link check is intentionally
-  skipped. #193 left the key unset on purpose at the v0.14.0 pin.
+  skipped. The key is present in `.github/idd/config.json`. #193 left
+  the value empty on purpose at the v0.14.0 pin.
 - Claude Code permission baseline: installed at `.claude/settings.json`
   (#43), adapted from the opt-in template baseline documented in
   [`docs/permissions.md`](permissions.md#claude-code-permission-baseline).
