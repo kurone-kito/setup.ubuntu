@@ -345,8 +345,11 @@ scripts.
   not: GitHub gates that bot-triggered run to `action_required`
   before any job starts, so the companion never reaches the rerun
   step. The required check then refreshes on the next qualifying
-  non-bot trigger: a push, or an IDD-originated review-thread
-  reply. Ordinary human prose does not qualify. A fork pull
+  non-bot trigger: a push, another non-bot `pull_request_review`
+  (ordinary prose still counts on that submission), or an
+  IDD-originated review-thread reply or issue comment. Ordinary
+  prose on a review comment or an issue comment does not qualify.
+  A fork pull
   request's review token is read-only, so the rerun step runs and
   `gh run rerun` fails with a 403. A review comment or an issue
   comment reruns only when it is IDD-originated and debounce does
