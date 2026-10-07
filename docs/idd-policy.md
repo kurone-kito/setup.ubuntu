@@ -344,10 +344,11 @@ scripts.
   `--refresh-latest --apply`. A submission by the primary bot does
   not: GitHub gates that bot-triggered run to `action_required`
   before any job starts, so the companion never reaches the rerun
-  step. The required check then refreshes on the next non-bot
-  trigger, such as a push or a human or session review-thread
-  reply. A fork pull request's review token is read-only, so that
-  rerun step cannot run there either. A review comment or an issue
+  step. The required check then refreshes on the next qualifying
+  non-bot trigger: a push, or an IDD-originated review-thread
+  reply. Ordinary human prose does not qualify. A fork pull
+  request's review token is read-only, so the rerun step runs and
+  `gh run rerun` fails with a 403. A review comment or an issue
   comment reruns only when it is IDD-originated and debounce does
   not skip, using plain `--apply`. The probe uses `issue_comment`
   (`created`). Post-merge
