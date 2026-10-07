@@ -716,7 +716,9 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   and `passedSiblingRecoveryPlan` exceptions. On
   `instructions-only` (no helper runtime), run `gh run rerun
   <run-id>` for each plan entry, waiting for each to finish before
-  the next. See
+  the next. Before each `gh run rerun`, follow the
+  [claim revalidation gate](../.github/instructions/idd-overview-core.instructions.md#claim-revalidation-gate).
+  See
   [rerun mechanics](../.github/instructions/idd-ci.instructions.md#rerun-mechanics).
   The comment companion
   `idd-advisory-convergence-comment.yml` reruns that gate for a
