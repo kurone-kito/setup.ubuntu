@@ -191,6 +191,28 @@ changes.
   - The publication-token / journal protocol is closed by the
     protocol child (#180); see that child's Policy decisions
     bullet. This finalize does not rewrite it.
+- Resynced: `iddVersion 0.14.0`, imported from
+  [`kurone-kito/idd-skill`](https://github.com/kurone-kito/idd-skill)
+  tag `v0.14.0`, which peels to commit
+  [`ae16f497434a5023dfaa28f965fc2af92ebf055d`](https://github.com/kurone-kito/idd-skill/commit/ae16f497434a5023dfaa28f965fc2af92ebf055d)
+  (2026-10-03), via roadmap #192. Children: #193 (config pin
+  and dogfooding keys), #194 (template import, including
+  lite), #195 (issue-authoring companion), #197 (hosted
+  workflows), and #196 (this note). `.github/instructions/lite/`
+  is imported now. The "deliberately excluded" sentences in
+  earlier snapshot entries stay historical records of those
+  resyncs. This entry records the shipped sibling outcomes,
+  not open questions. `helperRuntime.packageSpec` is re-pinned
+  to that same commit (#193). The profile stays
+  `ephemeral-npx`: no package-manager runtime and no vendored
+  `scripts/` bundle. `workshop.exampleRepository` stays `""`
+  because this repository publishes no `docs/workshop/`. The
+  current [Policy decisions](#policy-decisions) and
+  [Helper runtime](#helper-runtime-ephemeral-npx) sections
+  below are the adopted settings. They supersede the 0.12.0
+  hearing points that left `critiqueLoop.deferAfterRounds`
+  unset so the default of 12 would apply, and that left
+  `critiqueLoop.telemetryHook` unset.
 
 ## Project values
 
@@ -237,10 +259,134 @@ scripts.
   and rejected because it would skip the per-agent pass whenever the
   delegate merely exits 0, a review-quality regression rather than an
   addition.
-- Critique-loop defer-after-rounds: inherit the `0.12.0` default of
-  12. `critiqueLoop.deferAfterRounds` is intentionally unset in
-  `.github/idd/config.json` so the distributed default applies
-  (hearing 2026-09-18, #181).
+- Critique-loop deferral: `critiqueLoop.deferAfterRounds` is `5`
+  and `critiqueLoop.deferByUrgency` is `severity-tiered`, both set
+  in `.github/idd/config.json` (#193). This supersedes the 0.12.0
+  hearing that left `deferAfterRounds` unset so the distributed
+  default of 12 would apply (#181).
+- Critique-loop telemetry: `critiqueLoop.telemetryHook.command` is
+  `idd-critique-telemetry` (#193). The hook is fire-and-forget. A
+  missing command does not gate an IDD phase.
+- Forced handoff: `forcedHandoff.mode` is `human-gated` and
+  `forcedHandoff.authorityPolicy` is `owners-and-maintainers-only`
+  (#193).
+- GitHub API client: `githubApi.readCache.enabled` is `true`, and
+  `githubApi.loadControl` is enabled with `maxConcurrent` `4`
+  (#193).
+- Discover selection desync: `discover.selectionDesync` is
+  `session-offset` (#193).
+- Advisory-wait deadline: `advisoryWait.convergenceDeadline` is
+  `PT9H`, measured from when GitHub first recorded the HEAD (its
+  earliest check suite), not from the commit timestamp (#193).
+  The imported prose does not all state that clock. The narrative
+  in `docs/policy-constants.md` still measures this deadline from
+  the HEAD commit timestamp and does not name a duration there.
+  Its defaults table lists the distributed duration as 24h and
+  already measures that duration from the earliest check suite
+  (#3253). This repository's duration is `PT9H`, not that 24h
+  default. `docs/onboarding/optional-host-setup.md`
+  (waiver-after-deadline) and `docs/idd-helper-scripts.md`
+  (deadlock / deadline policy) still say the default is 24h from
+  the HEAD commit timestamp. Those two sentences are not operative.
+  The helper at `ae16f497434a5023dfaa28f965fc2af92ebf055d` measures
+  elapsed time from `headObservedAt`; `headCommittedAt` is
+  informational only. A later import that updates the stale
+  sentences should replace this note.
+  `convergenceScope` stays `idd-claimed`. No secondary-bot quiet
+  window is configured.
+- External-check waivers: `ciGate.externalCheckWaivers.mode` stays
+  `maintainer-authorized`. #193 made `authorityPolicy`
+  `owners-and-maintainers-only` and `maxValidity` `PT24H` explicit.
+  `PT24H` is the waiver lifetime, not the convergence deadline.
+  The self-waiver bootstrap expiry is a separate clock: the HEAD
+  commit timestamp plus a fixed `PT24H`, clamped to `maxValidity`
+  when that maximum is shorter. If that HEAD-anchored result is
+  already non-future (a stale HEAD, such as a `reopened` trigger
+  with no new commit), the window anchors on the current time
+  instead. `externalChecks.waivable` lists
+  `idd-advisory-convergence` with `matchMode` `exact`.
+- Lite instructions: `.github/instructions/lite/` is part of the
+  imported surface as of #194 (11 files). Earlier snapshot entries
+  that say it was deliberately excluded describe those earlier
+  resyncs.
+- Issue-authoring companion (#195): the four installed
+  `.claude/skills/issue-authoring/` files match v0.14.0 except the
+  three `idd-authoring-set-members` invocation sites, which use
+  this repository's immutable `ephemeral-npx` package spec.
+  Installed `idd-spec-audit` was compared to that commit and left
+  unchanged.
+- Hosted workflows (#197): the gate, comment companion, probe, and
+  post-merge cleanup workflows call helpers only through the
+  v0.14.0 `ephemeral-npx` pin. The probe cites commit
+  `ae16f497434a5023dfaa28f965fc2af92ebf055d` in its header and does
+  not fetch the tarball. They do not use pnpm, a mutable branch, a
+  vendored bundle, or a secondary-bot wait. Third-party actions
+  stay pinned to
+  `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1`
+  (`v7.0.1`) and
+  `actions/setup-node@820762786026740c76f36085b0efc47a31fe5020`
+  (`v7.0.0`) on the gate, the comment companion, and post-merge
+  cleanup. The gate also pins
+  `actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a`
+  (`v7.0.1`). Node is `24.x` wherever `setup-node` is used. The
+  probe uses no third-party action. Runners: the gate uses
+  `inputs.runner || vars.CI_RUNNER_LABEL || ubuntu-slim`; the
+  comment companion and the probe use
+  `vars.CI_RUNNER_LABEL || ubuntu-slim`; post-merge cleanup uses
+  `ubuntu-slim`. Triggers: the gate uses `pull_request` and
+  `pull_request_target` (`opened`, `reopened`, `synchronize`),
+  plus `workflow_dispatch` and `workflow_call`. The comment
+  companion uses `pull_request_review` (`submitted`),
+  `pull_request_review_comment` (`created`, `edited`, `deleted`),
+  and `issue_comment` (`created`). A submitted
+  `pull_request_review` from a non-bot actor reruns the gate
+  regardless of comment classification, skips debounce, and passes
+  `--refresh-latest --apply`. A submission by the primary bot does
+  not: GitHub gates that bot-triggered run to `action_required`
+  before any job starts, so the companion never reaches the rerun
+  step. The required check then refreshes on the next qualifying
+  non-bot trigger: a push, another non-bot `pull_request_review`
+  (ordinary prose still counts on that submission), or an
+  IDD-originated review-thread reply or issue comment. Ordinary
+  prose on a review comment or an issue comment does not qualify.
+  A fork pull
+  request's review token is read-only, so the rerun step runs and
+  `gh run rerun` fails with a 403. A review comment or an issue
+  comment reruns only when it is IDD-originated and debounce does
+  not skip, using plain `--apply`. The probe uses `issue_comment`
+  (`created`). Post-merge
+  cleanup uses `pull_request_target` (`closed`) and
+  `workflow_dispatch`. Permissions stay least-privilege. The
+  gate default is contents, issues, and pull-requests `read`;
+  its verdict job adds `actions: read`; its self-waiver job is
+  contents `read`, pull-requests `write`, issues `write`, checks
+  `read`, and statuses `read`. That job's `if` is
+  `pull_request_target` only. It posts
+  `self-referential-bootstrap-auto` only for a same-repository
+  pull request whose diff touches `.github/idd/config.json`,
+  `.github/workflows/idd-advisory-convergence.yml`, or
+  `.github/workflows/idd-advisory-convergence-comment.yml`, and
+  only when the auto-waiver guard accepts that pull request.
+  This repository sets `advisoryWait.convergenceScope` to
+  `idd-claimed`. A pull request with no claim-marker history is
+  `not_applicable` and is not eligible. Ambiguous closing
+  references, or claim-marker history with no active claim, are
+  `indeterminate` and are not eligible. A branch mismatch against
+  an active claim stays eligible. The posting helper also refuses
+  when linked claim candidates are ambiguous. The
+  comment companion is those
+  three read scopes plus `actions: write`. The probe workflow
+  `permissions` block is empty, and its job is contents, issues,
+  pull-requests, actions, checks, and statuses `read`. Post-merge
+  cleanup is contents `read`, issues `write`, and pull-requests
+  `write`. `idd-advisory-convergence` stays hosted and is not a
+  required status check. See
+  [Helper runtime](#helper-runtime-ephemeral-npx) for the ruleset
+  step that adds it beside the checks `main` already requires.
+- Lint overlay retained by #194: the project's cspell vocabulary
+  and the `.terraform/**/*` markdown-lint exclusion stay local.
+  Validate commands stay the markdownlint-cli2 and cspell rows in
+  [Project values](#project-values).
 - CI wait policy: `PT30M` / `PT10M` / `rerun-once` (defaults)
 - Issue-author approval gate: enabled (default)
 - Maintainer approval actors: `owners-and-maintainers-only` (default)
@@ -338,7 +484,8 @@ scripts.
 - Workshop example repository: `""` (empty string, treated as unset;
   default) — this repository has not published a `docs/workshop/`, so
   the `idd-doctor` example-repository back-link check is intentionally
-  skipped.
+  skipped. The key is present in `.github/idd/config.json`. #193 left
+  the value empty on purpose at the v0.14.0 pin.
 - Claude Code permission baseline: installed at `.claude/settings.json`
   (#43), adapted from the opt-in template baseline documented in
   [`docs/permissions.md`](permissions.md#claude-code-permission-baseline).
@@ -413,12 +560,13 @@ add files to this shell-and-Terraform repository and need re-vendoring
 on every upstream bump. `ephemeral-npx` avoids both costs.
 
 - Pinned helper package spec:
-  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/11105d705820e50be0a14fcc174587abbaf62b30`
+  `https://codeload.github.com/kurone-kito/idd-skill/tar.gz/ae16f497434a5023dfaa28f965fc2af92ebf055d`
   — intentionally pinned to the same commit the instruction files were
   imported from (originally in #41, resynced in #88, resynced to
-  `f51a8bb7` in #119, resynced to `1f90787e` in #140, resynced to this
-  commit in #176), so a helper's JSON output contract can never drift
-  away from the instruction step that reads it.
+  `f51a8bb7` in #119, resynced to `1f90787e` in #140, resynced to
+  `11105d70` in #176, resynced to `ae16f497` in #193), so a helper's
+  JSON output contract can never drift away from the instruction step
+  that reads it.
 - Canonical invocation form: `npx --yes --package <pinned-spec>
   idd-<helper>`. Under this profile the `idd-*` bin facade is the
   authoritative surface, not `node scripts/*.mjs`.
@@ -456,73 +604,142 @@ on every upstream bump. `ephemeral-npx` avoids both costs.
   a requestable reviewer, so it cannot satisfy the once-per-HEAD
   secondary-bot contract.
 - CI-side consumer: `.github/workflows/idd-doctor.yml` (#46) resolves
-  its `idd-doctor` invocation from the pinned spec above. The same
-  commit SHA now has to stay in sync across four locations on a future
-  resync: the two occurrences in this file (the
-  [imported-snapshot line](#imported-template-snapshot) and the pinned
-  spec above), `.claude/settings.json`'s permission allow-list (#43),
-  and this workflow file. The workflow omits `--strict`: strict mode's
-  sibling-worktree check has no observable signal in a CI checkout —
-  `pull_request` runs always check out a detached commit, never a
-  named `issue/*`/`roadmap-audit/*` branch, so the violation `--strict`
-  guards against structurally cannot occur there. Enforcement for that
-  rule stays local, via `.githooks/pre-commit`/`pre-push` and a
+  its `idd-doctor` invocation from the pinned spec above. The workflow
+  omits `--strict`: strict mode's sibling-worktree check has no
+  observable signal in a CI checkout — `pull_request` runs always
+  check out a detached commit, never a named `issue/*` or
+  `roadmap-audit/*` branch, so the violation `--strict` guards
+  against structurally cannot occur there. Enforcement for that rule
+  stays local, via `.githooks/pre-commit` / `pre-push` and a
   developer's own `idd-doctor --strict` run.
-- `.github/workflows/idd-advisory-convergence.yml` (#47) resolves its
-  `idd-advisory-convergence` invocation from the same pinned spec — the
-  commit SHA now has to stay in sync across five locations on a future
-  resync, the four above plus this workflow file. This workflow is
-  **hosted but not registered as a required check**: two GitHub
-  Rulesets exist on this repository today (`gh api
-  repos/{owner}/{repo}/rulesets` includes rulesets named `main` and
+- On the next pin bump, move every literal reference to commit
+  `ae16f497434a5023dfaa28f965fc2af92ebf055d` together. Helper archive
+  invocations (`tar.gz/` plus that commit) are
+  `.github/idd/config.json`, `.claude/settings.json`'s permission
+  allow-list, `idd-doctor.yml`, `idd-advisory-convergence.yml` (two
+  commands), `idd-advisory-convergence-comment.yml`,
+  `post-merge-cleanup.yml`, the three `idd-authoring-set-members`
+  sites under `.claude/skills/issue-authoring/references/`, the
+  pinned-spec line above, and the imported instruction examples that
+  embed that spec, including the lite files. The same commit is also
+  an immutable source link, not a tarball fetch, in this file's
+  v0.14.0 snapshot bullet, `docs/getting-started.md`,
+  `docs/onboarding/agent-entry-and-verification.md`,
+  `docs/onboarding/issue-mediated-bootstrap.md`,
+  `docs/onboarding/optional-host-setup.md`,
+  `docs/onboarding/project-tuning.md`, `profiles/README.md`, and the
+  header comment of `idd-advisory-convergence-probe.yml`, the header
+  comment of `.github/workflows/post-merge-cleanup.yml` (separate
+  from that file's `tar.gz/` invocation above), and the
+  hosted-workflows bullet in this file, which repeats the full
+  commit when it names the probe header. The 0.12.0
+  snapshot's commit URL for `11105d70` stays as the history of that
+  resync. It is not an active archive pin.
+- `.github/workflows/idd-advisory-convergence.yml` (#47, ported in
+  #197) resolves its `idd-advisory-convergence` invocation from the
+  same pinned spec. This workflow is **hosted but not registered as
+  a required check**. Two GitHub Rulesets exist (`main` and
   `features`, both `enforcement: active`) — a maintainer-created
-  addition, not one this IDD loop configured. Each enables
-  `copilot_code_review`
-  (`review_on_push: true`), so Copilot now reviews every push
-  automatically; `main` (targeting `~DEFAULT_BRANCH`) also enables the
-  `deletion` / `non_fast_forward` rules and a `pull_request` rule with
-  `required_approving_review_count: 0`. Neither ruleset declares a
-  `required_status_checks` rule, so `idd-advisory-convergence` still is
-  not a GitHub-enforced merge gate — a maintainer who wants to enforce
-  it opens Settings → Rules → Rulesets → edit `main`, enables "Require
-  status checks to pass", and adds `idd-advisory-convergence` (the job
-  id) to the required-checks list.
+  addition, not one this IDD loop configured. Both enable
+  `copilot_code_review` (`review_on_push: true`), so Copilot reviews
+  every push automatically. Ruleset `main` (id `20748430`, targeting
+  `~DEFAULT_BRANCH`) also enables `deletion`, `non_fast_forward`, and
+  a `pull_request` rule with `required_approving_review_count: 0`,
+  and it requires status checks `idd-doctor` and `lint` (observed
+  2026-10-07). Ruleset `features` (id `20748438`) has no required
+  status checks. `idd-advisory-convergence` is on neither required
+  list, so it is still not a GitHub-enforced merge gate. A maintainer
+  who wants to enforce it edits ruleset `main` and adds
+  `idd-advisory-convergence` (the job id) beside the existing
+  `idd-doctor` and `lint` contexts. Do not drop those two, and do not
+  enable the required-check rule as if it were absent: it is already
+  on.
   `--assert` exits non-zero for any not-ready verdict, including the
   ordinary "Copilot has not reviewed this HEAD yet" pending case —
   GitHub Actions has no distinct non-failing "pending" state, so this
   check legitimately shows red until the advisory review converges.
   This is by design, not a failure to fix.
-  The waiver escape path after `advisoryWait.convergenceDeadline` (24h
-  from the HEAD commit timestamp) only exists once
-  `ciGate.externalCheckWaivers.mode` is `maintainer-authorized` (not its
-  default, `disabled`) and `idd-advisory-convergence` is listed under
-  `ciGate.externalChecks.waivable`. **Both preconditions are now met**
-  (adopted at `0.11.0`, #143 — previously neither was, per the `0.7.0`
-  entry above): `ciGate` sets `trustEmptyProtectionReads: true` (#99,
-  unchanged), `externalCheckWaivers.mode: "maintainer-authorized"`, and
-  `externalChecks.waivable` lists `idd-advisory-convergence`. This opens
-  two distinct routes, not one: (1) a maintainer can post a
-  per-pull-request `idd-external-check-waiver:` marker directly once
-  past the 24h deadline, or (2) once this pull request's own
-  terminal-unavailable state independently holds (Copilot's recovery
-  cycle exhausted and `advisoryWait.terminalWindow` elapsed with no
-  current-HEAD review — see
+  The waiver escape path after `advisoryWait.convergenceDeadline`
+  (`PT9H`, measured from when GitHub first recorded the HEAD — its
+  earliest check suite — not from the commit timestamp; imported
+  sentences that still measure 24h from the commit timestamp are
+  not operative, as the advisory-wait deadline bullet records) only exists
+  once `ciGate.externalCheckWaivers.mode` is `maintainer-authorized`
+  (not its default, `disabled`) and `idd-advisory-convergence` is
+  listed under `ciGate.externalChecks.waivable`. **Both
+  preconditions are now met** (adopted at `0.11.0`, #143 — previously
+  neither was, per the `0.7.0` entry above): `ciGate` sets
+  `trustEmptyProtectionReads: true` (#99, unchanged),
+  `externalCheckWaivers.mode: "maintainer-authorized"`, and
+  `externalChecks.waivable` lists `idd-advisory-convergence`. #193
+  also made `authorityPolicy` `owners-and-maintainers-only`,
+  `maxValidity` `PT24H`, and `matchMode` `exact` explicit.
+  `maxValidity` is the waiver lifetime. The self-waiver bootstrap
+  expiry is a different clock: the HEAD commit timestamp plus a
+  fixed `PT24H`, clamped to `maxValidity` when that maximum is
+  shorter. If that HEAD-anchored result is already non-future (a
+  stale HEAD, such as a `reopened` trigger with no new commit), the
+  window anchors on the current time instead. This opens three
+  distinct routes. (1) A maintainer can post a per-pull-request
+  `idd-external-check-waiver:` marker directly once past that
+  `PT9H` deadline. (2) Once this pull request's own
+  terminal-unavailable state independently holds (Copilot's
+  recovery cycle exhausted and `advisoryWait.terminalWindow`
+  elapsed with no current-HEAD review — see
   [`idd-advisory-wait.instructions.md`](../.github/instructions/idd-advisory-wait.instructions.md#terminal-copilot-stall-recovery-contract-state-policy-markers-clock)),
-  an active `providerOutage` declaration (target: #158) substitutes for
-  posting that per-PR marker. Passing the 24h deadline alone does
-  **not** by itself satisfy route (2) — declaring an outage without the
-  PR's own terminal state also holding leaves the check red. Posting a
-  waiver comment does not by itself re-run the check — a fresh trigger
-  still has to fire. `workflow_dispatch` does **not** reliably refresh
-  the current-HEAD required-check rollup (a dispatched run has no
-  `pull_request` context to associate with the PR's HEAD SHA) and must
-  not be used for this; rerun the existing run instead (`gh run rerun
-  <run-id>`, see
-  [rerun mechanics](../.github/instructions/idd-ci.instructions.md#rerun-mechanics)),
-  or let the imported `idd-advisory-convergence-comment.yml` companion
-  workflow rerun it automatically for a qualifying IDD-originated
-  comment (arbitrary review-comment activity alone is insufficient —
-  this workflow itself only triggers on `pull_request`/
-  `pull_request_target` `opened`, `reopened`, or `synchronize`, not on
-  review or review-comment events). This workflow has no `push`
-  trigger either.
+  an active `providerOutage` declaration (target: #158) substitutes
+  for posting that per-PR marker. Passing that `PT9H` deadline
+  alone does **not** by itself satisfy route (2) — declaring an
+  outage without the PR's own terminal state also holding leaves
+  the check red. (3) A same-repository pull request whose diff
+  touches the committed trigger-file allowlist can get a
+  `self-referential-bootstrap-auto` waiver from the gate
+  workflow's own job, with no manual waiver and no rerun, under
+  the same `idd-claimed` eligibility as the hosted-workflows
+  bullet above. The
+  allowlist is `.github/idd/config.json`,
+  `.github/workflows/idd-advisory-convergence.yml`, and
+  `.github/workflows/idd-advisory-convergence-comment.yml`. That
+  job runs only on `pull_request_target` and skips a fork. A valid
+  marker of this reason is evaluated unconditionally, independent
+  of the `PT9H` deadline and of terminal-unavailable state. It
+  does not replace routes (1) or (2) for any other reason, actor,
+  or check. A manually posted waiver comment does not by itself
+  re-run the check — a fresh trigger still has to fire.
+  `workflow_dispatch` does **not** reliably refresh the
+  current-HEAD required-check rollup (a dispatched run has no
+  `pull_request` context to associate with the PR's HEAD SHA) and
+  must not be used for that refresh. When a helper runtime is
+  available, rerun with `idd-rerun-advisory-convergence --pr <n>
+  --apply`: it reruns every rerun-eligible same-named instance in
+  order, waits for each to reach a terminal state before the next,
+  stops once the rollup resolves, and does not rerun a
+  `bot-gated-skip` instance. It reruns a `rerun-budget-held`
+  instance only through the helper's `liveCoverageRecoveryPlan`
+  and `passedSiblingRecoveryPlan` exceptions. On
+  `instructions-only` (no helper runtime), run `gh run rerun
+  <run-id>` for each plan entry, waiting for each to finish before
+  the next. Before each `gh run rerun`, follow the
+  [claim revalidation gate](../.github/instructions/idd-overview-core.instructions.md#claim-revalidation-gate).
+  See
+  [rerun mechanics](../.github/instructions/idd-ci.instructions.md#rerun-mechanics).
+  The comment companion
+  `idd-advisory-convergence-comment.yml` reruns that gate for a
+  submitted `pull_request_review` from a non-bot actor regardless
+  of comment classification. That path skips debounce and passes
+  `--refresh-latest --apply`. A primary-bot submission is gated
+  to `action_required` and does not reach the step, and a fork
+  pull request's review token cannot perform the rerun. A
+  `pull_request_review_comment` or
+  `issue_comment` reruns only when the comment is IDD-originated
+  and debounce does not skip, using plain `--apply`. Arbitrary
+  review-comment activity alone is not enough. The gate's own
+  triggers are `pull_request` and `pull_request_target` (`opened`,
+  `reopened`, `synchronize`), plus `workflow_dispatch` and
+  `workflow_call`. It does not trigger on review or review-comment
+  events, and it has no `push` trigger. The companion does:
+  `pull_request_review` (`submitted`),
+  `pull_request_review_comment` (`created`, `edited`, `deleted`),
+  and `issue_comment` (`created`). Action pins, runners, and
+  permission blocks for these workflows are in
+  [Policy decisions](#policy-decisions).
