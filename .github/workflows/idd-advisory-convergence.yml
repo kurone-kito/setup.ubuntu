@@ -114,6 +114,7 @@ jobs:
       issues: read
       pull-requests: read
       actions: read
+      checks: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -212,6 +213,7 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
+      actions: read
       checks: read
       statuses: read
     steps:
