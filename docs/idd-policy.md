@@ -358,9 +358,14 @@ scripts.
   cleanup uses `pull_request_target` (`closed`) and
   `workflow_dispatch`. Permissions stay least-privilege. The
   gate default is contents, issues, and pull-requests `read`;
-  its verdict job adds `actions: read`; its self-waiver job is
-  contents `read`, pull-requests `write`, issues `write`, checks
-  `read`, and statuses `read`. That job's `if` is
+  its verdict job adds `actions: read` and `checks: read`; its
+  self-waiver job is contents `read`, pull-requests `write`, issues
+  `write`, `actions: read`, checks `read`, and statuses `read`. The
+  verdict job's `checks: read` and the self-waiver job's
+  `actions: read` are a parity choice with the v0.14.0 template,
+  which documents them for private repositories. They are read-only
+  and do not fix a current permission error on this public
+  repository. That job's `if` is
   `pull_request_target` only. It posts
   `self-referential-bootstrap-auto` only for a same-repository
   pull request whose diff touches `.github/idd/config.json`,
