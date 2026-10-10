@@ -41,6 +41,7 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 - [htop](https://htop.dev)
 - [hyfetch](https://github.com/hykilpikonna/hyfetch)
 - [hyperfine](https://github.com/sharkdp/hyperfine)
+- [sysstat](https://github.com/sysstat/sysstat)
 
 ### Binary converters
 
