@@ -40,6 +40,7 @@ mise 設定に移管されました。移管先の一覧や層構造について
 - [htop](https://htop.dev)
 - hyfetch
 - hyperfine
+- [iotop](https://github.com/Tomas-M/iotop)
 - [sysstat](https://github.com/sysstat/sysstat)
 
 ### バイナリ変換ツール
