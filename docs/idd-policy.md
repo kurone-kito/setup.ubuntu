@@ -469,12 +469,15 @@ scripts.
   it via a follow-up issue if the underlying condition clears.
   `coderabbitai[bot]` also stays out, by decision on 2026-10-12 (#206,
   option B). PR #204 showed CodeRabbit posting real reviews, and the
-  cause of its automatic review is not established. Its review threads
-  count toward the F2 unresolved-thread gate with or without this list,
-  because that gate covers every unresolved review thread (E1 fetches
-  all threads before exclusions), so its comments are dispositioned by
-  hand under E6 either way. Reopen this decision through a follow-up
-  issue if its review behavior changes.
+  cause of its automatic review is not established. Listing a bot here
+  makes its reviews advisory, that is, not a required-reviewer or
+  `CHANGES_REQUESTED` gate, and option B does not list CodeRabbit. Its
+  review threads still count toward the general `Unresolved threads = 0`
+  backlog check in F2 (awaiting-reviewer threads excepted), so its
+  comments are dispositioned by hand under E6 either way. Reopen this
+  decision through a follow-up issue if its review behavior changes, or
+  if the owner later prefers re-adding it to this list or disabling
+  automatic review.
 - Advisory-wait convergence scope: `idd-claimed` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below for the
   rationale)
