@@ -541,6 +541,14 @@ scripts.
   Under the pinned order the primary-worktree token record is written before the
   worktree exists and stays after F4, which the pinned docs accept as a residual
   (#2944). Moving to `main` changes where that record is written.
+- Maintainer decision (kurone-kito/setup.ubuntu#213, 2026-10-12): interim, #163
+  stays out of Discover through a trusted A4.5 triage-verdict comment (option A,
+  comment 6124257896, posted by the agent on behalf of the maintainer).
+  Permanent, #158 and #163 are exempt from the stale workflow through the
+  repository-only label `durable-record` (option E). Options B, F, and G are not
+  chosen. Baseline sha256 of title plus body: #158
+  8c957c2eab2161a20a1621a8c8d94607b855425e6f2ae96f0f85d4a37bd65a53; #163
+  39d37fad0ea2651a031a2f42ac5ca53c5537b7f4e667ec47e4eeab9c9714eeb5.
 
 This is a personal repository with a single owner and maintainer
 (`kurone-kito`). The issue-author approval gate stays enabled; the owner
@@ -570,15 +578,16 @@ in `docs/policy-constants.md`.
 | `idd:ready` | `approvalSignals.readyLabelName` | defaulted (key absent from `config.json`) | A3.5 issue-author approval gate |
 | `status:authoring` | `issueAuthoring.authoringLabelName` | defaulted (key absent from `config.json`) | Discover authoring guard (A0-T/A0-O/A3) |
 
-`.github/workflows/stale.yml` must exempt `roadmap`,
-`status:blocked-by-human`, `status:needs-decision`, and
-`status:authoring` from its `exempt-issue-labels` (#50): each marks an
-issue IDD deliberately parks without activity — a roadmap stays open by
-design across its whole initiative, and the three hold labels exist
-precisely because a human has not acted yet. The stale bot cannot read
-`.github/idd/config.json`, so the workflow keeps a literal exempt list
-with a comment naming the four policy keys above it mirrors; keep both
-in sync if any of these label names ever changes.
+`.github/workflows/stale.yml` must exempt `roadmap`, `status:blocked-by-human`,
+`status:needs-decision`, and `status:authoring` from its `exempt-issue-labels`
+(#50): each marks an issue IDD deliberately parks without activity — a roadmap
+stays open by design across its whole initiative, and the three hold labels
+exist precisely because a human has not acted yet. The stale bot cannot read
+`.github/idd/config.json`, so the workflow keeps a literal exempt list with a
+comment naming the four policy keys above it mirrors; keep both in sync if any
+of these label names ever changes. `durable-record` is the one repository-only
+exception: it is not an IDD label, marks no parked issue, and keeps the two
+durable records #158 and #163 open.
 
 `labels.untrustedLabelerLogins: ["coderabbitai[bot]"]` (added at
 `0.11.0`, #143): CodeRabbit's issue-enrichment auto-labeling is active

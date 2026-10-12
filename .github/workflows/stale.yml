@@ -18,13 +18,17 @@ jobs:
           days-before-stale: 60
           close-issue-message: StaleBot closed the issue due to prolonged inactivity.
           close-pr-message: StaleBot closed the pull request due to prolonged inactivity.
-          # Mirrors labels.roadmapLabelName, labels.blockedByHumanLabelName,
-          # labels.needsDecisionLabelName, and issueAuthoring.authoringLabelName
-          # in .github/idd/config.json (the last defaults to status:authoring;
-          # the repo does not set issueAuthoring explicitly). Every one of
-          # these marks an issue IDD deliberately parks without activity; a
-          # label rename in config.json needs the matching entry updated here.
-          exempt-issue-labels: bug,enhancement,roadmap,status:blocked-by-human,status:needs-decision,status:authoring
+          # The four IDD labels below mirror the policy keys in
+          # .github/idd/config.json: labels.roadmapLabelName (roadmap),
+          # labels.blockedByHumanLabelName (status:blocked-by-human),
+          # labels.needsDecisionLabelName (status:needs-decision), and
+          # issueAuthoring.authoringLabelName (status:authoring; the repo does
+          # not set it, so the default applies). Each one marks an issue IDD
+          # deliberately parks without activity; a label rename in config.json
+          # needs the matching entry updated here. durable-record is
+          # repository-only: it is not an IDD label, marks no parked issue, and
+          # keeps the two durable records (#158, #163) open.
+          exempt-issue-labels: bug,enhancement,roadmap,status:blocked-by-human,status:needs-decision,status:authoring,durable-record
           exempt-pr-labels: bug,enhancement
           stale-issue-label: stale
           stale-issue-message: StaleBot marked the issue as stale because there has been no activity.
