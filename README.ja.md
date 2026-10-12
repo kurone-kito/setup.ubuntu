@@ -126,7 +126,7 @@ mise 設定に移管されました。移管先の一覧や層構造について
 
 - [apt-file](https://manpages.ubuntu.com/manpages/latest/man1/apt-file.1.html)
 - [apt-transport-https](https://manpages.ubuntu.com/manpages/latest/man1/apt-transport-https.1.html)
-- [apt-utils](https://manpages.ubuntu.com/manpages/latest/man1/apt-utils.1.html)
+- apt-utils
 - **`!`** [Homebrew](https://brew.sh/)
 - **`!`** (B) [mise-en-place](https://mise.jdx.dev/)
 - **`!`** software-properties-common

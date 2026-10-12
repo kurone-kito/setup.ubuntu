@@ -127,7 +127,7 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 
 - [apt-file](https://manpages.ubuntu.com/manpages/latest/man1/apt-file.1.html)
 - [apt-transport-https](https://manpages.ubuntu.com/manpages/latest/man1/apt-transport-https.1.html)
-- [apt-utils](https://manpages.ubuntu.com/manpages/latest/man1/apt-utils.1.html)
+- apt-utils
 - **`!`** [Homebrew](https://brew.sh/)
 - **`!`** (B) [mise-en-place](https://mise.jdx.dev/)
 - **`!`** software-properties-common
