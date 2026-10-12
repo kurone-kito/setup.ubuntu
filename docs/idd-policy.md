@@ -473,7 +473,8 @@ scripts.
   makes its reviews advisory, that is, not a required-reviewer or
   `CHANGES_REQUESTED` gate, and option B does not list CodeRabbit. Its
   review threads still count toward the general `Unresolved threads = 0`
-  backlog check in F2 (awaiting-reviewer threads excepted), so its
+  backlog check in F2 (awaiting-reviewer threads excepted, unless branch
+  protection requires conversation resolution), so its
   comments are dispositioned by hand under E6 either way. Reopen this
   decision through a follow-up issue if its review behavior changes, or
   if the owner later prefers re-adding it to this list or disabling
