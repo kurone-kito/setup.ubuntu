@@ -389,27 +389,25 @@ scripts.
   [Helper runtime](#helper-runtime-ephemeral-npx) for the ruleset
   step that adds it beside the checks `main` already requires.
 - The `Post cleanup evidence comment` run script in
-  `.github/workflows/post-merge-cleanup.yml` is a verbatim copy of the
-  same step in the upstream v0.14.0 template, kept for output parity.
-  Other parts of that file are outside this bullet's scope. The copy
-  keeps a known defect on the timeout path: `BODY=$(printf ...)` strips
-  the trailing newline, so the Notes row is appended onto the
-  `Posted by` row instead of rendering as its own table row
-  ([#3857](https://github.com/kurone-kito/idd-skill/issues/3857)).
-  The upstream fix is
-  [#3920](https://github.com/kurone-kito/idd-skill/pull/3920), which is
-  not in the v0.14.0 snapshot. The verbatim copy is required by the
-  acceptance criteria of #203. This divergence is temporary and
-  intentional. Unlike the divergence recorded for #125 in this section,
-  it is removed on resync. Revisit it when the pinned upstream snapshot
-  moves past v0.14.0 to one that contains #3920. Resync the whole chain
-  that carries the skip-reason row, not only the Post step. The chain has
-  three links: the helper pin, which supplies the helper JSON key
-  `skipReasonSummary`; the `cleanup` step, which reads that key and emits
-  the Actions step output `skip_reason_summary`; and the
-  `Post cleanup evidence comment` step, which reads that output. The
-  resync is complete when the template's Post step at the new pin reads
-  `skip_reason_summary`. Then remove this bullet.
+  `.github/workflows/post-merge-cleanup.yml` is a verbatim copy of the same step
+  in the upstream v0.14.0 template, kept for output parity. Other parts of that
+  file are outside this bullet's scope. The copy keeps a known defect on the
+  timeout path: `BODY=$(printf ...)` strips the trailing newline, so the Notes
+  row is appended onto the `Posted by` row instead of rendering as its own table
+  row ([#3857](https://github.com/kurone-kito/idd-skill/issues/3857)). The
+  upstream fix is [#3920](https://github.com/kurone-kito/idd-skill/pull/3920),
+  which is not in the v0.14.0 snapshot. The verbatim copy follows the upstream
+  v0.14.0 template; the acceptance criteria of #203 are closed and no longer
+  govern it. This divergence is temporary and intentional. Unlike the divergence
+  recorded for #125 in this section, it is removed on resync. Revisit it when
+  the pinned upstream snapshot moves past v0.14.0 to one that contains #3920.
+  Resync the whole chain that carries the skip-reason row, not only the Post
+  step. The chain has three links: the helper pin, which supplies the helper
+  JSON key `skipReasonSummary`; the `cleanup` step, which reads that key and
+  emits the Actions step output `skip_reason_summary`; and the `Post cleanup
+  evidence comment` step, which reads that output. The resync is complete when
+  the template's Post step at the new pin reads `skip_reason_summary`. Then
+  remove this bullet.
 - Lint overlay retained by #194: the project's cspell vocabulary
   and the `.terraform/**/*` markdown-lint exclusion stay local.
   Validate commands stay the markdownlint-cli2 and cspell rows in
@@ -533,6 +531,16 @@ scripts.
   replaced with this repository's actual `ephemeral-npx` invocation
   form. Every other allow/deny entry, including the deliberate absence
   of any `gh api` allow, matches upstream unchanged.
+- Maintainer decision (kurone-kito/setup.ubuntu#212, 2026-10-12): stay on the
+  v0.14.0 helper pin for now (option 3, review by 2026-12-31). Two differences
+  from upstream `main` are recorded with their consequences. First, the
+  `cleanup` and `Post cleanup evidence comment` steps of
+  `post-merge-cleanup.yml` keep the Notes-row defect; `main` fixes it in #3920,
+  and a bump would resync those steps. Second, claim order: `main` creates the
+  worktree before the claim (PR #3963), while the pinned order is claim first.
+  Under the pinned order the primary-worktree token record is written before the
+  worktree exists and stays after F4, which the pinned docs accept as a residual
+  (#2944). Moving to `main` changes where that record is written.
 
 This is a personal repository with a single owner and maintainer
 (`kurone-kito`). The issue-author approval gate stays enabled; the owner
