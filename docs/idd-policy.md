@@ -469,10 +469,12 @@ scripts.
   it via a follow-up issue if the underlying condition clears.
   `coderabbitai[bot]` also stays out, by decision on 2026-10-12 (#206,
   option B). PR #204 showed CodeRabbit posting real reviews, and the
-  cause of its automatic review is not established, so adding it here
-  would make its threads count toward the F2 unresolved-thread gate.
-  Its comments are dispositioned by hand under E6 instead. Reopen this
-  decision through a follow-up issue if its review behavior changes.
+  cause of its automatic review is not established. Its review threads
+  count toward the F2 unresolved-thread gate with or without this list,
+  because that gate covers every unresolved review thread (E1 fetches
+  all threads before exclusions), so its comments are dispositioned by
+  hand under E6 either way. Reopen this decision through a follow-up
+  issue if its review behavior changes.
 - Advisory-wait convergence scope: `idd-claimed` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below for the
   rationale)
