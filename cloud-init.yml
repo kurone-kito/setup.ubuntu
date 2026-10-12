@@ -17,7 +17,7 @@ packages:
   - htop
   - hyfetch
   - hyperfine
-  - iotop-c
+  - iotop
   - sysstat
 
   # Binary converters
