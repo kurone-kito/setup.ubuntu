@@ -21,25 +21,25 @@ mise 設定に移管されました。移管先の一覧や層構造について
 
 ## インストールされるアプリ
 
-|  記号   | 説明                                                                                                                         |
-| :-----: | :--------------------------------------------------------------------------------------------------------------------------- |
-| **`!`** | **依存関係**: これらのアプリを削除すると、このセットアップが正しく動作しなくなる場合があります。                             |
-| **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) の依存関係**: dotfiles を正しく動作させるために必要です。              |
+|  記号   | 説明                                                                                                                                                              |
+| :-----: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`!`** | **依存関係**: これらのアプリを削除すると、このセットアップが正しく動作しなくなる場合があります。                                                                  |
+| **`.`** | **[dotfiles](https://github.com/kurone-kito/dotfiles) の依存関係**: dotfiles を正しく動作させるために必要です。                                                   |
 |   (B)   | [Homebrew](https://brew.sh/) の **フォーミュラ**（`lib/Brewfile` の `brew 'name'`。`name` はパッケージ名）経由でインストールされるため、Homebrew で管理できます。 |
-|   (M)   | このリポジトリの [mise-en-place](https://mise.jdx.dev/) `lib/mise.sh` 経由でインストールされるため、mise-en-place で管理できます。 |
+|   (M)   | このリポジトリの [mise-en-place](https://mise.jdx.dev/) `lib/mise.sh` 経由でインストールされるため、mise-en-place で管理できます。                                |
 
 ### アーカイブツール
 
-- bzip2
-- unzip
-- xz-utils
-- zip
+- [bzip2](https://github.com/libarchive/bzip2)
+- [unzip](https://manpages.ubuntu.com/manpages/latest/man1/unzip.1.html)
+- [xz-utils](https://tukaani.org/xz/)
+- [zip](https://manpages.ubuntu.com/manpages/latest/man1/zip.1.html)
 
 ### ベンチマークツール
 
 - [htop](https://htop.dev)
-- hyfetch
-- hyperfine
+- [hyfetch](https://github.com/hykilpikonna/hyfetch)
+- [hyperfine](https://github.com/sharkdp/hyperfine)
 - [iotop](https://github.com/Tomas-M/iotop)
 - [sysstat](https://github.com/sysstat/sysstat)
 
@@ -63,7 +63,7 @@ mise 設定に移管されました。移管先の一覧や層構造について
 ### 暗号化
 
 - **`!`** [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
-- **`.`** [pinentry-curses](https://manpages.ubuntu.com/manpages/man1/pinentry-curses.1.html)
+- **`.`** [pinentry-curses](https://manpages.ubuntu.com/manpages/latest/man1/pinentry-curses.1.html)
 
 ### データベース
 
@@ -80,7 +80,7 @@ mise 設定に移管されました。移管先の一覧や層構造について
 - (B) [Deno](https://deno.com/)
 - (B) [direnv](https://direnv.net/)
 - [GCC: the GNU Compiler Collection](https://gcc.gnu.org)
-- make
+- [make](https://www.gnu.org/software/make/)
 - **`.`** (M) [Node.js](https://nodejs.org/)
 - (B) [python3](https://www.python.org/)
 - (B) [tree-sitter](https://tree-sitter.github.io/tree-sitter/)
@@ -94,7 +94,7 @@ mise 設定に移管されました。移管先の一覧や層構造について
 ### ファイル管理
 
 - [bat](https://github.com/sharkdp/bat)
-- eza
+- [eza](https://github.com/eza-community/eza)
 - (B) [fd](https://github.com/sharkdp/fd)
 - [rename](http://plasmasturm.org/code/rename/)
 - [trash-cli](https://github.com/andreafrancia/trash-cli)
@@ -125,8 +125,8 @@ mise 設定に移管されました。移管先の一覧や層構造について
 
 ### パッケージマネージャー
 
-- apt-file
-- apt-transport-https
+- [apt-file](https://manpages.ubuntu.com/manpages/latest/man1/apt-file.1.html)
+- [apt-transport-https](https://manpages.ubuntu.com/manpages/latest/man1/apt-transport-https.1.html)
 - apt-utils
 - **`!`** [Homebrew](https://brew.sh/)
 - **`!`** (B) [mise-en-place](https://mise.jdx.dev/)
@@ -138,10 +138,10 @@ mise 設定に移管されました。移管先の一覧や層構造について
 - **`.`** (B) [awscli](https://aws.amazon.com/cli/)
 - [httpie](https://httpie.io/)
 - [LazySSH](https://github.com/Adembc/lazyssh)
-- mosh
+- [mosh](https://mosh.org/)
 - [ngrok](https://ngrok.com/)
 - **`.`** [OpenSSH Server & Client](https://www.openssh.org/)
-- OpenSSL
+- [OpenSSL](https://www.openssl.org/)
 - [OpenVPN](https://openvpn.net/)
 - [rsync](https://rsync.samba.org/)
 
@@ -160,19 +160,19 @@ mise 設定に移管されました。移管先の一覧や層構造について
 
 ### シェルユーティリティ
 
-- bash-completion
+- [bash-completion](https://github.com/scop/bash-completion)
 - **`.`** (B) [Microsoft PowerShell](https://microsoft.com/PowerShell)
 - [shellcheck](https://www.shellcheck.net)
-- sudo-rs
+- [sudo-rs](https://github.com/trifectatechfoundation/sudo-rs)
 - [The Fuck](https://github.com/nvbn/thefuck)
 - **`.`** [zsh](https://www.zsh.org/)
 
 ### テキストブラウジングツール
 
 - (B) [glow](https://github.com/charmbracelet/glow)
-- links2
+- [links2](https://links.twibright.com/)
 - [mdp](https://github.com/visit1985/mdp)
-- w3m
+- [w3m](https://w3m.sourceforge.net/)
 
 ### テキスト変換ツール
 

@@ -32,9 +32,9 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 ### Archive tools
 
 - [bzip2](https://github.com/libarchive/bzip2)
-- [unzip](https://manpages.ubuntu.com/manpages/man1/unzip.1.html)
+- [unzip](https://manpages.ubuntu.com/manpages/latest/man1/unzip.1.html)
 - [xz-utils](https://tukaani.org/xz/)
-- [zip](https://manpages.ubuntu.com/manpages/man1/zip.1.html)
+- [zip](https://manpages.ubuntu.com/manpages/latest/man1/zip.1.html)
 
 ### Benchmark tools
 
@@ -64,7 +64,7 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 ### Cryptography
 
 - **`!`** [GnuPG: The GNU Privacy Guard](https://gnupg.org/)
-- **`.`** [pinentry-curses](https://manpages.ubuntu.com/manpages/man1/pinentry-curses.1.html)
+- **`.`** [pinentry-curses](https://manpages.ubuntu.com/manpages/latest/man1/pinentry-curses.1.html)
 
 ### Database
 
@@ -126,8 +126,8 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 
 ### Package manager
 
-- [apt-file](https://manpages.ubuntu.com/manpages/man1/apt-file.1.html)
-- [apt-transport-https](https://manpages.ubuntu.com/manpages/man1/apt-transport-https.1.html)
+- [apt-file](https://manpages.ubuntu.com/manpages/latest/man1/apt-file.1.html)
+- [apt-transport-https](https://manpages.ubuntu.com/manpages/latest/man1/apt-transport-https.1.html)
 - apt-utils
 - **`!`** [Homebrew](https://brew.sh/)
 - **`!`** (B) [mise-en-place](https://mise.jdx.dev/)
