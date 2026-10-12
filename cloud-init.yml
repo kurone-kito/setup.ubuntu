@@ -17,6 +17,7 @@ packages:
   - htop
   - hyfetch
   - hyperfine
+  - sysstat
 
   # Binary converters
   - atomicparsley
