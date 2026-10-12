@@ -18,7 +18,7 @@ jobs:
           days-before-stale: 60
           close-issue-message: StaleBot closed the issue due to prolonged inactivity.
           close-pr-message: StaleBot closed the pull request due to prolonged inactivity.
-          # The first four labels mirror the policy keys in
+          # The four IDD labels below mirror the policy keys in
           # .github/idd/config.json: labels.roadmapLabelName (roadmap),
           # labels.blockedByHumanLabelName (status:blocked-by-human),
           # labels.needsDecisionLabelName (status:needs-decision), and
