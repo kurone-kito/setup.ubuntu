@@ -463,13 +463,22 @@ scripts.
 - Helper runtime profile: `ephemeral-npx` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below)
 - Advisory bot logins: `copilot-pull-request-reviewer[bot]` only.
-  `coderabbitai[bot]` and `chatgpt-codex-connector[bot]` were dropped
-  2026-08-19 (#115) — across PRs #111-#113 both only ever posted
-  structural non-review notices (Codex: account-level usage-limit
-  exhaustion; CodeRabbit: this repository's star count below its
-  10-star automatic-review threshold), never a real review. Re-add
-  either login via a follow-up issue if the underlying condition
-  clears.
+  `chatgpt-codex-connector[bot]` was dropped 2026-08-19 (#115) — across
+  PRs #111-#113 it only ever posted structural non-review notices
+  (account-level usage-limit exhaustion), never a real review. Re-add
+  it via a follow-up issue if the underlying condition clears.
+  `coderabbitai[bot]` also stays out, by decision on 2026-10-12 (#206,
+  option B). PR #204 showed CodeRabbit posting real reviews, and the
+  cause of its automatic review is not established. Listing a bot here
+  makes its reviews advisory, that is, not a required-reviewer or
+  `CHANGES_REQUESTED` gate, and option B does not list CodeRabbit. Its
+  review threads still count toward the general `Unresolved threads = 0`
+  backlog check in F2 (awaiting-reviewer threads excepted, unless branch
+  protection requires conversation resolution), so its
+  comments are dispositioned by hand under E6 either way. Reopen this
+  decision through a follow-up issue if its review behavior changes, or
+  if the owner later prefers re-adding it to this list or disabling
+  automatic review.
 - Advisory-wait convergence scope: `idd-claimed` (see
   [Helper runtime](#helper-runtime-ephemeral-npx) below for the
   rationale)
