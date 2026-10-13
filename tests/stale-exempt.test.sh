@@ -78,7 +78,7 @@ drop_token() {
       n = split(value, parts, ",")
       out = ""
       for (i = 1; i <= n; i++) {
-        p = parts[i]; gsub(/^[[:space:]]+|[[:space:]]+$/, "", p)
+        p = parts[i]; sub(/^[[:space:]]+/, "", p); sub(/[[:space:]]+$/, "", p)
         if (p == label) continue
         out = (out == "" ? p : out "," p)
       }
