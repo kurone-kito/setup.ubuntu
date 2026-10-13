@@ -9,6 +9,13 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 stale_workflow="${STALE_WORKFLOW:-$root/.github/workflows/stale.yml}"
 idd_config="${IDD_CONFIG:-$root/.github/idd/config.json}"
 
+# exempt_tokens <stale.yml>: prints the trimmed tokens of exempt-issue-labels, one per line.
+exempt_tokens() {
+  local exempt
+  exempt="$(sed -n 's/^[[:space:]]*exempt-issue-labels:[[:space:]]*//p' "$1")"
+  printf '%s\n' "$exempt" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'
+}
+
 # read_required <config.json> <key>: prints the value, or fails with a named error.
 read_required() {
   local value
@@ -37,7 +44,7 @@ check_pair() {
   required+=("${value:-status:authoring}")
   required+=("durable-record")
   for label in "${required[@]}"; do
-    if ! printf '%s\n' "$exempt" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -Fxq -- "$label"; then
+    if ! exempt_tokens "$workflow" | grep -Fxq -- "$label"; then
       echo "missing from exempt-issue-labels: $label" >&2
       return 1
     fi
@@ -71,7 +78,7 @@ drop_token() {
       n = split(value, parts, ",")
       out = ""
       for (i = 1; i <= n; i++) {
-        p = parts[i]; sub(/^[[:space:]]+/, "", p); sub(/[[:space:]]+$/, "", p)
+        p = parts[i]; gsub(/^[[:space:]]+|[[:space:]]+$/, "", p)
         if (p == label) continue
         out = (out == "" ? p : out "," p)
       }
@@ -113,6 +120,10 @@ drop_token "$repo_wf" "$tmp/stale-c.yml" durable-record
 negative_result "c: durable-record removed" "durable-record" "$tmp/stale-c.yml" "$repo_cfg"
 
 # A proper substring of the needs-decision label, never equal to it.
+if exempt_tokens "$repo_wf" | grep -Fxq -- "${needs:1}"; then
+  echo "FAIL: d: ${needs:1} is itself an exempt token, so case d cannot test whole-token matching" >&2
+  fail=1
+fi
 jq --arg v "${needs:1}" '.labels.needsDecisionLabelName = $v' "$repo_cfg" > "$tmp/config-d.json"
 negative_result "d: needs-decision substring" "${needs:1}" "$repo_wf" "$tmp/config-d.json"
 
