@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Checks that stale.yml's exempt-issue-labels covers the IDD policy labels and
-# the repository-only durable-record label. The negative cases derive their
-# sed expressions from the repository's current config values, so a legitimate
-# rename of a policy label does not break them.
+# the repository-only durable-record label. The negative cases are built from
+# the repository's own values with jq and awk, not with sed expressions, so
+# label names containing regex or delimiter characters do not break them.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -50,7 +50,7 @@ if ! check_pair "$stale_workflow" "$idd_config"; then
   fail=1
 fi
 
-# The negative cases read the repository's own values, never the overrides.
+# The negative cases start from the repository's own files, never the overrides.
 repo_wf="$root/.github/workflows/stale.yml"
 repo_cfg="$root/.github/idd/config.json"
 roadmap="$(read_required "$repo_cfg" labels.roadmapLabelName)"
@@ -61,20 +61,34 @@ authoring="${authoring:-status:authoring}"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-# negative_case <name> <expected substring> <target: workflow|config> <sed expression>
-# Copies the repository file, applies one sed expression to the copy, and calls
-# check_pair on the copies. It must fail, and its output must contain the
-# expected substring. The script itself is never re-run.
-negative_case() {
-  local name="$1" expect="$2" target="$3" expr="$4" out wf cfg
-  wf="$repo_wf"; cfg="$repo_cfg"
-  if [ "$target" = workflow ]; then
-    sed -e "$expr" "$repo_wf" > "$tmp/stale.yml"; wf="$tmp/stale.yml"
-  else
-    sed -e "$expr" "$repo_cfg" > "$tmp/config.json"; cfg="$tmp/config.json"
-  fi
+# drop_token <src stale.yml> <dst> <label>: copies the file and removes one whole
+# token from the exempt-issue-labels value. Comparison is exact, not a regex.
+drop_token() {
+  awk -v label="$3" '
+    /^[[:space:]]*exempt-issue-labels:/ {
+      head = $0; sub(/exempt-issue-labels:.*$/, "", head)
+      value = $0; sub(/^.*exempt-issue-labels:[[:space:]]*/, "", value)
+      n = split(value, parts, ",")
+      out = ""
+      for (i = 1; i <= n; i++) {
+        p = parts[i]; gsub(/^[[:space:]]+|[[:space:]]+$/, "", p)
+        if (p == label) continue
+        out = (out == "" ? p : out "," p)
+      }
+      print head "exempt-issue-labels: " out
+      next
+    }
+    { print }
+  ' "$1" > "$2"
+}
+
+# negative_result <name> <expected substring> <stale.yml copy> <config copy>
+# The copies must differ from the repository files, check_pair must fail, and its
+# output must contain the expected substring. The script itself is never re-run.
+negative_result() {
+  local name="$1" expect="$2" wf="$3" cfg="$4" out
   if cmp -s "$wf" "$repo_wf" && cmp -s "$cfg" "$repo_cfg"; then
-    echo "FAIL: $name: the sed expression changed nothing" >&2
+    echo "FAIL: $name: the copy is identical to the repository file" >&2
     fail=1
     return
   fi
@@ -89,14 +103,18 @@ negative_case() {
   fi
 }
 
-negative_case "a: authoring label removed" "$authoring" workflow \
-  "/exempt-issue-labels:/s|,$authoring\\b||"
-negative_case "b: roadmap renamed in config" "$roadmap-renamed" config \
-  "s|\"roadmapLabelName\": \"$roadmap\"|\"roadmapLabelName\": \"$roadmap-renamed\"|"
-negative_case "c: durable-record removed" "durable-record" workflow \
-  "/exempt-issue-labels:/s|,durable-record\\b||"
-negative_case "d: needs-decision substring" "${needs#*:}" config \
-  "s|\"needsDecisionLabelName\": \"$needs\"|\"needsDecisionLabelName\": \"${needs#*:}\"|"
+drop_token "$repo_wf" "$tmp/stale-a.yml" "$authoring"
+negative_result "a: authoring label removed" "$authoring" "$tmp/stale-a.yml" "$repo_cfg"
+
+jq --arg v "$roadmap-renamed" '.labels.roadmapLabelName = $v' "$repo_cfg" > "$tmp/config-b.json"
+negative_result "b: roadmap renamed in config" "$roadmap-renamed" "$repo_wf" "$tmp/config-b.json"
+
+drop_token "$repo_wf" "$tmp/stale-c.yml" durable-record
+negative_result "c: durable-record removed" "durable-record" "$tmp/stale-c.yml" "$repo_cfg"
+
+# A proper substring of the needs-decision label, never equal to it.
+jq --arg v "${needs:1}" '.labels.needsDecisionLabelName = $v' "$repo_cfg" > "$tmp/config-d.json"
+negative_result "d: needs-decision substring" "${needs:1}" "$repo_wf" "$tmp/config-d.json"
 
 if [ "$fail" -eq 0 ]; then
   echo "ok: positive check"
