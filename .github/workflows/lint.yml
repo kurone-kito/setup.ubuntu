@@ -28,6 +28,8 @@ jobs:
           ignore_paths: .githooks
       - name: Run the setup CLI smoke test
         run: ./tests/setup-cli.test.sh
+      - name: Run stale-exempt
+        run: bash tests/stale-exempt.test.sh
       - name: Run actionlint
         uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2.2.0
     timeout-minutes: 15
