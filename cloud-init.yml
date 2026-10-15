@@ -106,9 +106,6 @@ packages:
   - jc
   - ripgrep
   - yq
-
-  # Texts editors
-  - vim
 timezone: Asia/Tokyo
 write_files:
   - path: /etc/apt/preferences.d/999-hold-kernel.pref

@@ -188,7 +188,6 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 ### Texts editors
 
 - (B) [Microsoft Edit](https://github.com/microsoft/edit)
-- **`.`** [Vim](https://www.vim.org/)
 
 ### TUI
 

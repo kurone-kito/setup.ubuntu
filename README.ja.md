@@ -187,7 +187,6 @@ mise 設定に移管されました。移管先の一覧や層構造について
 ### テキストエディター
 
 - (B) [Microsoft Edit](https://github.com/microsoft/edit)
-- **`.`** [Vim](https://www.vim.org/)
 
 ### TUI
 
