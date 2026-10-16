@@ -28,6 +28,8 @@ jobs:
           ignore_paths: .githooks
       - name: Run the setup CLI smoke test
         run: ./tests/setup-cli.test.sh
+      - name: Run the unity editor re-run test
+        run: sh tests/unity-editors.test.sh
       - name: Run stale-exempt
         run: bash tests/stale-exempt.test.sh
       - name: Run actionlint
