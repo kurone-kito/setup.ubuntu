@@ -39,6 +39,12 @@ has_word() {
   return 1
 }
 
+# An Editor counts as installed when the case lists it or an install marker
+# exists. The markers let a tolerated answer's claim show up in later calls.
+is_installed() {
+  has_word "$1" "$STUB_INSTALLED" || [ -f "$STUB_INSTALL_ROOT/installed-$1" ]
+}
+
 # The 6.3 selector resolves to the patch the case configures.
 exact_version() {
   if [ "$1" = "6.3" ]
@@ -58,7 +64,7 @@ case "$1" in
     case " $* " in
       *" --dry-run "*)
         already=false
-        if has_word "$version" "$STUB_INSTALLED"
+        if is_installed "$version"
         then
           already=true
         fi
@@ -75,7 +81,22 @@ case "$1" in
       *)
         case "${STUB_MUTATING:-ok}" in
           already)
+            # Reports the Editor present, and it is present from now on.
+            touch "$STUB_INSTALL_ROOT/installed-$version"
             printf '{"code":"COMMAND_FAILED","message":"Editor already installed in this location."}\n'
+            exit 6
+            ;;
+          second-fail)
+            # The expected message next to a second error, and no state change.
+            echo "Editor already installed in this location."
+            echo "Error: simulated second failure" >&2
+            exit 6
+            ;;
+          second-ok)
+            # The expected message next to a second error, with the state holding.
+            touch "$STUB_INSTALL_ROOT/installed-$version"
+            echo "Editor already installed in this location."
+            echo "Error: simulated second failure" >&2
             exit 6
             ;;
           fail)
@@ -87,11 +108,13 @@ case "$1" in
             exit 6
             ;;
         esac
+        touch "$STUB_INSTALL_ROOT/installed-$version"
         echo "installed ${version}"
         ;;
     esac
     ;;
   install-modules)
+    version="$3"
     case " $* " in
       *" --dry-run "*)
         # Mirrors the real dry-run: "No modules found" with exit 6 when the
@@ -111,7 +134,13 @@ case "$1" in
           printf '{"success": false, "command": "install-modules", "data": null, "errors": [{"code": "COMMAND_FAILED", "message": "No modules found to install."}, {"code": "COMMAND_FAILED", "message": "Other failure."}], "warnings": []}\n'
           exit 6
         fi
-        if [ -z "${STUB_MISSING:-}" ]
+        if [ "${STUB_PROBE:-}" = warnmsg ]
+        then
+          # A complete set whose warnings also carry a message.
+          printf '{"success": false, "command": "install-modules", "data": null, "errors": [{"code": "COMMAND_FAILED", "message": "No modules found to install."}], "warnings": [{"code": "NOTE", "message": "Something else."}]}\n'
+          exit 6
+        fi
+        if [ -z "${STUB_MISSING:-}" ] || [ -f "$STUB_INSTALL_ROOT/modules-$version" ]
         then
           printf '{"success": false, "command": "install-modules", "data": null, "errors": [{"code": "COMMAND_FAILED", "message": "No modules found to install."}], "warnings": []}\n'
           exit 6
@@ -140,11 +169,18 @@ case "$1" in
       printf '{"code":"COMMAND_FAILED","message":"Editor already installed in this location."}\n'
       exit 6
     fi
-    if [ -z "${STUB_MISSING:-}" ]
+    if [ "${STUB_MODULES:-ok}" = lie ]
+    then
+      # Says nothing is left, while modules are still missing and nothing was added.
+      echo "No modules found to install."
+      exit 6
+    fi
+    if [ -z "${STUB_MISSING:-}" ] || [ -f "$STUB_INSTALL_ROOT/modules-$version" ]
     then
       echo "No modules found to install."
       exit 6
     fi
+    touch "$STUB_INSTALL_ROOT/modules-$version"
     echo "installed modules: ${STUB_MISSING}"
     ;;
   language)
@@ -207,6 +243,7 @@ begin_case() {
   CASE="$1"
   CASE_OK=1
   : > "$STUB_LOG"
+  rm -f "$STUB_INSTALL_ROOT"/installed-* "$STUB_INSTALL_ROOT"/modules-*
   export STUB_INSTALLED="" STUB_GENERAL_RESOLVED="6000.3.10f1"
   export STUB_MISSING="" STUB_PROBE="" STUB_NO_FLAG="" STUB_LANG="en" STUB_LANG_FAIL="" STUB_MUTATING="ok" STUB_MODULES="ok" STUB_DF_GIB="100"
 }
@@ -620,6 +657,42 @@ run_script --dry-run
 expect_status 1
 expect_output "could not read the module plan for Unity 6000.3.10f1"
 expect_no_mutating_modules
+finish_case
+
+begin_case "dry-run, complete set with a warning message: still complete"
+STUB_INSTALLED="6000.3.10f1 2022.3.22f1"
+STUB_PROBE=warnmsg
+run_script --dry-run
+expect_status 0
+expect_output "general games: 6000.3.10f1 already installed; required modules present"
+finish_case
+
+begin_case "install-modules says nothing is left while modules are missing: not trusted"
+STUB_INSTALLED="6000.3.10f1 2022.3.22f1"
+STUB_MISSING="windows-mono"
+STUB_MODULES=lie
+STUB_DF_GIB=100
+run_script
+expect_status 1
+expect_output "still lacks modules"
+finish_case
+
+begin_case "install prints the expected message with a second error and no state change: not trusted"
+STUB_MUTATING=second-fail
+STUB_DF_GIB=40
+run_script
+expect_status 1
+expect_output "cannot be trusted"
+expect_no_call "install-modules"
+finish_case
+
+begin_case "install prints the expected message with a second error and the state holds: accepted"
+STUB_MUTATING=second-ok
+STUB_DF_GIB=40
+run_script
+expect_status 0
+expect_output "Error: simulated second failure"
+expect_call "$GENERAL_MODULES"
 finish_case
 
 if [ "$FAILURES" -gt 0 ]

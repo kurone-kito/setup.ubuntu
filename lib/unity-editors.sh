@@ -149,9 +149,11 @@ modules_to_add() {
   # $1 = exact version
   # shellcheck disable=SC2086
   probe="$(unity install-modules -e "$1" -m $MODULES --cm --dry-run --json --non-interactive 2>&1 || true)"
-  # The complete-set answer carries exactly one error message. The same
+  # Only the errors array decides this: a warning may carry a message of its
+  # own. The complete-set answer has exactly one error message, and the same
   # message next to another error is a failed probe, not a complete set.
-  if printf '%s' "$probe" | grep -Eq '"message"[[:space:]]*:[[:space:]]*"No modules found to install\."' && [ "$(printf '%s' "$probe" | grep -o '"message"' | wc -l | tr -d ' ')" -eq 1 ]
+  errors="$(printf '%s' "$probe" | tr '\n' ' ' | sed 's/.*"errors"//; s/"warnings".*//')"
+  if printf '%s' "$errors" | grep -Eq '"message"[[:space:]]*:[[:space:]]*"No modules found to install\."' && [ "$(printf '%s' "$errors" | grep -o '"message"' | wc -l | tr -d ' ')" -eq 1 ]
   then
     return 0
   fi
@@ -169,6 +171,34 @@ modules_to_add() {
     exit 1
   fi
   printf '%s' "$ids"
+}
+
+# A tolerated answer counts only when the state it reports is confirmed here.
+# The answer text alone is not trusted, because a failed call can print the
+# expected message next to another error.
+verify_editor_state() {
+  # $1 = exact version, $2 = changeset (empty if none)
+  if [ -n "$2" ]
+  then
+    state_json="$(resolve "$1" "$2")"
+  else
+    state_json="$(resolve "$1" "")"
+  fi
+  if [ "$(installed_state "$state_json")" != yes ]
+  then
+    echo "Error: Unity ${1} is not reported as installed, so the tolerated answer cannot be trusted. Stopping." >&2
+    exit 1
+  fi
+}
+
+verify_modules() {
+  # $1 = exact version
+  remaining="$(modules_to_add "$1")"
+  if [ -n "$remaining" ]
+  then
+    echo "Error: Unity ${1} still lacks modules (${remaining}), so the tolerated answer cannot be trusted. Stopping." >&2
+    exit 1
+  fi
 }
 
 # Runs one mutating unity command. Output streams to the terminal as it
@@ -242,30 +272,30 @@ describe_editor() {
 # on a headless host would hang, and --accept-eula covers module licences.
 converge_editor() {
   # $1 = label, $2 = exact version, $3 = changeset (empty if none), $4 = installed (yes|no)
-  if [ "$4" = yes ]
+  if [ "$4" = no ]
   then
-    log "adding any missing modules to ${1} ${2}..."
-    # shellcheck disable=SC2086
-    run_unity "No modules found to install." install-modules -e "$2" -m $MODULES --cm --non-interactive --yes --accept-eula
-    return 0
+    log "installing ${1} ${2}..."
+    if [ -n "$3" ]
+    then
+      # shellcheck disable=SC2086
+      run_unity "Editor already installed in this location." install "$2" -c "$3" --non-interactive --yes --accept-eula -m $MODULES --cm
+    else
+      # shellcheck disable=SC2086
+      run_unity "Editor already installed in this location." install "$2" --non-interactive --yes --accept-eula -m $MODULES --cm
+    fi
+    if [ "$last_outcome" = ok ]
+    then
+      return 0
+    fi
+    # The CLI reports the Editor as present after all. Confirm that before its modules are touched.
+    log "${1} ${2} was already present; confirming it..."
+    verify_editor_state "$2" "$3"
   fi
 
-  log "installing ${1} ${2}..."
-  if [ -n "$3" ]
-  then
-    # shellcheck disable=SC2086
-    run_unity "Editor already installed in this location." install "$2" -c "$3" --non-interactive --yes --accept-eula -m $MODULES --cm
-  else
-    # shellcheck disable=SC2086
-    run_unity "Editor already installed in this location." install "$2" --non-interactive --yes --accept-eula -m $MODULES --cm
-  fi
-  if [ "$last_outcome" = tolerated ]
-  then
-    # The CLI reports the Editor as present after all, so its modules are checked too.
-    log "${1} ${2} was already present; adding any missing modules..."
-    # shellcheck disable=SC2086
-    run_unity "No modules found to install." install-modules -e "$2" -m $MODULES --cm --non-interactive --yes --accept-eula
-  fi
+  log "adding any missing modules to ${1} ${2}..."
+  # shellcheck disable=SC2086
+  run_unity "No modules found to install." install-modules -e "$2" -m $MODULES --cm --non-interactive --yes --accept-eula
+  verify_modules "$2"
 }
 
 # Holds the output and exit status of each mutating unity call (see run_unity).

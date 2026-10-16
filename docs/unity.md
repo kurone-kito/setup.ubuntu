@@ -73,8 +73,9 @@ at the first Editor it finds:
   download. Free up space first.
 - The re-run checks read the Unity CLI's English result messages. When an
   Editor is already installed, `./setup --unity` therefore requires the CLI
-  display language to be English. If it is not, the run stops before changing
-  anything; set it with `unity language --set en` and run again.
+  display language to be English. If it is not, the run stops before installing
+  Editors, modules, or the `libgtk` package; set it with
+  `unity language --set en` and run again.
 - The `libgtk` runtime package is installed on every real run that the disk
   check does not stop, including when both Editors are already installed.
   Repeating that install is safe.
