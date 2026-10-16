@@ -101,6 +101,11 @@ case "$1" in
           echo "unexpected output"
           exit 1
         fi
+        if [ "${STUB_PROBE:-}" = twoerrors ]
+        then
+          printf '{"success": false, "command": "install-modules", "data": null, "errors": [{"code": "COMMAND_FAILED", "message": "No modules found to install."}, {"code": "COMMAND_FAILED", "message": "Other failure."}], "warnings": []}\n'
+          exit 6
+        fi
         if [ -z "${STUB_MISSING:-}" ]
         then
           printf '{"success": false, "command": "install-modules", "data": null, "errors": [{"code": "COMMAND_FAILED", "message": "No modules found to install."}], "warnings": []}\n'
@@ -136,6 +141,15 @@ case "$1" in
       exit 6
     fi
     echo "installed modules: ${STUB_MISSING}"
+    ;;
+  language)
+    if [ -n "${STUB_LANG_FAIL:-}" ]
+    then
+      echo "Error: simulated language failure" >&2
+      exit 1
+    fi
+    printf '{"success": true, "command": "language", "data": {"current": "%s", "name": "x"}}\n' "${STUB_LANG:-en}"
+    exit 0
     ;;
   *)
     echo "stub: unexpected unity subcommand: $1" >&2
@@ -189,7 +203,7 @@ begin_case() {
   CASE_OK=1
   : > "$STUB_LOG"
   export STUB_INSTALLED="" STUB_GENERAL_RESOLVED="6000.3.10f1"
-  export STUB_MISSING="" STUB_PROBE="" STUB_NO_FLAG="" STUB_MUTATING="ok" STUB_MODULES="ok" STUB_DF_GIB="100"
+  export STUB_MISSING="" STUB_PROBE="" STUB_NO_FLAG="" STUB_LANG="en" STUB_LANG_FAIL="" STUB_MUTATING="ok" STUB_MODULES="ok" STUB_DF_GIB="100"
 }
 
 # Runs the script with the given arguments and keeps its status and output.
@@ -541,6 +555,56 @@ STUB_DF_GIB=100
 run_script
 expect_status 6
 expect_output "failed with exit status 6"
+finish_case
+
+begin_case "installed Editor, CLI language not English: stops before any change"
+STUB_INSTALLED="6000.3.10f1"
+STUB_LANG=ja_jp
+STUB_DF_GIB=100
+run_script
+expect_status 1
+expect_output "display language is not English"
+expect_no_call "sudo"
+expect_no_mutating_install
+expect_no_mutating_modules
+finish_case
+
+begin_case "dry-run, installed Editor, CLI language not English: stops"
+STUB_INSTALLED="6000.3.10f1"
+STUB_LANG=ja_jp
+run_script --dry-run
+expect_status 1
+expect_output "display language is not English"
+expect_no_output "already installed"
+finish_case
+
+begin_case "installed Editor, CLI language unreadable: fails before any change"
+STUB_INSTALLED="6000.3.10f1"
+STUB_LANG_FAIL=1
+STUB_DF_GIB=100
+run_script
+expect_status 1
+expect_output "could not read the Unity CLI display language"
+expect_no_call "sudo"
+expect_no_mutating_install
+finish_case
+
+begin_case "fresh install, CLI language not English: no English check needed"
+STUB_LANG=ja_jp
+STUB_DF_GIB=40
+run_script
+expect_status 0
+expect_call "$GENERAL_INSTALL"
+expect_call "$VRCHAT_INSTALL"
+finish_case
+
+begin_case "module plan with two errors: fails instead of reading as complete"
+STUB_INSTALLED="6000.3.10f1 2022.3.22f1"
+STUB_PROBE=twoerrors
+run_script --dry-run
+expect_status 1
+expect_output "could not read the module plan for Unity 6000.3.10f1"
+expect_no_mutating_modules
 finish_case
 
 if [ "$FAILURES" -gt 0 ]

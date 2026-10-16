@@ -149,7 +149,9 @@ modules_to_add() {
   # $1 = exact version
   # shellcheck disable=SC2086
   probe="$(unity install-modules -e "$1" -m $MODULES --cm --dry-run --json --non-interactive 2>&1 || true)"
-  if printf '%s' "$probe" | grep -q 'No modules found to install.'
+  # The complete-set answer carries exactly one error message. The same
+  # message next to another error is a failed probe, not a complete set.
+  if printf '%s' "$probe" | grep -Eq '"message"[[:space:]]*:[[:space:]]*"No modules found to install\."' && [ "$(printf '%s' "$probe" | grep -o '"message"' | wc -l | tr -d ' ')" -eq 1 ]
   then
     return 0
   fi
@@ -186,6 +188,22 @@ run_unity() {
   fi
   echo "Error: unity $1 failed with exit status ${status}." >&2
   exit "$status"
+}
+
+# The re-run checks match the CLI's English result messages, so they need the
+# CLI display language set to English. Called only when an Editor is already
+# installed, because only a re-run depends on those messages.
+require_english_cli() {
+  if ! lang_json="$(unity language --format json 2>&1)"
+  then
+    echo "Error: could not read the Unity CLI display language: ${lang_json}" >&2
+    exit 1
+  fi
+  if ! printf '%s' "$lang_json" | grep -Eq '"current"[[:space:]]*:[[:space:]]*"en"'
+  then
+    echo "Error: the Unity CLI display language is not English. The re-run checks read its English result messages, so run 'unity language --set en' and retry." >&2
+    exit 1
+  fi
 }
 
 # Prints the plan line for one resolved Editor. An installed Editor lists
@@ -285,6 +303,11 @@ vrchat_size="$(json_number_field "$vrchat_json" totalDownloadSize)"
 general_exact_json="$(resolve "$general_version" "")"
 general_installed="$(installed_state "$general_exact_json")"
 vrchat_installed="$(installed_state "$vrchat_json")"
+
+if [ "$general_installed" = yes ] || [ "$vrchat_installed" = yes ]
+then
+  require_english_cli
+fi
 
 if [ "$DRY_RUN" -eq 1 ]
 then
