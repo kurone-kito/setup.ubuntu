@@ -19,11 +19,14 @@ repository deliberately does not hold the credentials to activate one.
 ./setup --unity --dry-run  # print the plan only; install nothing
 ```
 
-`--dry-run` resolves and prints both Editors' versions, the module set, and
-the estimated disk requirement, then exits without installing anything or
-requiring `sudo`. `--unity` is rejected on the VM / non-Ubuntu path because it
-cannot be forwarded into the launched VM; run it on a real Ubuntu host
-instead.
+`--dry-run` resolves and prints both Editors' versions and whether each one is
+already installed. For an installed Editor it lists the modules still to add.
+For an Editor that is not installed yet, it lists the modules the install would
+add and the download size. The estimated disk requirement is printed only when
+at least one Editor still has to be installed. It then exits without installing
+anything or requiring `sudo`.
+`--unity` is rejected on the VM / non-Ubuntu path because it cannot be
+forwarded into the launched VM; run it on a real Ubuntu host instead.
 
 `--unity --dry-run` needs the Unity CLI already on `PATH` to resolve live
 version data — it does not install the CLI itself, since that would make
@@ -52,6 +55,31 @@ own license check. Discovered empirically — see the comment above
 `resolve_apt_package` in that script for the reproduction. No other
 package was needed, with or without the `linux-il2cpp` module installed.
 
+## Re-running `--unity`
+
+`./setup --unity` can be run again on a host where the pinned Editors are
+already installed. The re-run converges on the same state instead of stopping
+at the first Editor it finds:
+
+- An already-installed Editor is kept. Any required module it is missing is
+  added with `unity install-modules`; nothing is reinstalled or forced.
+- The general-games Editor is still resolved from the `6.3` selector. A newer
+  `6000.3.*` patch that the selector now resolves to is installed, even when an
+  older `6000.3.*` patch is already present. Older patches are not removed.
+- The VRChat Editor stays pinned to `2022.3.22f1` (changeset `887be4894c44`).
+- The ~30 GiB free-space check applies only when at least one Editor still has
+  to be installed. Adding a missing module to an installed Editor does not
+  trigger it, so a host that is short on space can fail partway through that
+  download. Free up space first.
+- The re-run checks read the Unity CLI's English result messages. When an
+  Editor is already installed, `./setup --unity` therefore requires the CLI
+  display language to be English. If it is not, the run stops before installing
+  Editors, modules, or the `libgtk` package; set it with
+  `unity language --set en` and run again.
+- The `libgtk` runtime package is installed on every real run that the disk
+  check does not stop, including when both Editors are already installed.
+  Repeating that install is safe.
+
 ## Version policy
 
 The general-games Editor is selected with the explicit `6.3` selector, not
@@ -77,7 +105,9 @@ manifest.
 The default module set for both Editors combined is measured at roughly
 **27 GiB installed** / **13 GiB downloaded**. The preflight in
 `lib/unity-editors.sh` requires ~30 GiB free at the Unity CLI's configured
-install path before downloading anything, and rejects the run otherwise. To
+install path before downloading anything, and rejects the run otherwise. That
+check runs only when at least one Editor still has to be installed (see
+[Re-running `--unity`](#re-running---unity)). To
 trim the footprint, run `unity install <version> -m <module...>` directly
 with a smaller module list instead of `./setup --unity` — for example,
 omitting `--cm` skips the Android SDK/NDK toolchain modules it bundles, or
