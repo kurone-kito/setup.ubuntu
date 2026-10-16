@@ -101,6 +101,11 @@ case "$1" in
           echo "unexpected output"
           exit 1
         fi
+        if [ "${STUB_PROBE:-}" = emptyplan ]
+        then
+          printf '{"success": true, "command": "install-modules", "data": {"modules": []}}\n'
+          exit 0
+        fi
         if [ "${STUB_PROBE:-}" = twoerrors ]
         then
           printf '{"success": false, "command": "install-modules", "data": null, "errors": [{"code": "COMMAND_FAILED", "message": "No modules found to install."}, {"code": "COMMAND_FAILED", "message": "Other failure."}], "warnings": []}\n'
@@ -596,6 +601,16 @@ run_script
 expect_status 0
 expect_call "$GENERAL_INSTALL"
 expect_call "$VRCHAT_INSTALL"
+finish_case
+
+begin_case "success plan with no module ids: fails instead of reading as complete"
+STUB_INSTALLED="6000.3.10f1 2022.3.22f1"
+STUB_PROBE=emptyplan
+run_script --dry-run
+expect_status 1
+expect_output "lists no modules"
+expect_no_output "required modules present"
+expect_no_mutating_modules
 finish_case
 
 begin_case "module plan with two errors: fails instead of reading as complete"

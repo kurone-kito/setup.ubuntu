@@ -160,7 +160,15 @@ modules_to_add() {
     echo "Error: could not read the module plan for Unity ${1}. Its output format may have changed." >&2
     exit 1
   fi
-  printf '%s' "$probe" | grep -o '"id"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)"$/\1/' | tr '\n' ' ' | sed 's/ $//'
+  # A success answer with no module ids is not a plan either: the set would
+  # read as complete without anything having been checked.
+  ids="$(printf '%s' "$probe" | grep -o '"id"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)"$/\1/' | tr '\n' ' ' | sed 's/ $//')"
+  if [ -z "$ids" ]
+  then
+    echo "Error: the module plan for Unity ${1} lists no modules. Its output format may have changed." >&2
+    exit 1
+  fi
+  printf '%s' "$ids"
 }
 
 # Runs one mutating unity command. Output streams to the terminal as it
