@@ -82,6 +82,9 @@ packages:
   - openvpn
   - rsync
 
+  # Runtime libraries
+  - libicu78
+
   # SCM tools
   - gh
   - git
