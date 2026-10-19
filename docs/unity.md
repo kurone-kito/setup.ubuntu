@@ -47,13 +47,19 @@ Two pinned Editors, each with the `android`, `linux-il2cpp`, and
 - **`2022.3.22f1`** (changeset `887be4894c44`) — the exact build VRChat's SDK
   targets.
 
-`lib/unity-editors.sh` also installs one apt package alongside the Editors,
-`libgtk-3-0t64` (`libgtk-3-0` on Ubuntu releases that predate the 64-bit
-`time_t` package rename): the freshly installed Editor binary fails the
-dynamic linker on `libgtk-3.so.0` without it, before ever reaching Unity's
-own license check. Discovered empirically — see the comment above
-`resolve_apt_package` in that script for the reproduction. No other
-package was needed, with or without the `linux-il2cpp` module installed.
+`lib/unity-editors.sh` also installs two apt packages alongside the Editors.
+The first is `libgtk-3-0t64` (`libgtk-3-0` on Ubuntu releases that predate
+the 64-bit `time_t` package rename): the freshly installed Editor binary
+fails the dynamic linker on `libgtk-3.so.0` without it, before ever reaching
+Unity's own license check. Discovered empirically — see the comment above
+`resolve_apt_package` in that script for the reproduction. The second is the
+ICU runtime: the newest `libicuNN` from 50 to 80 that apt offers, which is
+`libicu78` on Ubuntu 26.04 and `libicu74` on 24.04. The Editor's .NET host
+loads a system ICU at startup, and without one the batch run stops with
+"Couldn't find a valid ICU package installed on the system". The ICU runtime
+is not part of the default package list, because the Unity CLI does not need
+it and the version-specific name would break the default install on releases
+where it does not exist. See `resolve_icu_package` in the same script.
 
 ## Re-running `--unity`
 
@@ -74,11 +80,11 @@ at the first Editor it finds:
 - The re-run checks read the Unity CLI's English result messages. When an
   Editor is already installed, `./setup --unity` therefore requires the CLI
   display language to be English. If it is not, the run stops before installing
-  Editors, modules, or the `libgtk` package; set it with
+  Editors, modules, or the runtime packages (`libgtk` and ICU); set it with
   `unity language --set en` and run again.
-- The `libgtk` runtime package is installed on every real run that the disk
-  check does not stop, including when both Editors are already installed.
-  Repeating that install is safe.
+- The `libgtk` and ICU runtime packages are installed on every real run that
+  the disk check does not stop, including when both Editors are already
+  installed. Repeating that install is safe.
 
 ## Version policy
 
@@ -159,3 +165,26 @@ chezmoi boundary [docs/desktop.md](desktop.md) draws for the desktop layer.
 
 - `--unity` — install the pinned Unity Editors.
 - `--unity --dry-run` — print the plan and install nothing.
+
+## Known open issues
+
+These are not fixed by this repository, and the tests do not cover them.
+
+- **The Ubuntu 24.04 Editor run is unverified.** The ICU runtime resolves to
+  `libicu74` on 24.04, and the Editor's .NET host is expected to accept it.
+  A 24.04 batch run has not been performed, because it needs a full Editor
+  install of about 27 GiB. What was verified on 24.04, in an `ubuntu:24.04`
+  container: the default package list with `libicu78` fails `apt-get install
+  -s` with exit status 100 (`Unable to locate package libicu78`), and the
+  same list without it simulates cleanly (exit status 0). The resolver
+  selects `libicu74` from the 24.04 apt lists.
+- **The 2022.3.22f1 Editor needs `libxml2.so.2`, which Ubuntu 25.10 and 26.04
+  do not provide.** Those releases offer only the `libxml2-16` package. On
+  26.04.1, `ldd ~/Unity/Hub/Editor/2022.3.22f1/Editor/Unity | grep 'not
+  found'` prints `libxml2.so.2 => not found`. Ubuntu 22.04 and 24.04 offer the
+  `libxml2` package instead. Fixing this needs a separate change.
+- **GUI and IL2CPP builds are untested for ICU.** Only the batch run was
+  tested.
+- **Whether a fresh default install still gets an ICU through other packages
+  is not established.** It does not affect `--unity`, which installs its own
+  runtime.
