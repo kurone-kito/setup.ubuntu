@@ -717,6 +717,16 @@ expect_output "Error: simulated second failure"
 expect_call "$GENERAL_MODULES"
 finish_case
 
+# True while a process runs. A zombie (defunct) process still answers kill -0,
+# so its state is checked as well.
+process_alive() {
+  kill -0 "$1" 2>/dev/null || return 1
+  case "$(ps -o stat= -p "$1" 2>/dev/null)" in
+    ''|Z*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
 # A PATH with every system tool except script(1), for the missing-script cases.
 make_noscript_bin() {
   NOSCRIPT_BIN="${WORK}/noscript"
@@ -853,12 +863,12 @@ case "$sigign" in
 esac
 kill -INT "$SCRIPT_PID" 2>/dev/null || true
 i=0
-while kill -0 "$SCRIPT_PID" 2>/dev/null && [ "$i" -lt 100 ]
+while process_alive "$SCRIPT_PID" && [ "$i" -lt 100 ]
 do
   sleep 0.1
   i=$((i + 1))
 done
-if kill -0 "$SCRIPT_PID" 2>/dev/null
+if process_alive "$SCRIPT_PID"
 then
   fail_check "the script still runs 10 seconds after SIGINT"
   kill -KILL "$SCRIPT_PID" 2>/dev/null || true
@@ -876,12 +886,12 @@ for pid_file in stub.pid child.pid
 do
   pid="$(cat "$BLOCK_DIR/$pid_file" 2>/dev/null || echo 0)"
   i=0
-  while [ "$pid" -gt 0 ] && kill -0 "$pid" 2>/dev/null && [ "$i" -lt 50 ]
+  while [ "$pid" -gt 0 ] && process_alive "$pid" && [ "$i" -lt 50 ]
   do
     sleep 0.1
     i=$((i + 1))
   done
-  if [ "$pid" -gt 0 ] && kill -0 "$pid" 2>/dev/null
+  if [ "$pid" -gt 0 ] && process_alive "$pid"
   then
     fail_check "$pid_file process is still running after the interrupt"
     kill -KILL "$pid" 2>/dev/null || true
