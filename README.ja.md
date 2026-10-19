@@ -145,10 +145,6 @@ mise 設定に移管されました。移管先の一覧や層構造について
 - [OpenVPN](https://openvpn.net/)
 - [rsync](https://rsync.samba.org/)
 
-### ランタイムライブラリ
-
-- libicu78
-
 ### SCM ツール
 
 - **`.`** (B) [ghq](https://github.com/x-motemen/ghq)
