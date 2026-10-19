@@ -201,8 +201,25 @@ verify_modules() {
   fi
 }
 
-# Runs one mutating unity command. Output streams to the terminal as it
-# arrives and is also kept, so the outcome can be matched on its text. A
+# Quotes one argument for the POSIX shell that `script -c` runs.
+shell_quote() {
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+}
+
+# Sends TERM to a process and all of its descendants. The wrapped call
+# inherits SIGINT ignored, because it runs in the background, so TERM is the
+# signal that stops it.
+kill_tree() {
+  for child_pid in $(ps -o pid= --ppid "$1" 2>/dev/null)
+  do
+    kill_tree "$child_pid"
+  done
+  kill -TERM "$1" 2>/dev/null || true
+}
+
+# Runs one mutating unity command under a pseudo-terminal, so the CLI draws
+# its progress as it would on a terminal. Output streams to the terminal as
+# it arrives and is also kept, so the outcome can be matched on its text. A
 # non-zero status counts as success only when the output carries the one
 # message this call expects. That message means the requested state already
 # holds. Any other failure exits the script with the CLI's own status.
@@ -210,22 +227,59 @@ run_unity() {
   # $1 = the message that counts as success for this call, $2... = unity arguments
   expected="$1"
   shift
-  # A pipeline's status is tee's, so the unity status goes through a file.
-  # The `if` keeps `set -e` from ending this subshell before the status is written.
-  { if unity "$@" 2>&1; then rc=0; else rc=$?; fi; printf '%s\n' "$rc" > "${run_dir}/status"; } | tee "${run_dir}/output"
-  status="$(cat "${run_dir}/status")"
+  # The CLI status is written by the wrapped command itself, so a failure of
+  # `script` is never read as a CLI status. The files are cleared first, so a
+  # record left by an earlier call cannot be read here.
+  rm -f "${run_dir}/status" "${run_dir}/script.pid"
+  command_line="unity"
+  for arg in "$@"
+  do
+    command_line="${command_line} $(shell_quote "$arg")"
+  done
+  # `script -c` runs its string under $SHELL, so SHELL is pinned to /bin/sh.
+  # The call runs in the background so that the trap below can act while it
+  # runs: a trap waits for a foreground child to exit. The pipeline itself is
+  # backgrounded and waited on, so `$!` names a process this shell can signal.
+  (
+    SHELL=/bin/sh script -q -e -f -c "${command_line}; printf '%s\\n' \$? > $(shell_quote "${run_dir}/status")" /dev/null &
+    echo "$!" > "${run_dir}/script.pid"
+    wait "$!"
+  ) | tee "${run_dir}/output" &
+  run_pipe=$!
+  wait "$run_pipe" 2>/dev/null || true
+  status=""
+  if [ -f "${run_dir}/status" ]
+  then
+    status="$(cat "${run_dir}/status")"
+  fi
+  case "$status" in
+    ''|*[!0-9]*)
+      echo "Error: script did not record the unity status for '$1'. Check that script(1) can run a pseudo-terminal here." >&2
+      exit 1
+      ;;
+  esac
   last_outcome=ok
   if [ "$status" -eq 0 ]
   then
     return 0
   fi
-  if grep -qF -- "$expected" "${run_dir}/output"
+  if tr -d '\r' < "${run_dir}/output" | grep -qF -- "$expected"
   then
     last_outcome=tolerated
     return 0
   fi
   echo "Error: unity $1 failed with exit status ${status}." >&2
   exit "$status"
+}
+
+# Ctrl-C reaches this shell. The wrapped call runs in the background, so it
+# is stopped here by TERM to its whole process tree, and the script exits 130.
+stop_unity_call() {
+  if [ -f "${run_dir}/script.pid" ]
+  then
+    kill_tree "$(cat "${run_dir}/script.pid")"
+  fi
+  exit 130
 }
 
 # The re-run checks match the CLI's English result messages, so they need the
@@ -301,9 +355,9 @@ converge_editor() {
 # Holds the output and exit status of each mutating unity call (see run_unity).
 run_dir="$(mktemp -d)"
 trap 'rm -rf "$run_dir"' EXIT
-# Ctrl-C reaches unity too (same process group), so the EXIT trap above still
-# runs and removes the scratch directory.
-trap 'exit 130' INT
+# Ctrl-C stops the wrapped unity call through stop_unity_call, which exits 130.
+# The EXIT trap above still runs and removes the scratch directory.
+trap stop_unity_call INT
 
 log "resolving general-games Editor (${GENERAL_SELECTOR})..."
 general_json="$(resolve "$GENERAL_SELECTOR" "")"
@@ -356,6 +410,15 @@ then
     plan "estimated disk required: ${REQUIRED_DISK_GIB} GiB"
   fi
   exit 0
+fi
+
+# Every real run calls the CLI under a pseudo-terminal through script(1). The
+# check runs before the apt step and before any mutating call. There is no
+# fallback to a plain pipe, because a pipe changes how the CLI draws progress.
+if ! command -v script >/dev/null 2>&1
+then
+  echo "Error: script(1) from util-linux is required to run the Unity CLI under a pseudo-terminal. Install util-linux and run again." >&2
+  exit 1
 fi
 
 # The disk preflight guards an Editor download, so it applies only when at
