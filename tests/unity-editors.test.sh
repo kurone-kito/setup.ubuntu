@@ -754,10 +754,15 @@ expect_no_call "install-modules"
 finish_case
 
 begin_case "the caller's SHELL does not change the wrapped call"
-OLD_SHELL="$SHELL"
+OLD_SHELL="${SHELL:-}"
 export SHELL=/usr/bin/false
 run_script
-export SHELL="$OLD_SHELL"
+if [ -n "$OLD_SHELL" ]
+then
+  export SHELL="$OLD_SHELL"
+else
+  unset SHELL
+fi
 expect_status 0
 expect_call "$GENERAL_INSTALL"
 finish_case
