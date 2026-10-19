@@ -206,15 +206,61 @@ shell_quote() {
   printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
 }
 
+# Lists a process and all of its descendants, one pid per line.
+descendant_pids() {
+  ps -e -o pid= -o ppid= 2>/dev/null | awk -v root="$1" '
+    { parent[$1] = $2 }
+    END {
+      list[++count] = root
+      seen[root] = 1
+      for (i = 1; i <= count; i++)
+      {
+        for (pid in parent)
+        {
+          if (parent[pid] == list[i] && !(pid in seen))
+          {
+            seen[pid] = 1
+            list[++count] = pid
+          }
+        }
+      }
+      for (i = 1; i <= count; i++)
+      {
+        print list[i]
+      }
+    }'
+}
+
 # Sends TERM to a process and all of its descendants. The wrapped call
 # inherits SIGINT ignored, because it runs in the background, so TERM is the
-# signal that stops it.
+# signal that stops it. The tree is frozen with STOP while it is listed, and
+# the listing repeats until it stops growing, so a process that forks during
+# the walk is still reached. Each process then gets TERM and CONT.
 kill_tree() {
-  for child_pid in $(ps -o pid= --ppid "$1" 2>/dev/null)
+  previous=""
+  round=0
+  while [ "$round" -lt 20 ]
   do
-    kill_tree "$child_pid"
+    current="$(descendant_pids "$1")"
+    if [ "$current" = "$previous" ]
+    then
+      break
+    fi
+    for pid in $current
+    do
+      kill -STOP "$pid" 2>/dev/null || true
+    done
+    previous="$current"
+    round=$((round + 1))
   done
-  kill -TERM "$1" 2>/dev/null || true
+  for pid in $previous
+  do
+    kill -TERM "$pid" 2>/dev/null || true
+  done
+  for pid in $previous
+  do
+    kill -CONT "$pid" 2>/dev/null || true
+  done
 }
 
 # Runs one mutating unity command under a pseudo-terminal, so the CLI draws
