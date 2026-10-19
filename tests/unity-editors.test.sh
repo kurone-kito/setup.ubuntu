@@ -13,6 +13,10 @@ cd "$(cd "$(dirname "$0")/.."; pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
+# The real script(1), resolved before the stub directory goes first on PATH.
+STUB_REAL_SCRIPT="$(command -v script || true)"
+export STUB_REAL_SCRIPT
+
 STUB_BIN="${WORK}/bin"
 STUB_LOG="${WORK}/calls.log"
 STUB_INSTALL_ROOT="${WORK}/editors"
@@ -107,7 +111,25 @@ case "$1" in
             echo "No modules found to install."
             exit 6
             ;;
+          exit3)
+            echo "simulated failure without the expected message" >&2
+            exit 3
+            ;;
         esac
+        # Prints a progress line only on a terminal, as the real CLI does.
+        if [ -n "${STUB_PROGRESS:-}" ] && [ -t 1 ]
+        then
+          printf 'progress 50%%\n'
+        fi
+        # Stands in for a long download: records its pid and a child's pid,
+        # then waits, so the interrupt case can stop it.
+        if [ -n "${STUB_BLOCK_DIR:-}" ]
+        then
+          echo "$$" > "$STUB_BLOCK_DIR/stub.pid"
+          sleep 60 &
+          echo "$!" > "$STUB_BLOCK_DIR/child.pid"
+          wait
+        fi
         touch "$STUB_INSTALL_ROOT/installed-$version"
         echo "installed ${version}"
         ;;
@@ -694,6 +716,198 @@ expect_status 0
 expect_output "Error: simulated second failure"
 expect_call "$GENERAL_MODULES"
 finish_case
+
+# True while a process runs. A zombie (defunct) process still answers kill -0,
+# so its state is checked as well.
+process_alive() {
+  kill -0 "$1" 2>/dev/null || return 1
+  case "$(ps -o stat= -p "$1" 2>/dev/null)" in
+    ''|Z*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+# A PATH with every system tool except script(1), for the missing-script cases.
+make_noscript_bin() {
+  NOSCRIPT_BIN="${WORK}/noscript"
+  mkdir -p "$NOSCRIPT_BIN"
+  for dir in /usr/bin /bin
+  do
+    for file in "$dir"/*
+    do
+      name="$(basename "$file")"
+      if [ "$name" != script ] && [ -x "$file" ] && [ ! -e "$NOSCRIPT_BIN/$name" ]
+      then
+        ln -s "$file" "$NOSCRIPT_BIN/$name"
+      fi
+    done
+  done
+}
+
+begin_case "progress line reaches the captured output, with no script banner"
+export LC_ALL=C STUB_PROGRESS=1
+run_script
+unset LC_ALL STUB_PROGRESS
+expect_status 0
+expect_output "progress 50%"
+expect_no_output "Script started"
+expect_no_output "Script done"
+expect_call "$GENERAL_INSTALL"
+finish_case
+
+begin_case "a mutating call that fails without the expected message exits with its status"
+STUB_MUTATING=exit3
+run_script
+expect_status 3
+expect_output "simulated failure without the expected message"
+expect_no_call "install-modules"
+finish_case
+
+begin_case "the caller's SHELL does not change the wrapped call"
+OLD_SHELL="${SHELL-}"
+SHELL_WAS_SET="${SHELL+x}"
+export SHELL=/usr/bin/false
+run_script
+if [ -n "$SHELL_WAS_SET" ]
+then
+  export SHELL="$OLD_SHELL"
+else
+  unset SHELL
+fi
+expect_status 0
+expect_call "$GENERAL_INSTALL"
+finish_case
+
+begin_case "no script(1) on PATH: exits before apt and before any mutating call"
+make_noscript_bin
+OLD_PATH="$PATH"
+PATH="${STUB_BIN}:${NOSCRIPT_BIN}"
+export PATH
+run_script
+PATH="$OLD_PATH"
+export PATH
+expect_status 1
+expect_output "script(1)"
+expect_no_call "apt-get"
+expect_no_mutating_install
+expect_no_mutating_modules
+finish_case
+
+begin_case "no script(1) on PATH: a dry run still succeeds"
+make_noscript_bin
+OLD_PATH="$PATH"
+PATH="${STUB_BIN}:${NOSCRIPT_BIN}"
+export PATH
+run_script --dry-run
+PATH="$OLD_PATH"
+export PATH
+expect_status 0
+expect_output "[unity:plan]"
+expect_no_mutating_install
+finish_case
+
+begin_case "script(1) present but failing: names script, not the CLI"
+write_stub script <<'STUB'
+#!/bin/sh
+echo "pty allocation failed: no pseudo-terminal" >&2
+exit 1
+STUB
+run_script
+rm -f "${STUB_BIN}/script"
+expect_status 1
+expect_output "script did not record the unity status"
+expect_no_output "failed with exit status"
+expect_no_mutating_install
+finish_case
+
+begin_case "script(1) fails on the second call: names script, not the CLI"
+write_stub script <<'STUB'
+#!/bin/sh
+count_file="$STUB_INSTALL_ROOT/script-calls"
+n=$(cat "$count_file" 2>/dev/null || echo 0)
+n=$((n + 1))
+echo "$n" > "$count_file"
+if [ "$n" -ge 2 ]
+then
+  echo "pty allocation failed: no pseudo-terminal" >&2
+  exit 1
+fi
+exec "$STUB_REAL_SCRIPT" "$@"
+STUB
+run_script
+rm -f "${STUB_BIN}/script" "$STUB_INSTALL_ROOT/script-calls"
+expect_status 1
+expect_output "script did not record the unity status"
+expect_no_output "failed with exit status"
+expect_call "$GENERAL_INSTALL"
+finish_case
+
+begin_case "SIGINT stops the wrapped call and its children, then exits 130"
+BLOCK_DIR="${WORK}/block"
+TMP_EMPTY="${WORK}/tmp-empty"
+mkdir -p "$BLOCK_DIR" "$TMP_EMPTY"
+export STUB_BLOCK_DIR="$BLOCK_DIR" TMPDIR="$TMP_EMPTY"
+# SIGINT is reset to its default here, so the launched shell can receive it.
+perl -e '$SIG{INT} = "DEFAULT"; exec @ARGV' sh lib/unity-editors.sh > "${WORK}/interrupt.out" 2>&1 &
+SCRIPT_PID=$!
+unset STUB_BLOCK_DIR TMPDIR
+i=0
+while [ ! -s "$BLOCK_DIR/child.pid" ] && [ "$i" -lt 100 ]
+do
+  sleep 0.1
+  i=$((i + 1))
+done
+sigign="$(awk '/^SigIgn:/ {print $2}' "/proc/${SCRIPT_PID}/status" 2>/dev/null || true)"
+case "$sigign" in
+  *[2367abef]) fail_check "SIGINT is ignored in the script before the signal" ;;
+esac
+kill -INT "$SCRIPT_PID" 2>/dev/null || true
+i=0
+while process_alive "$SCRIPT_PID" && [ "$i" -lt 100 ]
+do
+  sleep 0.1
+  i=$((i + 1))
+done
+if process_alive "$SCRIPT_PID"
+then
+  fail_check "the script still runs 10 seconds after SIGINT"
+  kill -KILL "$SCRIPT_PID" 2>/dev/null || true
+fi
+if wait "$SCRIPT_PID"
+then
+  INT_STATUS=0
+else
+  INT_STATUS=$?
+fi
+STATUS="$INT_STATUS"
+OUTPUT="$(cat "${WORK}/interrupt.out")"
+expect_status 130
+for pid_file in stub.pid child.pid
+do
+  pid="$(cat "$BLOCK_DIR/$pid_file" 2>/dev/null || echo 0)"
+  i=0
+  while [ "$pid" -gt 0 ] && process_alive "$pid" && [ "$i" -lt 50 ]
+  do
+    sleep 0.1
+    i=$((i + 1))
+  done
+  if [ "$pid" -gt 0 ] && process_alive "$pid"
+  then
+    fail_check "$pid_file process is still running after the interrupt"
+    kill -KILL "$pid" 2>/dev/null || true
+  fi
+done
+if [ -n "$(ls -A "$TMP_EMPTY")" ]
+then
+  fail_check "the scratch directory was not removed after the interrupt"
+fi
+finish_case
+
+if [ -e typescript ]
+then
+  echo "a typescript file was created in the working directory" >&2
+  FAILURES=$((FAILURES + 1))
+fi
 
 if [ "$FAILURES" -gt 0 ]
 then
