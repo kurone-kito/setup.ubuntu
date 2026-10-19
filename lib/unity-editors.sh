@@ -240,6 +240,9 @@ run_unity() {
   # The call runs in the background so that the trap below can act while it
   # runs: a trap waits for a foreground child to exit. The pipeline itself is
   # backgrounded and waited on, so `$!` names a process this shell can signal.
+  # The flag tells stop_unity_call that a call may be running, so it waits for
+  # the pid file if an interrupt arrives before the pid is recorded.
+  unity_call_started=1
   (
     SHELL=/bin/sh script -q -e -f -c "${command_line}; printf '%s\\n' \$? > $(shell_quote "${run_dir}/status")" /dev/null &
     echo "$!" > "${run_dir}/script.pid"
@@ -247,6 +250,8 @@ run_unity() {
   ) | tee "${run_dir}/output" &
   run_pipe=$!
   wait "$run_pipe" 2>/dev/null || true
+  unity_call_started=""
+  rm -f "${run_dir}/script.pid"
   status=""
   if [ -f "${run_dir}/status" ]
   then
@@ -275,9 +280,19 @@ run_unity() {
 # Ctrl-C reaches this shell. The wrapped call runs in the background, so it
 # is stopped here by TERM to its whole process tree, and the script exits 130.
 stop_unity_call() {
-  if [ -f "${run_dir}/script.pid" ]
+  if [ -n "${unity_call_started:-}" ]
   then
-    kill_tree "$(cat "${run_dir}/script.pid")"
+    # A call may have started without recording its pid yet, so wait briefly.
+    i=0
+    while [ ! -s "${run_dir}/script.pid" ] && [ "$i" -lt 50 ]
+    do
+      sleep 0.1
+      i=$((i + 1))
+    done
+    if [ -s "${run_dir}/script.pid" ]
+    then
+      kill_tree "$(cat "${run_dir}/script.pid")"
+    fi
   fi
   exit 130
 }
