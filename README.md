@@ -146,10 +146,6 @@ fresh shell, after `./setup`) is what installs those handed-off CLIs.
 - [OpenVPN](https://openvpn.net/)
 - [rsync](https://rsync.samba.org/)
 
-### Runtime libraries
-
-- libicu78
-
 ### SCM tools
 
 - **`.`** (B) [ghq](https://github.com/x-motemen/ghq)

@@ -56,10 +56,11 @@ VRCHAT_CHANGESET="887be4894c44"
 # fails the dynamic linker before reaching Unity's own license check —
 # `error while loading shared libraries: libgtk-3.so.0: cannot open
 # shared object file: No such file or directory`. Installing the
-# package below is the only apt dependency this repeatedly reproduced;
-# once present, the Editor reaches "No valid Unity Editor license
-# found" cleanly (both without any module and with `linux-il2cpp`
-# installed), so no other library is missing.
+# package below fixes that; once present, the Editor reaches "No valid
+# Unity Editor license found" cleanly (both without any module and with
+# `linux-il2cpp` installed). The Editor's .NET host also needs a system ICU
+# runtime, so `resolve_icu_package` below installs one as well. Other apt
+# dependencies may still be needed; see docs/unity.md's known open issues.
 #
 # The package providing `libgtk-3.so.0` was renamed for the 64-bit
 # `time_t` transition: `libgtk-3-0t64` on 24.04+, still `libgtk-3-0` on
@@ -77,6 +78,21 @@ resolve_apt_package() {
     echo "Error: neither '$1' nor '$2' is a known apt package on this system (stale apt lists, or an unsupported Ubuntu release). Run 'sudo apt-get update' and retry, or file an issue if this release genuinely lacks both." >&2
     exit 1
   fi
+}
+
+# The Editor's .NET host loads the system ICU common library at startup. It
+# probes versions 80 down to 50, and without one the batch run stops with
+# "Couldn't find a valid ICU package installed on the system". The package
+# name carries the ICU version (libicu74 on 24.04, libicu78 on 26.04), so
+# take the newest libicuNN in that range that apt knows.
+resolve_icu_package() {
+  icu_package="$(apt-cache pkgnames libicu | grep -E '^libicu(5[0-9]|6[0-9]|7[0-9]|80)$' | sort -V | tail -n 1)"
+  if [ -z "$icu_package" ]
+  then
+    echo "Error: no libicuNN package from 50 to 80 is known to apt on this system (stale apt lists, or an unsupported Ubuntu release). Run 'sudo apt-get update' and retry." >&2
+    exit 1
+  fi
+  printf '%s' "$icu_package"
 }
 
 # `unity install --dry-run --json` output is parsed with grep/sed instead
@@ -510,9 +526,10 @@ fi
 # that check leaves no partial apt-level system change behind. It runs on
 # every real run, including when both Editors are already installed.
 unity_apt_package="$(resolve_apt_package libgtk-3-0t64 libgtk-3-0)"
-log "installing Editor runtime dependency (${unity_apt_package})..."
+unity_icu_package="$(resolve_icu_package)"
+log "installing Editor runtime dependencies (${unity_apt_package} ${unity_icu_package})..."
 sudo DEBIAN_FRONTEND=noninteractive apt-get install \
-  --no-install-recommends -y -qq "$unity_apt_package"
+  --no-install-recommends -y -qq "$unity_apt_package" "$unity_icu_package"
 
 converge_editor "general games" "$general_version" "" "$general_installed"
 converge_editor "VRChat" "$vrchat_version" "$VRCHAT_CHANGESET" "$vrchat_installed"

@@ -243,6 +243,15 @@ STUB
 write_stub apt-cache <<'STUB'
 #!/bin/sh
 printf 'apt-cache %s\n' "$*" >> "$STUB_LOG"
+if [ "$1" = pkgnames ]
+then
+  # Lists the ICU package names that apt would know, one per line.
+  for name in ${STUB_ICU_PACKAGES:-}
+  do
+    printf '%s\n' "$name"
+  done
+  exit 0
+fi
 [ "$2" = "libgtk-3-0t64" ]
 STUB
 
@@ -268,6 +277,7 @@ begin_case() {
   rm -f "$STUB_INSTALL_ROOT"/installed-* "$STUB_INSTALL_ROOT"/modules-*
   export STUB_INSTALLED="" STUB_GENERAL_RESOLVED="6000.3.10f1"
   export STUB_MISSING="" STUB_PROBE="" STUB_NO_FLAG="" STUB_LANG="en" STUB_LANG_FAIL="" STUB_MUTATING="ok" STUB_MODULES="ok" STUB_DF_GIB="100"
+  export STUB_ICU_PACKAGES="libicu78"
 }
 
 # Runs the script with the given arguments and keeps its status and output.
@@ -901,6 +911,49 @@ if [ -n "$(ls -A "$TMP_EMPTY")" ]
 then
   fail_check "the scratch directory was not removed after the interrupt"
 fi
+finish_case
+
+APT_LIBGTK="apt-get install --no-install-recommends -y -qq libgtk-3-0t64"
+
+begin_case "ICU runtime: one apt call names libgtk, then the newest ICU version offered"
+STUB_ICU_PACKAGES="libicu74 libicu78"
+run_script
+expect_status 0
+expect_call "$APT_LIBGTK libicu78"
+finish_case
+
+begin_case "ICU runtime: a release that offers only libicu74 installs libicu74"
+STUB_ICU_PACKAGES="libicu74"
+run_script
+expect_status 0
+expect_call "$APT_LIBGTK libicu74"
+finish_case
+
+begin_case "ICU runtime: names that are not libicuNN and versions above 80 are ignored"
+STUB_ICU_PACKAGES="libicu-dev libicu4j-java libicu78 libicu80 libicu81"
+run_script
+expect_status 0
+expect_call "$APT_LIBGTK libicu80"
+expect_no_call "libicu81"
+expect_no_call "libicu-dev"
+expect_no_call "libicu4j"
+finish_case
+
+begin_case "ICU runtime: no package in range fails before any apt install"
+STUB_ICU_PACKAGES="libicu81"
+run_script
+expect_status 1
+expect_output "apt-get update"
+expect_no_call "apt-get install"
+expect_no_mutating_install
+finish_case
+
+begin_case "ICU runtime: an empty pkgnames answer fails before any apt install"
+STUB_ICU_PACKAGES=""
+run_script
+expect_status 1
+expect_output "apt-get update"
+expect_no_call "apt-get install"
 finish_case
 
 if [ -e typescript ]
